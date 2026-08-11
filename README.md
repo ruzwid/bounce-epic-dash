@@ -302,3 +302,53 @@ other platforms.
   input) or, in an unlikely worst case, get flagged `template_only` when it
   actually had content. Worth spot-checking `data/pending/<date>.json` if a
   repo's PRs consistently show `bodySignal: "template_only"`.
+
+---
+
+# Dashboard UI
+
+The public status page. Fully static — reads `data/snapshots/*.json` at
+**build time** via `import.meta.glob` (no server function, no runtime
+fetch), so the whole site is prerendered HTML.
+
+## Routes
+
+- `/` — the latest snapshot.
+- `/<date>` (e.g. `/2026-08-11`) — a specific snapshot, same layout.
+  Unknown dates 404 with a link back to the latest.
+- Feature anchors (`#f1-1`, `#m3-m4`, …) are linkable and scroll into view
+  on load.
+
+## Local development
+
+```bash
+pnpm dev
+```
+
+## Production build
+
+```bash
+pnpm build
+```
+
+Runs the Vite client + SSR build, then prerenders `/` and one page per
+snapshot in `data/snapshots/`. `vite.config.ts` computes that page list
+with a synchronous `fs.readdirSync` at config-eval time (not a runtime
+read) — if you add a new snapshot date, it's picked up automatically on
+the next build.
+
+## Design system
+
+`src/components/dashboard/` is a small, consistently-used component
+library (status pill, progress bar, KPI stat, feature card, callout,
+empty state, …) — every page section is built from these, no one-off
+styling. `src/lib/dashboard/` holds the pure, tested data-shaping logic
+(filtering, staleness, since-last-snapshot diffing, the Slack summary
+builder, the burn-up series) kept separate from rendering.
+
+Color is reserved entirely for the six subtask-status hues
+(shipped/staged/in_review/in_progress/blocked/todo, defined in
+`src/styles.css`) — all interface chrome (buttons, links, borders, focus
+rings) is achromatic, so status color never competes with anything else
+on the page. `Stage` pills reuse the same six hues rather than a seventh
+palette (see the mapping comment in `src/lib/dashboard/statusLabels.ts`).

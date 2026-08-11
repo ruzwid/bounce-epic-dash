@@ -6,12 +6,6 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
-    },
-    {
-      "name": "mockup-viewer",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8917", "--directory", "/private/tmp/claude-501/-Users-ruzzelwidjaja-personal-bounce-epic-dash/86052a3a-54a5-4342-bc2c-3f2c8c3ae11b/scratchpad"],
-      "port": 8917
     }
   ]
 }
