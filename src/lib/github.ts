@@ -61,6 +61,10 @@ type PrNode = {
   mergedAt: string | null;
   updatedAt: string;
   createdAt: string;
+  /** Always fetched — PR descriptions are the primary AC-coverage
+   *  evidence at this org (see src/lib/prbody.ts). null when a PR has no
+   *  description at all. */
+  body: string | null;
   reviewRequests: { nodes: Array<{ requestedReviewer: { login?: string } | null }> };
   files: { nodes: Array<{ path: string }> };
 };
@@ -80,6 +84,7 @@ const PR_PAGE_QUERY = `
           mergedAt
           updatedAt
           createdAt
+          body
           reviewRequests(first: 20) {
             nodes {
               requestedReviewer {
@@ -107,6 +112,7 @@ function toRawPr(repo: string, node: PrNode): RawPr {
     headRefName: node.headRefName,
     mergedAt: node.mergedAt,
     updatedAt: node.updatedAt,
+    body: node.body,
     reviewRequests: node.reviewRequests.nodes
       .map((r) => r.requestedReviewer?.login)
       .filter((login): login is string => Boolean(login)),

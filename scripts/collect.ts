@@ -20,6 +20,7 @@ import { loadConfig, logicalDate } from "../src/lib/config.ts";
 import type { Config, MilestoneFeature } from "../src/lib/config-schema.ts";
 import { getDefaultBranch, getRepoPrs } from "../src/lib/github.ts";
 import { writeJsonAtomic } from "../src/lib/io.ts";
+import { cleanPrBody } from "../src/lib/prbody.ts";
 import { getIssue, searchSubtasks, type RawJiraIssue } from "../src/lib/jira.ts";
 import { computeScore, deriveStage, type ScoreBasis } from "../src/lib/score.ts";
 import type { z } from "zod";
@@ -62,6 +63,10 @@ export type RawPrRecord = {
   stackChain: number[];
   reviewRequests: string[];
   filesTouched: string[];
+  /** Raw, uncleaned PR description — full fidelity, raw.json only. Never
+   *  written to pending.json as-is (see toPending's cleanPrBody call) and
+   *  never reaches a snapshot (schema.ts's PrRef has no body field). */
+  body: string | null;
 };
 
 export type RawSubtask = {
@@ -139,6 +144,7 @@ function toPrRecord(pr: RawPr, org: string, defaultBranch: string, allPrsInRepo:
     stackChain: traceStackChain(pr, allPrsInRepo, defaultBranch),
     reviewRequests: pr.reviewRequests,
     filesTouched: pr.filesTouched,
+    body: pr.body,
   };
 }
 
@@ -422,7 +428,18 @@ export type PendingFeature = {
   releaseGateStatus: "open" | "merged" | "not_found" | null;
   acBullets: { id: string; text: string }[];
   subtasks: { key: string; summary: string; status: SubtaskStatus }[];
-  prs: { ref: string; title: string; state: string; filesTouched: string[] }[];
+  prs: {
+    ref: string;
+    title: string;
+    state: string;
+    filesTouched: string[];
+    /** Cleaned PR description — the primary AC-coverage evidence for the
+     *  judge. Always present (not conditional), null when cleaning left
+     *  nothing substantive (see bodySignal). */
+    body: string | null;
+    bodyTruncated: boolean;
+    bodySignal: "template_only" | null;
+  }[];
   dataOk: boolean;
 };
 
@@ -442,7 +459,7 @@ export type RawFile = {
   collectionErrors: CollectionError[];
 };
 
-function toPending(feature: RawFeature): PendingFeature {
+export function toPending(feature: RawFeature): PendingFeature {
   const prs = feature.subtasks.flatMap((s) => s.prs);
   return {
     key: feature.key,
@@ -457,7 +474,18 @@ function toPending(feature: RawFeature): PendingFeature {
     releaseGateStatus: feature.releaseGate?.status ?? null,
     acBullets: feature.acBullets,
     subtasks: feature.subtasks.map((s) => ({ key: s.key, summary: s.summary, status: s.status })),
-    prs: prs.map((p) => ({ ref: `${p.repo}#${p.number}`, title: p.title, state: p.state, filesTouched: p.filesTouched })),
+    prs: prs.map((p) => {
+      const cleaned = cleanPrBody(p.body);
+      return {
+        ref: `${p.repo}#${p.number}`,
+        title: p.title,
+        state: p.state,
+        filesTouched: p.filesTouched,
+        body: cleaned.body,
+        bodyTruncated: cleaned.bodyTruncated,
+        bodySignal: cleaned.bodySignal,
+      };
+    }),
     dataOk: feature.dataOk,
   };
 }

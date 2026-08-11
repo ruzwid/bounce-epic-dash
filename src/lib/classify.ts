@@ -26,6 +26,12 @@ export type RawPr = {
   reviewRequests: string[];
   /** never published: kept in raw.json only */
   filesTouched: string[];
+  /** raw, uncleaned PR description. Never published as-is — collect.ts
+   *  runs this through src/lib/prbody.ts's cleanPrBody before it reaches
+   *  pending.json, and merge.ts never carries it into a snapshot at all
+   *  (schema.ts's PrRef has no body field). Kept here uncleaned because
+   *  raw.json is full-fidelity by design. */
+  body: string | null;
 };
 
 export type ReleaseGateResult = {
