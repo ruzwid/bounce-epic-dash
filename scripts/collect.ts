@@ -253,6 +253,12 @@ export async function collectFeature(
     (text, i) => ({ id: `ac-${i + 1}`, text }),
   );
 
+  // Prefer the live JIRA summary over config's fallback title, so
+  // config.yaml doesn't have to duplicate (and go stale on) ticket titles.
+  const liveTitle = (parentIssue.fields as Record<string, unknown>).summary;
+  const resolvedTarget: FeatureTarget =
+    typeof liveTitle === "string" && liveTitle.length > 0 ? { ...target, title: liveTitle } : target;
+
   let defaultBranchByRepo: Record<string, string> = {};
   let prsByRepo: Record<string, RawPr[]> = {};
   try {
@@ -284,7 +290,7 @@ export async function collectFeature(
     }));
     return {
       feature: buildRawFeature({
-        target,
+        target: resolvedTarget,
         subtasks,
         acBullets,
         releaseGate: null,
@@ -342,7 +348,7 @@ export async function collectFeature(
 
   return {
     feature: buildRawFeature({
-      target,
+      target: resolvedTarget,
       subtasks,
       acBullets,
       releaseGate,
