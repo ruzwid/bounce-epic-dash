@@ -1,0 +1,1698 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-11",
+  "generatedAt": "2026-08-11T21:29:37.272Z",
+  "epic": {
+    "key": "BOUN-11204",
+    "title": "WPP at Scale",
+    "targetDate": null
+  },
+  "headline": {
+    "featuresWithNothingOnMaster": 6,
+    "totalFeatures": 14,
+    "sentence": "6 of 14 feature(s) have nothing shipped to the default branch yet."
+  },
+  "kpis": {
+    "featuresTracked": 14,
+    "lightTierMilestones": 2,
+    "subtasksTracked": 47,
+    "shipped": 37,
+    "staged": 0,
+    "inReview": 1,
+    "blockedOrTodo": 8
+  },
+  "features": [
+    {
+      "key": "BOUN-11207",
+      "code": "F1.1",
+      "title": "F1.1 — Excel Template & Survey Compatibility",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Ruzzell",
+      "repos": [
+        "dashboard"
+      ],
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 5,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 5
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "All five subtasks have shipped to master, with two confirmed by merged PRs; none of this feature's work is staged.",
+      "daysSinceLastActivity": 13,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Validation checks the template's demographic questions against the questions Excel before survey creation",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11314",
+            "dashboard#3820"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Survey creation proceeds once demographic questions align",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11321",
+            "dashboard#3820"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "Survey creation is blocked on a demographic-question mismatch until resolved",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11312",
+            "BOUN-11313"
+          ]
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11312",
+          "summary": "Survey Validation Script",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Ruzzell Widjaja",
+          "updatedAt": "2026-07-29T16:06:34.943Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11313",
+          "summary": "Survey Validation UTs",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Ruzzell Widjaja",
+          "updatedAt": "2026-07-29T16:06:38.401Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11314",
+          "summary": "Add survey validation step in wpp generation",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Ruzzell Widjaja",
+          "updatedAt": "2026-07-29T16:06:39.876Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3806,
+              "title": "[BOUN-11314] - Add survey validation step in wpp generation",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3806",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11314",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-28T16:04:36Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11321",
+          "summary": "Validation step E2Es",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Ruzzell Widjaja",
+          "updatedAt": "2026-07-29T16:06:41.225Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3820,
+              "title": "[BOUN-11321] - Validation step E2Es",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3820",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11321",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T13:34:28Z",
+              "updatedAt": "2026-07-29T13:34:28Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11342",
+          "summary": "Fix duplicate respondent bug in backfill script & restore buckets & userKeymaps",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Ruzzell Widjaja",
+          "updatedAt": "2026-07-27T07:34:25.969Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11208",
+      "code": "F1.2",
+      "title": "F1.2 — Mass Survey Actions",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Vivek",
+      "repos": [
+        "dashboard"
+      ],
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 9,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 9
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "All nine subtasks are Done in JIRA, but none has a linked PR in the tracked repo, so shipment relies on JIRA status alone rather than direct GitHub confirmation.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Bulk move of selected surveys to a chosen status",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11284"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Bulk bucket reset that only touches open/available buckets",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11289"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "Bulk rename applying one name to every selected survey",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11285"
+          ]
+        },
+        {
+          "id": "ac-4",
+          "label": "Per-survey individual rename within the same bulk flow",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11285"
+          ]
+        },
+        {
+          "id": "ac-5",
+          "label": "Bulk toggle of Research Defender and survey resume across selections",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11286",
+            "BOUN-11287"
+          ]
+        },
+        {
+          "id": "ac-6",
+          "label": "Per-survey error surfacing when a bulk action can't be applied",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11284",
+          "summary": "Move multiple selected surveys to a new status",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "vivek.murarka",
+          "updatedAt": "2026-07-29T16:21:39.952Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11285",
+          "summary": "Set external survey name across selections (same-for-all or per-survey)",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-07-31T14:14:40.560Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11286",
+          "summary": "Enable/disable Research Defender across selected surveys",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "vivek.murarka",
+          "updatedAt": "2026-07-31T14:35:38.775Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11287",
+          "summary": "Enable/disable survey resume across selected surveys",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "vivek.murarka",
+          "updatedAt": "2026-07-31T15:23:22.217Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11288",
+          "summary": "Set red herrings and estimated answerable-questions value across selected surveys",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-07-31T13:14:19.105Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11289",
+          "summary": "Reset targeting buckets to 0 users-in-progress across selected surveys (open/available buckets only)",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-08-05T11:22:59.908Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11379",
+          "summary": "Move survey Live in bulk action",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "vivek.murarka",
+          "updatedAt": "2026-07-30T14:22:32.386Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11453",
+          "summary": "Centre mass-action toolbar icons",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-08-06T12:02:46.817Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11476",
+          "summary": "Swap mass-action toolbar icons to Ant Design icons",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-08-06T15:10:28.162Z",
+          "prs": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "drift",
+          "severity": "info",
+          "message": "JIRA shows all nine subtasks Done, but no PR in the tracked repo is linked to confirm shipment to master.",
+          "refs": []
+        }
+      ],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11209",
+      "code": "F1.3",
+      "title": "F1.3 — Targeting Bucket Filters & Bulk Actions",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Tomer",
+      "repos": [
+        "dashboard"
+      ],
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 1,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "low",
+      "rationale": "The single linked subtask is a labels/copy polish task; nothing in the tracked data references whether the underlying bucket-filter and bulk-action logic in the AC bullets was actually built.",
+      "daysSinceLastActivity": 11,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Selecting one targeting value auto-checks every matching available bucket",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Two values in the same facet union their matching buckets",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Values across two facets intersect to narrow the match",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Bulk actions apply only to checked buckets",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-5",
+          "label": "Clear resets both filters and checkbox selections",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-6",
+          "label": "Additional balance criteria beyond gender/age appear as filterable facets",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11400",
+          "summary": "Polish bucket filter criteria labels and copy",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-07-31T14:48:39.990Z",
+          "prs": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "spec_gap",
+          "severity": "warn",
+          "message": "The AC bullets describe bucket filter and bulk-action logic, but the only linked subtask is a labels/copy polish — no ticket or PR references the underlying behavior.",
+          "refs": [
+            "BOUN-11400"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11210",
+      "code": "F1.4",
+      "title": "F1.4 — External Panels",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Tomer",
+      "repos": [
+        "dashboard"
+      ],
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 5,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 5
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "Five subtasks are Done covering the bulk external-panel UI and its utilities, but none specifically references the PureSpectrumQual/Walr Quality provider-specific export and locale behaviors in the AC.",
+      "daysSinceLastActivity": 4,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "No provider-specific fields shown before a panel is chosen",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11332"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "PureSpectrumQual export strips respondentId with a well-formed query string",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "PureSpectrumQual hash only touches complete/quality/dedupe links",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Walr Quality code replaces the entry link's respondentId",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-5",
+          "label": "Locale code appended correctly with a single separator",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-6",
+          "label": "Bulk-applied panel settings reflect in the individual survey view",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11318",
+            "BOUN-11452"
+          ]
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11318",
+          "summary": "Remount External Panels bulk action onto F1.2 bar",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-08-05T08:44:59.146Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11330",
+          "summary": "Babel/Jest: drop legacy presets for unit tests",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-07-29T10:59:48.210Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11331",
+          "summary": "externalPanelBulk utils and unit tests",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-07-31T08:25:36.306Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11332",
+          "summary": "Bulk External Panel Links UI and Cypress",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-07-31T10:32:22.520Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11452",
+          "summary": "External Panel Links product feedback (WalrWPP, persist/export, Apply keep-open)",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tomer Gelbhart",
+          "updatedAt": "2026-08-07T16:54:09.339Z",
+          "prs": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "spec_gap",
+          "severity": "warn",
+          "message": "Provider-specific export and locale behaviors (PureSpectrumQual, Walr Quality) aren't clearly referenced by any linked subtask.",
+          "refs": [
+            "BOUN-11332"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11211",
+      "code": "F1.5",
+      "title": "F1.5 — Field Monitoring Reporting",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Emad",
+      "repos": [
+        "dashboard"
+      ],
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 5,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 5
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "All five subtasks are Done and map closely to the AC bullets (rollups, day-on-day report, grade/region quotas), though no PR is linked to independently confirm shipment to master.",
+      "daysSinceLastActivity": 7,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "An all-cells rollup is populated on every quota table row",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11317"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Day-on-day completes report with overall and per-cell figures",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11303"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "Report reflects social grade / region quota dimensions where required",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11295"
+          ]
+        },
+        {
+          "id": "ac-4",
+          "label": "Non-nested quota targets are sourced from the setup page, not invented",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11273"
+          ]
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11251",
+          "summary": "F1.5.1 - Consolidate Multiple Excel Files into a Single Workbook with Separate Sheets",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Emad Nazzal",
+          "updatedAt": "2026-07-27T15:10:02.924Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11273",
+          "summary": "F1.5.2 - Retire/Delete Multiple Excel columns and add/replace with new ones + Extra featue: Add professional themes",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Emad Nazzal",
+          "updatedAt": "2026-07-27T15:10:05.695Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11295",
+          "summary": "F1.5.3 - Wire Grade and Region Mapping to Quotas Sheet (constraints detected for mutlipe market mappings ) ",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Emad Nazzal",
+          "updatedAt": "2026-07-27T15:10:08.832Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11303",
+          "summary": "F1.5.4 - Implement the \"Day on Day Completes\" sheet (cumulative completes tracker)",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Emad Nazzal",
+          "updatedAt": "2026-07-27T15:10:11.828Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11317",
+          "summary": "F1.5.5 - WPP Reports (Metrics, Quotas, and Day-to-Day ) at Scale",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Emad Nazzal",
+          "updatedAt": "2026-08-04T09:35:47.228Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11291",
+      "code": "F3.1",
+      "title": "F3.1 — Platform Foundation (fieldwork-api)",
+      "milestone": "M3",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-processing"
+      ],
+      "stage": "early",
+      "score": 15,
+      "scoreBasis": {
+        "shipped": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 1,
+        "blocked": 0,
+        "todo": 0,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "low",
+      "rationale": "The milestone ticket itself is In Progress with no subtasks created yet and no linked PRs — nothing references the CI, gateway auth, registry, or integration-suite work described in the AC.",
+      "daysSinceLastActivity": 7,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "CI enforces build/lint/tests and layer-boundary restrictions",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Gateway rejects requests without a valid, correctly-scoped auth token",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Cell registry reader matches seed data; refresh endpoint requires admin scope",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Repository implementations are exercised against real emulators, including redelivery idempotency",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11291",
+          "summary": "F3.1 — Platform Foundation (fieldwork-api)",
+          "jiraStatus": "In Progress",
+          "status": "in_progress",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-04T16:12:09.290Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11292",
+      "code": "F3.2",
+      "title": "F3.2 — Endpoint Migration: QC, Exports, Monitoring (fieldwork-api)",
+      "milestone": "M3",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-processing"
+      ],
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "low",
+      "rationale": "The milestone ticket itself is To Do with no subtasks or PRs yet — nothing references this endpoint-migration work.",
+      "daysSinceLastActivity": 12,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Moved endpoints produce byte/structurally identical output to the old ones",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Exactly-once job processing under crash/redelivery",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Admin-only routes reject non-admin tokens",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Downloads re-check auth and stream via presigned URL, never local disk",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11292",
+          "summary": "F3.2 — Endpoint Migration: QC, Exports, Monitoring (fieldwork-api)",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-07-30T16:19:24.067Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11293",
+      "code": "F3.3",
+      "title": "F3.3 — Dashboard Metrics ",
+      "milestone": "M3",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-processing"
+      ],
+      "stage": "nearly_done",
+      "score": 75,
+      "scoreBasis": {
+        "shipped": 10,
+        "staged": 0,
+        "inReview": 1,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 3,
+        "total": 14
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "10 of 14 subtasks have shipped to fieldwork-processing's master via 11 merged PRs; one QC-porting subtask is in review and three (export builders, the scheduling state machine, and the e2e harness) remain todo — none of this is staged, so the gap to 100% is unstarted or in-review work, not merged-but-unshipped work.",
+      "daysSinceLastActivity": 0,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Dashboard reads a per-market snapshot object instead of fanning out to the database",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11411",
+            "BOUN-11442",
+            "fieldwork-processing#20"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "A failed compute preserves the last-known-good snapshot, badged stale, with an age alarm",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11444"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "Writes are guarded against overwriting a newer snapshot",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Snapshot document is schema-validated, versioned, and free of respondent-level data",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11411",
+            "fieldwork-processing#8"
+          ]
+        },
+        {
+          "id": "ac-5",
+          "label": "A QC failure blocks the metrics compute for that cycle (fail-closed)",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11412",
+            "BOUN-11441"
+          ]
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11410",
+          "summary": "Add domain core: error hierarchy and fieldwork contracts",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T09:25:22.210Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 7,
+              "title": "[BOUN-11410] - Scaffold 1/6: domain core (errors, fieldwork contracts)",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/7",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11410",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-05T16:21:46Z",
+              "updatedAt": "2026-08-05T16:21:46Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "EmadNazzal"
+              ],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11411",
+          "summary": "Add metrics domain: snapshot schema and pure aggregation",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T09:25:24.501Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 8,
+              "title": "[BOUN-11411] - Scaffold 2/6: metrics domain (snapshot schema + aggregation)",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/8",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11411",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-06T09:03:33Z",
+              "updatedAt": "2026-08-06T09:03:33Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11412",
+          "summary": "Add quality-control domain: contracts and method shells",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T08:33:08.545Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 9,
+              "title": "[BOUN-11412] - Scaffold 3/6: quality-control domain (contracts + method shells)",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/9",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11412",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T08:25:44Z",
+              "updatedAt": "2026-08-07T08:25:44Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11413",
+          "summary": "Add export domain and infrastructure plumbing",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T09:25:25.889Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 10,
+              "title": "[BOUN-11413] - Scaffold 4/6: export domain + infrastructure plumbing",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/10",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11413",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T08:26:17Z",
+              "updatedAt": "2026-08-07T08:26:17Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11414",
+          "summary": "Add Firestore and S3 repositories with emulator test harness",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T08:33:09.473Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 11,
+              "title": "[BOUN-11414] - Scaffold 5/6: repositories + emulator harness",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/11",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11414",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T08:26:45Z",
+              "updatedAt": "2026-08-07T08:26:45Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11415",
+          "summary": "Add workflow task handlers and SAM template",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T12:01:26.711Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 12,
+              "title": "[BOUN-11415] - Scaffold 6/6: handlers + SAM template",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/12",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11415",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T12:00:29Z",
+              "updatedAt": "2026-08-07T12:00:29Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "gelbh"
+              ],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11440",
+          "summary": "Implement discover task: resolve markets and projects from wppBrand attributes",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T12:02:03.874Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 14,
+              "title": "[BOUN-11440] - Implement discover task: resolve markets and projects from wppBrand attributes",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/14",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11440",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T12:01:53Z",
+              "updatedAt": "2026-08-07T12:01:53Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11441",
+          "summary": "Port QC runner and method implementations into the quality-control worker",
+          "jiraStatus": "Code Review",
+          "status": "in_review",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-11T15:31:46.339Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11442",
+          "summary": "Implement metrics facts processor and snapshot compute/publish",
+          "jiraStatus": "Code Review",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-06T14:12:54.071Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 22,
+              "title": "Add WPP emulator datasets and equivalence testing",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/22",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11442-with-wpp-emulator-data",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-11T15:27:18Z",
+              "updatedAt": "2026-08-11T15:27:19Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "fieldwork-processing",
+              "number": 20,
+              "title": "[BOUN-11442] - Implement metrics facts processor and snapshot compute/publish",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/20",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11442",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-11T15:26:43Z",
+              "updatedAt": "2026-08-11T15:26:43Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "EmadNazzal",
+                "VivekMurarkaIndIre"
+              ],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11443",
+          "summary": "Port export builders into the exports worker",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-06T14:07:35.562Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11444",
+          "summary": "Add hourly Step Functions state machine, EventBridge schedule, and alarms",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-06T09:11:47.262Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11451",
+          "summary": "Add integration tests to CI pipeline",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T14:08:30.154Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 17,
+              "title": "[BOUN-11451] - Add integration tests to CI pipeline",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/17",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11451",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T14:08:09Z",
+              "updatedAt": "2026-08-07T14:08:09Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11454",
+          "summary": "Add end-to-end pipeline integration test harness",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-05T15:48:25.834Z",
+          "prs": []
+        },
+        {
+          "key": "BOUN-11463",
+          "summary": "Implement Firestore/RTDB reader repositories for metrics and discovery",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-07T14:57:26.719Z",
+          "prs": [
+            {
+              "repo": "fieldwork-processing",
+              "number": 19,
+              "title": "[BOUN-11463] - Implement Firestore/RTDB reader repositories for metrics and discovery",
+              "url": "https://github.com/bounceinsights/fieldwork-processing/pull/19",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11463",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T14:57:09Z",
+              "updatedAt": "2026-08-07T14:57:09Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "gelbh"
+              ],
+              "filesTouched": []
+            }
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "type": "drift",
+          "severity": "info",
+          "message": "The remaining gap to 100% is three todo subtasks (export builders, the alarms/schedule state machine, and the e2e harness) plus one in-review QC port — not staged work.",
+          "refs": [
+            "BOUN-11443",
+            "BOUN-11444",
+            "BOUN-11454",
+            "BOUN-11441"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11294",
+      "code": "F3.4",
+      "title": "F3.4 — Cutover & Decommission (fieldwork-api)",
+      "milestone": "M3",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-processing"
+      ],
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "low",
+      "rationale": "The milestone ticket itself is To Do with no subtasks or PRs yet — nothing references the cutover/decommission work.",
+      "daysSinceLastActivity": 15,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Cutover routes all WPP traffic to fieldwork-api without a regression in errors",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Old routes and mounts are removed once parity is confirmed",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "dashboard-api's own survey/sourceCells logic keeps working after cleanup",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "The one-off migration endpoint is deleted, not carried forward",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11294",
+          "summary": "F3.4 — Cutover & Decommission (fieldwork-api)",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-07-27T09:42:41.281Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11465",
+      "code": "F4.1",
+      "title": "F4.1 — Dashboard",
+      "milestone": "M4",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-dashboard"
+      ],
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 1,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "The feature ticket had no subtasks, but a merged PR directly referencing this ticket key builds the dashboard app described in the AC — this has shipped to master even though JIRA still shows the ticket in Code Review.",
+      "daysSinceLastActivity": 0,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "A standalone app typed against the versioned snapshot schema, with a clear state for unknown versions",
+          "coverage": "covered",
+          "evidence": [
+            "fieldwork-dashboard#1"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Clean, minimal UI with bold labels",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Polls the latest snapshot on an interval rather than querying the database directly",
+          "coverage": "covered",
+          "evidence": [
+            "fieldwork-dashboard#1"
+          ]
+        },
+        {
+          "id": "ac-4",
+          "label": "Market overview renders the full set of v1 content blocks",
+          "coverage": "partial",
+          "evidence": [
+            "fieldwork-dashboard#1"
+          ]
+        },
+        {
+          "id": "ac-5",
+          "label": "Derived values are computed client-side, not stored in the snapshot",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-6",
+          "label": "Works against demo-QC snapshots so UI work isn't blocked on the QC port",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-7",
+          "label": "Unit and fixture-driven component tests cover the derived-value logic",
+          "coverage": "covered",
+          "evidence": [
+            "fieldwork-dashboard#1"
+          ]
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11465",
+          "summary": "F4.1 — Dashboard",
+          "jiraStatus": "Code Review",
+          "status": "shipped",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-10T15:43:18.912Z",
+          "prs": [
+            {
+              "repo": "fieldwork-dashboard",
+              "number": 1,
+              "title": "[BOUN-11465] - Fieldwork Command Centre dashboard",
+              "url": "https://github.com/bounceinsights/fieldwork-dashboard/pull/1",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "main",
+              "headRef": "BOUN-11465",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-11T10:37:45Z",
+              "updatedAt": "2026-08-11T10:37:45Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "type": "drift",
+          "severity": "info",
+          "message": "JIRA still shows this ticket in Code Review, but a merged PR directly referencing it has already landed on fieldwork-dashboard's master.",
+          "refs": [
+            "fieldwork-dashboard#1"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11466",
+      "code": "F4.2",
+      "title": "F4.2 — Dashboard hosting, CDN & access control",
+      "milestone": "M4",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-dashboard"
+      ],
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "low",
+      "rationale": "The feature ticket is To Do with no subtasks or PRs yet — nothing references the hosting/CDN/access-control work.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Static assets and the snapshot JSON share one private, CloudFront-fronted origin",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Long-lived caching for hashed assets, short TTL for the latest snapshot",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "An access-control approach is chosen, implemented, and documented",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Infra ownership split between Terraform (stateful) and SAM",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-5",
+          "label": "A runbook entry documents invalidation and freshness verification",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11466",
+          "summary": "F4.2 — Dashboard hosting, CDN & access control",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-06T11:26:00.807Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11467",
+      "code": "F4.3",
+      "title": "F4.3 — Per-cell drill-down views",
+      "milestone": "M4",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-dashboard"
+      ],
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "low",
+      "rationale": "The feature ticket is To Do with no subtasks or PRs yet — nothing references the per-cell drill-down work.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Drill-down opens from the market overview using the same snapshot document, no extra requests",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Drill-down shows the cell's funnel, quota fill, grade/region tallies, QC counts, and LOI medians",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Cells needing attention are visually flagged against agreed thresholds",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "A drill-down view is deep-linkable by market and cell",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-5",
+          "label": "Component tests share the fixture snapshot used by the market overview",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11467",
+          "summary": "F4.3 — Per-cell drill-down views",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-06T11:26:19.236Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11468",
+      "code": "F4.4",
+      "title": "F4.4 — Staleness badging & data-status UX",
+      "milestone": "M4",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-dashboard"
+      ],
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "low",
+      "rationale": "The feature ticket is To Do with no subtasks or PRs yet — nothing references the staleness-badging work.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "A visible last-sync timestamp appears on every view",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "A stale-flagged snapshot shows a degraded-data banner while keeping the last-known-good data visible",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "A silently-old snapshot (past the alarm window) triggers the same banner client-side",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Date-derived panels stay hidden, not zero-filled, until real field dates exist",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-5",
+          "label": "Demo-QC panels carry a clear marker distinguishing them from real data",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-6",
+          "label": "A failed poll keeps the last data visible with a connection-lost indicator",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-7",
+          "label": "Component tests cover each data-freshness state",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "subtasks": [
+        {
+          "key": "BOUN-11468",
+          "summary": "F4.4 — Staleness badging & data-status UX",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Tony Casey",
+          "updatedAt": "2026-08-06T11:26:32.153Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-11516",
+      "code": "DF4.1.1",
+      "title": "DF 4.1.1 Dashboard app improvments",
+      "milestone": "M4",
+      "tier": "light",
+      "owner": "Tony",
+      "repos": [
+        "fieldwork-dashboard"
+      ],
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 1,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "This ticket doesn't match the F#.# feature-code pattern and has no acceptance criteria recorded, but a merged PR referencing it shows real shipped work (swapping which markets the dashboard covers).",
+      "daysSinceLastActivity": 0,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [],
+      "subtasks": [
+        {
+          "key": "BOUN-11516",
+          "summary": "DF 4.1.1 Dashboard app improvments",
+          "jiraStatus": "In Progress",
+          "status": "shipped",
+          "assignee": null,
+          "updatedAt": "2026-08-11T14:10:37.537Z",
+          "prs": [
+            {
+              "repo": "fieldwork-dashboard",
+              "number": 2,
+              "title": "[BOUN-11516] - Replace Germany with Italy and Saudi Arabia",
+              "url": "https://github.com/bounceinsights/fieldwork-dashboard/pull/2",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "main",
+              "headRef": "BOUN-11516",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-11T14:38:06Z",
+              "updatedAt": "2026-08-11T14:38:07Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    }
+  ],
+  "reviewQueue": [],
+  "collectionErrors": []
+}
