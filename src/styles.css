@@ -262,11 +262,17 @@ code {
     padding: 0.25rem 0 !important;
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     gap: 1rem;
     text-align: right;
   }
+  .responsive-table td > * {
+    min-width: 0;
+  }
   .responsive-table td[data-label]::before {
     content: attr(data-label);
+    flex-shrink: 0;
+    white-space: nowrap;
     font-weight: 600;
     text-align: left;
     color: var(--muted-foreground);
