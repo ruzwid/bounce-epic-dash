@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { computeChanges } from "../../src/lib/dashboard/diff.ts";
+import { computeChanges, formatSinceLabel } from "../../src/lib/dashboard/diff.ts";
 import { StatusSnapshot } from "../../src/lib/schema.ts";
 
 const FIXTURES = new URL("./fixtures/snapshots/", import.meta.url);
@@ -49,5 +49,20 @@ describe("computeChanges", () => {
   it("produces no 'newly_staged' item here (nothing newly flipped to staged in the fixtures)", () => {
     const changes = computeChanges(current, previous);
     expect(changes.filter((c) => c.kind === "newly_staged")).toHaveLength(0);
+  });
+});
+
+describe("formatSinceLabel", () => {
+  it("names a one-day gap 'since yesterday'", () => {
+    expect(formatSinceLabel("2026-08-10", "2026-08-11")).toBe("since yesterday");
+  });
+
+  it("names a short gap by weekday", () => {
+    // 2026-08-07 is a Friday.
+    expect(formatSinceLabel("2026-08-07", "2026-08-11")).toBe("since Friday");
+  });
+
+  it("falls back to the date for a long gap", () => {
+    expect(formatSinceLabel("2026-07-01", "2026-08-11")).toBe("since 2026-07-01");
   });
 });

@@ -1,5 +1,6 @@
 import {
   HeadContent,
+  Link,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
@@ -39,6 +40,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
+  notFoundComponent: () => (
+    <main className="page-wrap flex flex-col gap-3 py-10">
+      <p className="m-0 text-lg">Page not found.</p>
+      <Link to="/" className="underline">
+        Back to the latest snapshot
+      </Link>
+    </main>
+  ),
   shellComponent: RootDocument,
 })
 

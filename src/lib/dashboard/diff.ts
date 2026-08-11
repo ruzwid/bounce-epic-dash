@@ -23,6 +23,20 @@ function findSubtask(feature: FeatureT | undefined, key: string): SubtaskT | und
   return feature?.subtasks.find((s) => s.key === key);
 }
 
+/** "since yesterday" / "since Friday" / "since 2026-07-28" — names the
+ *  real gap between two snapshot dates rather than a hardcoded word. */
+export function formatSinceLabel(previousDate: string, currentDate: string): string {
+  const prev = new Date(`${previousDate}T00:00:00Z`);
+  const curr = new Date(`${currentDate}T00:00:00Z`);
+  const diffDays = Math.round((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 1) return "since yesterday";
+  if (diffDays > 1 && diffDays <= 6) {
+    return `since ${new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(prev)}`;
+  }
+  return `since ${previousDate}`;
+}
+
 export function computeChanges(current: StatusSnapshotT, previous: StatusSnapshotT | null): ChangeItem[] {
   if (!previous) return [];
 
