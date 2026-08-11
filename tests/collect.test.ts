@@ -120,4 +120,27 @@ describe("collectFeature", () => {
     expect(feature.subtasks[0]?.prs).toHaveLength(1);
     expect(feature.subtasks[0]?.prs[0]?.shippedToDefault).toBe(true);
   });
+
+  it("does not leak another feature's staged PR (same shared repo) into this feature's release gate", async () => {
+    // TEST-11 belongs to THIS feature and has nothing staged. TEST-99's PR
+    // lives in the same shared repo but belongs to an unrelated ticket —
+    // it must not make this feature look like it has a release gate.
+    const unrelatedStagedPr = makePr({
+      number: 50,
+      headRefName: "TEST-99-something-else",
+      baseRefName: "integration/other-team",
+      state: "MERGED",
+      mergedAt: "2026-01-05T00:00:00.000Z",
+      repo: "service-a",
+    });
+    const deps: Deps = {
+      searchSubtasks: vi.fn().mockResolvedValue([jiraIssue("TEST-11", "Done")]),
+      getIssue: vi.fn().mockResolvedValue({ key: "TEST-10", fields: { description: null } }),
+      getDefaultBranch: vi.fn().mockResolvedValue("master"),
+      getRepoPrs: vi.fn().mockResolvedValue([unrelatedStagedPr]),
+    };
+    const { feature } = await collectFeature(target(), CONFIG, NOW, deps);
+    expect(feature.subtasks[0]?.prs).toEqual([]); // TEST-99's PR isn't attributed to TEST-11
+    expect(feature.releaseGate).toBeNull(); // and must not leak into this feature's gate
+  });
 });

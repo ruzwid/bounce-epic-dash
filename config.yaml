@@ -1,0 +1,150 @@
+# Real config for the "WPP at Scale" epic. No secrets live here — those go
+# in .env.local (gitignored). See README.md for setup + the daily routine.
+#
+# Ticket keys, milestone/feature structure, and owner logins below were
+# discovered via read-only JIRA/GitHub API queries and confirmed with the
+# project owner. Items marked "PROVISIONAL" below are best-effort starting
+# points, not confirmed final — edit freely as the real repo/tier mapping
+# becomes clearer.
+
+epic:
+  key: BOUN-11204
+  title: "WPP at Scale"
+  startDate: 2026-07-07 # PR search floor
+  targetDate: null
+
+jira:
+  projectKey: BOUN
+  # Raw JIRA status name -> our SubtaskStatus. This is a base hint only —
+  # deriveSubtaskStatus (src/lib/classify.ts) upgrades/downgrades it using
+  # real GitHub PR state, so a stale "Done" without a shipped PR will not
+  # render as shipped. Unmapped status names fall back to "todo" with a
+  # console warning at collection time.
+  statusMap:
+    Done: shipped
+    "Code Review": in_review
+    "In Progress": in_progress
+    "To Do": todo
+    Blocked: blocked
+
+github:
+  org: bounceinsights
+
+timezone: Europe/Dublin
+
+scoreWeights:
+  shipped: 1.0
+  staged: 0.5
+  in_review: 0.3
+  in_progress: 0.15
+  blocked: 0
+  todo: 0
+
+milestones:
+  - id: M1
+    title: "Core Operational Efficiency"
+    tier: full
+    owner: ruzwid
+    ticket: BOUN-11205
+    repos: []
+    features:
+      # PROVISIONAL: all five features default to the one confirmed repo
+      # (dashboard). Per-feature repo usage varies in practice ("it really
+      # depends on the features... sometimes only 1, sometimes 5") — add
+      # more repos to a feature's list here as PRs turn out to live
+      # elsewhere; collect.ts attributes PRs to subtasks by ticket key in
+      # the branch/title, so listing an extra repo is always safe, just
+      # slower.
+      - key: BOUN-11207
+        code: "F1.1"
+        owner: ruzwid
+        repos: [dashboard]
+      - key: BOUN-11208
+        code: "F1.2"
+        owner: VivekMurarkaIndIre
+        repos: [dashboard]
+      - key: BOUN-11209
+        code: "F1.3"
+        owner: gelbh
+        repos: [dashboard]
+      - key: BOUN-11210
+        code: "F1.4"
+        owner: gelbh
+        repos: [dashboard]
+      - key: BOUN-11211
+        code: "F1.5"
+        owner: EmadNazzal
+        repos: [dashboard]
+
+  # M2 ("Expansion & Follow-On Builds", BOUN-11206) exists in JIRA but is
+  # intentionally excluded here: src/lib/schema.ts's Feature.milestone enum
+  # is M1/M3/M4 only, and that contract is not ours to change.
+
+  - id: M3
+    title: "WPP API Platform"
+    tier: light
+    owner: TonyCasey
+    ticket: BOUN-11290
+    repos: []
+    features:
+      # PROVISIONAL: fieldwork-processing, confirmed "for now" — the old
+      # fieldwork-api repo is archived, and F3.2/F3.4 literally describe
+      # migrating off it, so this is where that work is expected to land.
+      # Revisit if PRs turn out to still be filed elsewhere.
+      - key: BOUN-11291
+        code: "F3.1"
+        owner: TonyCasey
+        repos: [fieldwork-processing]
+      - key: BOUN-11292
+        code: "F3.2"
+        owner: TonyCasey
+        repos: [fieldwork-processing]
+      - key: BOUN-11293
+        code: "F3.3"
+        owner: TonyCasey
+        repos: [fieldwork-processing]
+      - key: BOUN-11294
+        code: "F3.4"
+        owner: TonyCasey
+        repos: [fieldwork-processing]
+
+  - id: M4
+    title: "WPP Dashboard"
+    # PROVISIONAL: inferred "light" from the Tony Casey / M3 ownership
+    # pattern — not explicitly stated anywhere. Easy to flip to "full".
+    tier: light
+    owner: TonyCasey
+    ticket: BOUN-11248
+    repos: []
+    features:
+      # PROVISIONAL repo, same caveat as M1: could span more than one repo.
+      - key: BOUN-11465
+        code: "F4.1"
+        owner: TonyCasey
+        repos: [fieldwork-dashboard]
+      - key: BOUN-11466
+        code: "F4.2"
+        owner: TonyCasey
+        repos: [fieldwork-dashboard]
+      - key: BOUN-11467
+        code: "F4.3"
+        owner: TonyCasey
+        repos: [fieldwork-dashboard]
+      - key: BOUN-11468
+        code: "F4.4"
+        owner: TonyCasey
+        repos: [fieldwork-dashboard]
+      # Doesn't match the F#.# pattern and is unassigned in JIRA (owner
+      # defaulted to the milestone owner) — kept as-is per project owner:
+      # "there might be a reason for that naming."
+      - key: BOUN-11516
+        code: "DF4.1.1"
+        owner: TonyCasey
+        repos: [fieldwork-dashboard]
+
+people:
+  ruzwid: Ruzzell
+  VivekMurarkaIndIre: Vivek
+  TonyCasey: Tony
+  gelbh: Tomer
+  EmadNazzal: Emad

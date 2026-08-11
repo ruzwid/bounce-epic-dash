@@ -6,7 +6,8 @@
 //   data/pending/<date>.json judge input, trimmed, gitignored
 // No judgment happens here — that's a separate Claude Code routine reading
 // data/pending/<date>.json and writing data/judgment/<date>.json.
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+loadEnv({ path: ".env.local" });
 import { extractAcBullets } from "../src/lib/adf.ts";
 import {
   classifyPr,
@@ -321,17 +322,18 @@ export async function collectFeature(
     };
   });
 
-  // Release gate: the integration branch most of this feature's staged PRs
-  // actually merged into (there's normally exactly one; if several, take
-  // the majority so the reported gate reflects most of the work).
+  // Release gate: the integration branch most of THIS feature's own staged
+  // PRs (i.e. PRs already attributed to one of its subtasks, not every PR
+  // in a repo it happens to share with other features) actually merged
+  // into. There's normally exactly one; if several, take the majority so
+  // the reported gate reflects most of the work.
   let releaseGate: RawReleaseGate | null = null;
-  const stagedPrs = allPrs.filter(
-    (pr) => pr.state === "MERGED" && pr.baseRefName !== defaultBranchByRepo[pr.repo],
-  );
+  const featurePrs = subtasks.flatMap((s) => s.prs);
+  const stagedPrs = featurePrs.filter((pr) => pr.state === "MERGED" && !pr.shippedToDefault);
   if (stagedPrs.length > 0) {
     const counts = new Map<string, number>();
     for (const pr of stagedPrs) {
-      const k = `${pr.repo}::${pr.baseRefName}`;
+      const k = `${pr.repo}::${pr.baseRef}`;
       counts.set(k, (counts.get(k) ?? 0) + 1);
     }
     const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];

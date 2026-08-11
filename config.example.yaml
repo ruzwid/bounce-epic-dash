@@ -1,0 +1,70 @@
+# Copy this to config.yaml and fill in your own epic/org/milestones.
+# Nothing in this file is real — every value below is a placeholder.
+
+epic:
+  key: YOUR-1234
+  title: "Your Epic Title"
+  startDate: 2026-01-01 # PR search floor
+  targetDate: null # or a YYYY-MM-DD date
+
+jira:
+  projectKey: YOUR
+  # Raw JIRA status name -> shipped | staged | in_review | in_progress |
+  # blocked | todo. This is a base hint only — collect.ts upgrades it using
+  # real GitHub PR state. Unmapped names fall back to "todo" with a warning.
+  statusMap:
+    Done: shipped
+    "Code Review": in_review
+    "In Progress": in_progress
+    "To Do": todo
+    Blocked: blocked
+
+github:
+  org: your-org
+
+timezone: Europe/Dublin
+
+scoreWeights:
+  shipped: 1.0
+  staged: 0.5
+  in_review: 0.3
+  in_progress: 0.15
+  blocked: 0
+  todo: 0
+
+milestones:
+  - id: M1
+    title: "Your First Milestone"
+    tier: full
+    owner: octocat
+    ticket: null # this milestone's own JIRA key, if you have one
+    repos: [] # fallback repos, used if a feature below doesn't list its own
+    features:
+      - key: YOUR-1235
+        code: "F1.1"
+        owner: octocat
+        repos: [your-repo]
+
+  - id: M3
+    title: "A Light-Tier Milestone"
+    tier: light
+    owner: octocat
+    # Light-tier milestones can EITHER list child feature tickets (like
+    # above) OR track subtasks directly under this one ticket — leave
+    # `features` empty and set `ticket` for the latter. If a milestone has
+    # neither, collect.ts records a clear collection error and skips it
+    # rather than guessing.
+    ticket: YOUR-1300
+    repos: [your-other-repo]
+    features: []
+
+  - id: M4
+    title: "Unknown Milestone"
+    tier: light
+    owner: octocat
+    ticket: null # unknown for now — using it unset is a clear collection error, not a crash
+    repos: []
+    features: []
+
+people:
+  octocat: Octo

@@ -11,3 +11,11 @@ dist-ssr
 .vinxi
 __unconfig*
 todos.json
+
+# Data pipeline: raw/pending/judgment hold full-fidelity JIRA/GitHub data and
+# untrusted judge output — never publication-safe, never committed. Only
+# data/snapshots/ (produced by scripts/merge.ts) is committed.
+data/raw/
+data/pending/
+data/judgment/
+*.tmp

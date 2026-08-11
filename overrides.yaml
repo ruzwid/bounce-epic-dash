@@ -1,0 +1,20 @@
+# Per-ticket human notes, merged in by scripts/merge.ts. Keyed by JIRA
+# ticket key (feature or subtask). Expired entries (past `expires`, checked
+# in config.timezone) are dropped automatically — this file is not
+# hand-pruned.
+#
+# Shape of each entry:
+#
+#   <TICKET-KEY>:
+#     note: "Free-text human note shown alongside this ticket."
+#     author: "your-github-login"
+#     suppressStallWarning: false   # optional, default false
+#     expires: 2026-12-31           # required, YYYY-MM-DD
+#
+# Example (commented out — this file starts with no real overrides):
+#
+# BOUN-11207:
+#   note: "Known flaky CI on this branch, not a real blocker."
+#   author: ruzwid
+#   suppressStallWarning: true
+#   expires: 2026-09-01
