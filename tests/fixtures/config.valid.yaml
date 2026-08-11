@@ -1,0 +1,42 @@
+epic:
+  key: TEST-1
+  title: "Test Epic"
+  startDate: 2026-01-01
+  targetDate: null
+
+jira:
+  projectKey: TEST
+  statusMap:
+    Done: shipped
+    "In Progress": in_progress
+    "To Do": todo
+
+github:
+  org: test-org
+
+timezone: Europe/Dublin
+
+scoreWeights:
+  shipped: 1.0
+  staged: 0.5
+  in_review: 0.3
+  in_progress: 0.15
+  blocked: 0
+  todo: 0
+
+milestones:
+  - id: M1
+    title: "First Milestone"
+    tier: full
+    owner: alice
+    ticket: null
+    repos: []
+    features:
+      - key: TEST-10
+        code: "F1.1"
+        owner: alice
+        repos: [service-a]
+
+people:
+  alice: Alice
+  bob: Bob

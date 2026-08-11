@@ -1,0 +1,23 @@
+epic:
+  key: TEST-1
+  title: "Test Epic"
+  startDate: 2026-01-01
+  targetDate: null
+
+jira:
+  projectKey: TEST
+  statusMap: {}
+
+# github block missing entirely — should fail loudly naming "github"
+timezone: Europe/Dublin
+
+scoreWeights:
+  shipped: 1.0
+  staged: 0.5
+  in_review: 0.3
+  in_progress: 0.15
+  blocked: 0
+  todo: 0
+
+milestones: []
+people: {}
