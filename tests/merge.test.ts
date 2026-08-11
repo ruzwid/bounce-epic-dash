@@ -39,6 +39,14 @@ describe("validateJudgment", () => {
     if (!result.ok) expect(result.reason).toMatch(/ac-999/);
   });
 
+  it("rejects acCoverage evidence that isn't a real subtask key or PR ref for that feature", () => {
+    const bad = structuredClone(VALID_JUDGMENT) as any;
+    bad.features[0].acCoverage[0].evidence = ["TEST-99999"];
+    const result = validateJudgment(bad, PENDING);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toMatch(/TEST-99999/);
+  });
+
   it("rejects a callout ref that isn't a real subtask key or PR ref for that feature", () => {
     const bad = structuredClone(VALID_JUDGMENT) as any;
     bad.features[0].callouts[0].refs = ["TEST-99999"];

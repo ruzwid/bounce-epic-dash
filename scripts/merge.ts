@@ -70,13 +70,19 @@ export function validateJudgment(judgmentRaw: unknown, pending: PendingFile): Va
     }
 
     const acIds = new Set(pf.acBullets.map((b) => b.id));
+    const refWhitelist = refWhitelistFor(pf);
+
     for (const ac of jf.acCoverage) {
       if (!acIds.has(ac.id)) {
         return { ok: false, reason: `judgment.json for ${jf.featureKey} references acCoverage id "${ac.id}" which is not in pending.json's AC bullets for that feature — invented reference.` };
       }
+      for (const ref of ac.evidence) {
+        if (!refWhitelist.has(ref)) {
+          return { ok: false, reason: `judgment.json for ${jf.featureKey} has acCoverage "${ac.id}" citing evidence "${ref}", which is not a subtask key or PR ref in pending.json for that feature — invented reference.` };
+        }
+      }
     }
 
-    const refWhitelist = refWhitelistFor(pf);
     for (const callout of jf.callouts) {
       for (const ref of callout.refs) {
         if (!refWhitelist.has(ref)) {
