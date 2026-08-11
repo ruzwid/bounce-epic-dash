@@ -16,12 +16,41 @@ the only project you know about.
   from it).
 - Read `data/pending/<date>.json` for today's logical date. To find today's
   date, look at the most recently modified file in `data/pending/` — that's
-  the one `pnpm collect` just wrote.
+  the one `pnpm collect` just wrote. Each PR entry there has `body`
+  (cleaned — review-tool template scaffolding already stripped),
+  `bodyTruncated`, `bodySignal`, `title`, `state`, and `filesTouched`.
 - Write `data/judgment/<date>.json` for that same date.
 - Do not read or write anything else. Do not read `data/raw/<date>.json` —
-  it contains full-fidelity data (PR bodies, file paths) you don't need and
-  shouldn't have access to. Do not read prior days' judgment or snapshot
-  files — every callout must be judged fresh from today's pending data.
+  it carries the *uncleaned* PR bodies and full file-path lists, neither of
+  which you need (`pending.json`'s cleaned `body` and `filesTouched` are
+  the versions you should reason from) and you shouldn't have access to raw
+  fidelity data. Do not read prior days' judgment or snapshot files — every
+  callout must be judged fresh from today's pending data.
+
+**Evidence hierarchy — read this before writing any `acCoverage` or
+`rationale`:**
+
+1. **PR `body` is the primary evidence for AC coverage.** Engineers at this
+   org write "what changed" (and often "why") in the PR description — it's
+   the closest thing to ground truth for whether an AC bullet is actually
+   satisfied. Read every non-null `body` for a feature's PRs before judging
+   `coverage` for that feature's AC bullets.
+2. **`filesTouched` corroborates scope and attributes a PR to a feature,
+   but does not establish intent or completeness.** A PR touching
+   `SurveyValidationModal.tsx` tells you it's in the right area; it does not
+   tell you whether the validation logic described in an AC bullet actually
+   works. Use file paths to sanity-check which part of the system a PR
+   touched, never as coverage evidence on its own.
+3. **Title is the fallback, only when `body` is `null` or
+   `bodySignal: "template_only"`.** A `template_only` PR (an unfilled
+   review-tool template — no ticket/PR reference invented, just genuinely
+   no real body content) tells you a PR happened and roughly what it
+   claims to be about (from its title) but gives you no coverage evidence
+   beyond that — reflect this as `no_signal` or `partial` (not `covered`)
+   unless the title itself, combined with the subtask summary, is
+   unambiguous. Never treat a `template_only` PR as silence about the
+   whole feature — it's still evidence the ticket had *some* activity,
+   just not evidence of *what* was covered.
 
 **Output shape** (must validate against the `Judgment` schema in
 `src/lib/schema.ts` — do not deviate from this shape):
@@ -66,10 +95,16 @@ exit and no snapshot written — if you violate any rule below.
    "not implemented" (you don't know that; you only know nothing references
    it).
 
-3. **Paraphrase AC labels.** `label` must be your own paraphrase of the AC
-   bullet's intent, never the verbatim bullet text — this project may be a
-   public repo, and copying spec text verbatim into a published snapshot
-   defeats the point of the AC bullet being read only by you, not published.
+3. **Paraphrase AC labels — and never quote PR bodies verbatim either.**
+   `label` must be your own paraphrase of the AC bullet's intent, never the
+   verbatim bullet text — this project may be a public repo, and copying
+   spec text verbatim into a published snapshot defeats the point of the AC
+   bullet being read only by you, not published. The same applies to PR
+   `body` text: read it for evidence, but write `rationale`/`label`/
+   `message` in your own words — a PR description can contain internal
+   detail (infra specifics, internal tooling names, blunt commentary) that
+   has no business in a published snapshot even paraphrased loosely into a
+   near-quote.
 
 4. **Rationale distinguishes shipped from staged.** Your one-sentence
    `rationale` per feature must be grounded in the real counts in

@@ -293,3 +293,12 @@ other platforms.
   provisional in that file's comments — a feature spanning more than the
   one listed repo will simply miss PRs in the unlisted repo, not error.
   Expand the `repos` list for a feature as you notice this.
+- PR descriptions are the judge's primary AC-coverage evidence (see
+  `src/lib/prbody.ts` and `.claude/skills/judge/SKILL.md`), cleaned down to
+  the substantive sections (Context/What changed/Summary/Description) and
+  capped at 1500 characters. The cleaner is tuned to this org's review-tool
+  PR template; a repo using a very different template may see more of its
+  body pass through uncleaned (harmless — it's still gitignored, judge-only
+  input) or, in an unlikely worst case, get flagged `template_only` when it
+  actually had content. Worth spot-checking `data/pending/<date>.json` if a
+  repo's PRs consistently show `bodySignal: "template_only"`.
