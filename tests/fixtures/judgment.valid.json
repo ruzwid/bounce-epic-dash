@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-01-15",
+  "features": [
+    {
+      "featureKey": "TEST-10",
+      "rationale": "Most work has shipped to master; one subtask is staged awaiting a release PR.",
+      "confidence": "high",
+      "acCoverage": [
+        { "id": "ac-1", "label": "Primary action is supported", "coverage": "covered", "evidence": ["TEST-11"] },
+        { "id": "ac-2", "label": "Secondary action is partially supported", "coverage": "partial", "evidence": ["service-a#1"] }
+      ],
+      "callouts": [
+        { "type": "drift", "severity": "info", "message": "One subtask staged, release pending.", "refs": ["TEST-12"] }
+      ],
+      "scoreOverride": null
+    },
+    {
+      "featureKey": "TEST-20",
+      "rationale": "No ticket or PR references this yet.",
+      "confidence": "low",
+      "acCoverage": [],
+      "callouts": [],
+      "scoreOverride": null
+    }
+  ]
+}

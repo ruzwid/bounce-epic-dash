@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-01-15",
+  "features": [
+    {
+      "featureKey": "TEST-999",
+      "rationale": "This feature key does not exist in pending.json.",
+      "confidence": "high",
+      "acCoverage": [],
+      "callouts": [],
+      "scoreOverride": null
+    }
+  ]
+}

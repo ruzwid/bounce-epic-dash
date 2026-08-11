@@ -402,7 +402,7 @@ function expandTargets(config: Config): { targets: FeatureTarget[]; errors: Coll
   return { targets, errors };
 }
 
-type PendingFeature = {
+export type PendingFeature = {
   key: string;
   code: string;
   title: string;
@@ -417,6 +417,22 @@ type PendingFeature = {
   subtasks: { key: string; summary: string; status: SubtaskStatus }[];
   prs: { ref: string; title: string; state: string; filesTouched: string[] }[];
   dataOk: boolean;
+};
+
+export type PendingFile = {
+  schemaVersion: 1;
+  date: string;
+  epicTitle: string;
+  features: PendingFeature[];
+};
+
+export type RawFile = {
+  schemaVersion: 1;
+  date: string;
+  generatedAt: string;
+  epic: Config["epic"];
+  features: RawFeature[];
+  collectionErrors: CollectionError[];
 };
 
 function toPending(feature: RawFeature): PendingFeature {
