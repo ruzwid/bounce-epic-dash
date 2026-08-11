@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-08-11",
-  "generatedAt": "2026-08-11T21:29:37.272Z",
+  "generatedAt": "2026-08-11T22:36:41.735Z",
   "epic": {
     "key": "BOUN-11204",
     "title": "WPP at Scale",
@@ -576,7 +576,7 @@
       "scoreOverride": null,
       "confidence": "medium",
       "rationale": "All five subtasks are Done and map closely to the AC bullets (rollups, day-on-day report, grade/region quotas), though no PR is linked to independently confirm shipment to master.",
-      "daysSinceLastActivity": 7,
+      "daysSinceLastActivity": 8,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
@@ -1234,7 +1234,7 @@
       "scoreOverride": null,
       "confidence": "low",
       "rationale": "The milestone ticket itself is To Do with no subtasks or PRs yet — nothing references the cutover/decommission work.",
-      "daysSinceLastActivity": 15,
+      "daysSinceLastActivity": 16,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
