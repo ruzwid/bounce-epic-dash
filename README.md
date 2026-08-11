@@ -185,3 +185,111 @@ Files prefixed with `demo` can be safely deleted. They are there to provide a st
 You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
 
 For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+
+---
+
+# Data Collection Pipeline
+
+Pulls JIRA + GitHub data for the epic configured in `config.yaml`, derives a
+deterministic status snapshot, applies a judgment layer, and writes
+publication-safe JSON to `data/snapshots/`. Data layer only — no UI yet.
+Everything project-specific (epic, milestones, features, owners, repos)
+lives in `config.yaml`, never in source.
+
+## Setup
+
+1. `pnpm install` (also installs a gitleaks pre-commit hook — see below).
+2. Copy `.env.example` to `.env.local` and fill in the four variables:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   - `JIRA_BASE_URL` — your Atlassian site, e.g. `https://your-company.atlassian.net/`
+   - `JIRA_EMAIL` — the email address tied to your JIRA API token
+   - `JIRA_API_TOKEN` — create one at
+     [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens) →
+     "Create API token". Basic-auth'd as `email:token`, base64-encoded — this
+     script never logs it.
+   - `GITHUB_TOKEN` — a **classic** personal access token
+     ([github.com/settings/tokens](https://github.com/settings/tokens)) with
+     the `repo` scope. If your org enforces SSO, authorize the token for
+     that org after creating it (the token page will prompt you). A
+     fine-grained token can work too, but must be explicitly granted access
+     to every repo referenced in `config.yaml` — classic + SSO is simpler.
+
+3. Copy `config.example.yaml` to `config.yaml` (or edit the real one already
+   checked in) — see the comments in that file for the shape. Nothing in
+   `config.yaml` is secret; it's fine to commit (ticket keys, repo names,
+   GitHub logins).
+
+## Daily routine
+
+```bash
+pnpm collect
+```
+
+Fetches JIRA + GitHub, writes `data/raw/<date>.json` (full fidelity,
+gitignored) and `data/pending/<date>.json` (trimmed judge input, gitignored),
+and prints a per-feature summary (score, stage, shipped/staged/total,
+release gate) to stdout. **Halt here if this exits non-zero** — a non-zero
+exit means every feature failed to collect, not just one; check the printed
+collection errors.
+
+Then, in Claude Code, run the **judge** skill (`.claude/skills/judge/SKILL.md`)
+against today's `data/pending/<date>.json`. It writes
+`data/judgment/<date>.json`. This step is a Claude Code routine, not a
+script — there is no `ANTHROPIC_API_KEY` and no programmatic model call
+anywhere in this codebase.
+
+```bash
+pnpm merge
+```
+
+Validates `data/judgment/<date>.json` as **untrusted input** against that
+day's `data/pending/<date>.json` — rejects (non-zero exit, no file written)
+anything unparseable, any invented ticket/PR/AC reference, or an
+unreasoned/>20-point `scoreOverride`. On success, merges in any non-expired
+`overrides.yaml` entries and writes `data/snapshots/<date>.json`.
+
+**Halt the whole routine on any non-zero exit, and never commit when merge
+fails** — `data/snapshots/` is the only directory in this pipeline that gets
+committed:
+
+```bash
+git add data/snapshots && git commit -m "snapshot: <date>" && git push
+```
+
+Reruns for the same logical date overwrite in place (atomic write via a
+`.tmp` file + rename) — never append or duplicate. All dates are computed in
+`config.timezone` (see `logicalDate()` in `src/lib/config.ts`), not UTC, so a
+run just after local midnight writes the correct calendar day.
+
+## Testing
+
+```bash
+pnpm test
+```
+
+Runs the vitest suite (`tests/`) against fixtures only — no network calls,
+safe to run without `.env.local` configured.
+
+## Secret scanning
+
+`pnpm install` runs `scripts/install-hooks.mjs`, which installs a
+`.git/hooks/pre-commit` hook that runs
+[gitleaks](https://github.com/gitleaks/gitleaks) (`.gitleaks.toml`) against
+staged changes, if gitleaks is on your `PATH`. If it isn't, the hook warns
+and lets the commit through — install gitleaks locally to actually enforce
+the check: `brew install gitleaks` (macOS) or see the gitleaks README for
+other platforms.
+
+## Known limitations
+
+- GitHub's GraphQL API doesn't expose a review-request timestamp directly;
+  `reviewQueue[].requestedAt` uses the PR's `updatedAt` as the closest
+  available proxy, not the exact moment a reviewer was requested.
+- `config.yaml`'s M1/M4 feature `repos` and M3's repo are flagged
+  provisional in that file's comments — a feature spanning more than the
+  one listed repo will simply miss PRs in the unlisted repo, not error.
+  Expand the `repos` list for a feature as you notice this.

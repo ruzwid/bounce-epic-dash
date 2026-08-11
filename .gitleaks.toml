@@ -1,0 +1,7 @@
+title = "gitleaks config for bounce-epic-dash"
+
+# Default ruleset (JIRA API tokens, GitHub PATs, generic high-entropy
+# secrets, etc.) — no project-specific allowlisting. This repo is public;
+# nothing here should ever need a secret-scanner exception.
+[extend]
+useDefault = true
