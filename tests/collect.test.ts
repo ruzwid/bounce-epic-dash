@@ -143,4 +143,23 @@ describe("collectFeature", () => {
     expect(feature.subtasks[0]?.prs).toEqual([]); // TEST-99's PR isn't attributed to TEST-11
     expect(feature.releaseGate).toBeNull(); // and must not leak into this feature's gate
   });
+
+  it("falls back to the parent ticket's own status when it has no subtasks yet", async () => {
+    // A feature ticket sitting in "Code Review" with zero subtasks created
+    // must not silently read as not_started/score 0.
+    const deps: Deps = {
+      searchSubtasks: vi.fn().mockResolvedValue([]),
+      getIssue: vi.fn().mockResolvedValue({
+        key: "TEST-10",
+        fields: { summary: "The feature itself", description: null, status: { name: "In Progress" } },
+      }),
+      getDefaultBranch: vi.fn().mockResolvedValue("master"),
+      getRepoPrs: vi.fn().mockResolvedValue([]),
+    };
+    const { feature } = await collectFeature(target(), CONFIG, NOW, deps);
+    expect(feature.subtasks).toHaveLength(1);
+    expect(feature.subtasks[0]?.key).toBe("TEST-10");
+    expect(feature.subtasks[0]?.status).toBe("in_progress");
+    expect(feature.score).toBeGreaterThan(0);
+  });
 });

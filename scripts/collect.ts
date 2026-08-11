@@ -275,20 +275,20 @@ export async function collectFeature(
     errors.push({ source: "github", scope: target.key, message: errMsg(err) });
     // Best-effort: JIRA data is good, so build subtasks from JIRA status
     // alone (no PR-derived overrides) rather than dropping the feature.
-    const subtasks: RawSubtask[] = subtaskIssues.map((issue) => ({
-      key: issue.key,
-      summary: String((issue.fields as Record<string, unknown>).summary ?? ""),
-      jiraStatus: String(((issue.fields as Record<string, unknown>).status as { name?: string } | undefined)?.name ?? ""),
-      status: deriveSubtaskStatus(
-        String(((issue.fields as Record<string, unknown>).status as { name?: string } | undefined)?.name ?? ""),
-        config.jira.statusMap,
-        [],
-        "",
-      ),
-      assignee: ((issue.fields as Record<string, unknown>).assignee as { displayName?: string } | null)?.displayName ?? null,
-      updatedAt: toIso((issue.fields as Record<string, unknown>).updated),
-      prs: [],
-    }));
+    const toJiraOnlySubtask = (issue: RawJiraIssue): RawSubtask => {
+      const jiraStatus = String(((issue.fields as Record<string, unknown>).status as { name?: string } | undefined)?.name ?? "");
+      return {
+        key: issue.key,
+        summary: String((issue.fields as Record<string, unknown>).summary ?? ""),
+        jiraStatus,
+        status: deriveSubtaskStatus(jiraStatus, config.jira.statusMap, [], ""),
+        assignee: ((issue.fields as Record<string, unknown>).assignee as { displayName?: string } | null)?.displayName ?? null,
+        updatedAt: toIso((issue.fields as Record<string, unknown>).updated),
+        prs: [],
+      };
+    };
+    const subtasks: RawSubtask[] =
+      subtaskIssues.length > 0 ? subtaskIssues.map(toJiraOnlySubtask) : [toJiraOnlySubtask(parentIssue)];
     return {
       feature: buildRawFeature({
         target: resolvedTarget,
@@ -305,7 +305,7 @@ export async function collectFeature(
 
   const allPrs = Object.values(prsByRepo).flat();
 
-  const subtasks: RawSubtask[] = subtaskIssues.map((issue) => {
+  const toRawSubtask = (issue: RawJiraIssue): RawSubtask => {
     const key = issue.key;
     const jiraStatus = String(((issue.fields as Record<string, unknown>).status as { name?: string } | undefined)?.name ?? "");
     const matched = allPrs.filter((pr) => pr.headRefName.includes(key) || pr.title.includes(key));
@@ -320,7 +320,14 @@ export async function collectFeature(
       updatedAt: toIso((issue.fields as Record<string, unknown>).updated),
       prs,
     };
-  });
+  };
+
+  // A feature ticket with no subtasks yet can still be actively worked
+  // (e.g. "Code Review" on the ticket itself) — falling back to zero
+  // subtasks would silently read as not_started. Treat the parent ticket
+  // as a single subtask-equivalent data point in that case, matching PRs
+  // against the feature's own key the same way a real subtask would be.
+  const subtasks: RawSubtask[] = subtaskIssues.length > 0 ? subtaskIssues.map(toRawSubtask) : [toRawSubtask(parentIssue)];
 
   // Release gate: the integration branch most of THIS feature's own staged
   // PRs (i.e. PRs already attributed to one of its subtasks, not every PR

@@ -80,7 +80,7 @@ export async function searchSubtasks(
  *  their description for AC extraction via src/lib/adf.ts). */
 export async function getIssue(
   key: string,
-  fields: string[] = ["summary", "description", "status"],
+  fields: string[] = ["summary", "description", "status", "assignee", "updated"],
 ): Promise<RawJiraIssue> {
   const res = await jiraFetch(`/rest/api/3/issue/${encodeURIComponent(key)}?fields=${fields.join(",")}`);
   return (await res.json()) as RawJiraIssue;
