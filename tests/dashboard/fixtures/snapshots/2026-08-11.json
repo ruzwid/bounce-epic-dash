@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-11",
+  "generatedAt": "2026-08-11T08:00:00.000Z",
+  "epic": { "key": "TEST-1", "title": "Test Epic", "targetDate": "2026-09-15" },
+  "headline": { "featuresWithNothingOnMaster": 0, "totalFeatures": 2, "sentence": "All tracked features have shipped something to master." },
+  "kpis": { "featuresTracked": 2, "lightTierMilestones": 0, "subtasksTracked": 3, "shipped": 1, "staged": 0, "inReview": 0, "blockedOrTodo": 2 },
+  "features": [
+    {
+      "key": "BOUN-100",
+      "code": "F1.1",
+      "title": "First feature",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Alice",
+      "repos": ["service-a"],
+      "stage": "nearly_done",
+      "score": 50,
+      "scoreBasis": { "shipped": 1, "staged": 0, "inReview": 0, "inProgress": 0, "blocked": 0, "todo": 1, "total": 2 },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "SUB-1 shipped to master; SUB-2 still not started.",
+      "daysSinceLastActivity": 15,
+      "daysInStaged": null,
+      "releaseGate": { "integrationBranch": "integration/wpp", "status": "merged", "pr": null },
+      "acCoverage": [],
+      "subtasks": [
+        {
+          "key": "SUB-1",
+          "summary": "Do the staged thing",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Alice",
+          "updatedAt": "2026-08-11T00:00:00.000Z",
+          "prs": [
+            {
+              "repo": "service-a",
+              "number": 42,
+              "title": "[SUB-1] do the staged thing",
+              "url": "https://github.com/test-org/service-a/pull/42",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "SUB-1-do-the-thing",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-11T00:00:00.000Z",
+              "updatedAt": "2026-08-11T00:00:00.000Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
+        },
+        {
+          "key": "SUB-2",
+          "summary": "Not started yet",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Alice",
+          "updatedAt": "2026-08-01T00:00:00.000Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-200",
+      "code": "F1.2",
+      "title": "Second feature",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Bob",
+      "repos": ["service-b"],
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": { "shipped": 0, "staged": 0, "inReview": 0, "inProgress": 0, "blocked": 1, "todo": 0, "total": 1 },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "SUB-3 is now blocked.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [],
+      "subtasks": [
+        {
+          "key": "SUB-3",
+          "summary": "Build the thing",
+          "jiraStatus": "Blocked",
+          "status": "blocked",
+          "assignee": "Bob",
+          "updatedAt": "2026-08-11T00:00:00.000Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    }
+  ],
+  "reviewQueue": [],
+  "collectionErrors": []
+}

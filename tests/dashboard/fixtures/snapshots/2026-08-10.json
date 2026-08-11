@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-10",
+  "generatedAt": "2026-08-10T08:00:00.000Z",
+  "epic": { "key": "TEST-1", "title": "Test Epic", "targetDate": "2026-09-15" },
+  "headline": { "featuresWithNothingOnMaster": 1, "totalFeatures": 2, "sentence": "1 of 2 features have nothing shipped to master yet." },
+  "kpis": { "featuresTracked": 2, "lightTierMilestones": 0, "subtasksTracked": 3, "shipped": 0, "staged": 1, "inReview": 0, "blockedOrTodo": 1 },
+  "features": [
+    {
+      "key": "BOUN-100",
+      "code": "F1.1",
+      "title": "First feature",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Alice",
+      "repos": ["service-a"],
+      "stage": "underway",
+      "score": 25,
+      "scoreBasis": { "shipped": 0, "staged": 1, "inReview": 0, "inProgress": 0, "blocked": 0, "todo": 1, "total": 2 },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "One subtask staged, one not started.",
+      "daysSinceLastActivity": 13,
+      "daysInStaged": 4,
+      "releaseGate": { "integrationBranch": "integration/wpp", "status": "open", "pr": null },
+      "acCoverage": [],
+      "subtasks": [
+        {
+          "key": "SUB-1",
+          "summary": "Do the staged thing",
+          "jiraStatus": "In Progress",
+          "status": "staged",
+          "assignee": "Alice",
+          "updatedAt": "2026-08-06T00:00:00.000Z",
+          "prs": []
+        },
+        {
+          "key": "SUB-2",
+          "summary": "Not started yet",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Alice",
+          "updatedAt": "2026-08-01T00:00:00.000Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-200",
+      "code": "F1.2",
+      "title": "Second feature",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Bob",
+      "repos": ["service-b"],
+      "stage": "early",
+      "score": 15,
+      "scoreBasis": { "shipped": 0, "staged": 0, "inReview": 0, "inProgress": 1, "blocked": 0, "todo": 0, "total": 1 },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "One subtask in progress.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [],
+      "subtasks": [
+        {
+          "key": "SUB-3",
+          "summary": "Build the thing",
+          "jiraStatus": "In Progress",
+          "status": "in_progress",
+          "assignee": "Bob",
+          "updatedAt": "2026-08-05T00:00:00.000Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    }
+  ],
+  "reviewQueue": [],
+  "collectionErrors": []
+}
