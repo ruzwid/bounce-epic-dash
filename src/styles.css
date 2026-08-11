@@ -175,14 +175,19 @@ code {
   position: relative;
 }
 
-.tick-marks::before {
+/* ::after (not ::before) so it paints on top of the fill div — a
+   ::before would paint first and get covered by the actual bar fill.
+   mix-blend-mode keeps the ticks visible against any fill color or
+   track color, light or dark, without needing per-theme tick colors. */
+.tick-marks::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
+  mix-blend-mode: difference;
   background-image:
-    linear-gradient(90deg, transparent calc(25% - 1px), color-mix(in oklch, var(--foreground) 22%, transparent) calc(25% - 1px), color-mix(in oklch, var(--foreground) 22%, transparent) 25%, transparent 25%),
-    linear-gradient(90deg, transparent calc(70% - 1px), color-mix(in oklch, var(--foreground) 22%, transparent) calc(70% - 1px), color-mix(in oklch, var(--foreground) 22%, transparent) 70%, transparent 70%);
+    linear-gradient(90deg, transparent calc(25% - 1px), rgba(128, 128, 128, 0.9) calc(25% - 1px), rgba(128, 128, 128, 0.9) 25%, transparent 25%),
+    linear-gradient(90deg, transparent calc(70% - 1px), rgba(128, 128, 128, 0.9) calc(70% - 1px), rgba(128, 128, 128, 0.9) 70%, transparent 70%);
 }
 
 /* Status pill / dot color, computed from one --status-* token via
