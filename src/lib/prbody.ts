@@ -36,11 +36,11 @@ function stripHtmlComments(text: string): string {
 }
 
 function stripImageMarkdown(text: string): string {
-  // ![alt](url) spans, and whole lines that are otherwise just a bare
-  // image/screenshot link.
+  // ![alt](url) markdown spans, and the raw <img ...> tags GitHub inserts
+  // when a screenshot is pasted directly into the PR description.
   return text
     .split("\n")
-    .map((line) => line.replace(/!\[[^\]]*\]\([^)]*\)/g, ""))
+    .map((line) => line.replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/<img\b[^>]*>/gi, ""))
     .join("\n");
 }
 
@@ -124,7 +124,11 @@ export function cleanPrBody(rawBody: string | null | undefined): CleanedPrBody {
     return { body: null, bodyTruncated: false, bodySignal: "template_only" };
   }
 
-  let text = rawBody;
+  // Normalize line endings first: GitHub PR bodies commonly come back
+  // CRLF, and JS regex `.` treats \r as a line terminator (excluded from
+  // `.`), which silently breaks `$`-anchored matches like the heading
+  // regex below on every line that still has a trailing \r.
+  let text = rawBody.replace(/\r\n?/g, "\n");
   text = stripHtmlComments(text);
   text = stripImageMarkdown(text);
   text = stripUncheckedChecklistLines(text);

@@ -62,4 +62,27 @@ describe("cleanPrBody", () => {
     const result = cleanPrBody(FILLED_BODY);
     expect(result.bodyTruncated).toBe(false);
   });
+
+  it("correctly splits sections and drops boilerplate on real CRLF-terminated GitHub bodies", () => {
+    // GitHub PR bodies commonly come back CRLF. JS regex `.` treats \r as
+    // a line terminator, which used to silently break the heading regex's
+    // trailing `$` anchor on every line, making the whole body (including
+    // Testing/Related boilerplate) pass through uncleaned.
+    const crlfBody =
+      "## Context\r\n\r\nSome real context here.\r\n\r\n## What changed\r\n\r\n- did a thing\r\n\r\n" +
+      '## Testing\r\n\r\n<img width="370" height="179" alt="image" src="https://example.com/x.png" />\r\n\r\n' +
+      "## Related\r\n\r\n- dashboard-api: https://github.com/bounceinsights/dashboard-api/pull/2066\r\n";
+    const result = cleanPrBody(crlfBody);
+    expect(result.body).toMatch(/Some real context here/);
+    expect(result.body).toMatch(/did a thing/);
+    expect(result.body).not.toMatch(/Related|dashboard-api|Testing/);
+    expect(result.body).not.toMatch(/<img/);
+  });
+
+  it("strips raw <img> tags (GitHub's pasted-screenshot HTML), not just markdown image syntax", () => {
+    const body = '## Context\n\nHere is a screenshot:\n\n<img width="300" src="https://example.com/shot.png" alt="screenshot" />\n\nThat confirms the fix.';
+    const result = cleanPrBody(body);
+    expect(result.body).not.toMatch(/<img/);
+    expect(result.body).toMatch(/confirms the fix/);
+  });
 });
