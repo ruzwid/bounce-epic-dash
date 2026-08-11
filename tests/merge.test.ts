@@ -195,6 +195,38 @@ describe("buildSnapshot", () => {
     expect(serialized).not.toMatch(/should-never-appear|also-should-never-appear/);
   });
 
+  it("never includes PR body text anywhere in the snapshot, even though raw.json carries it", () => {
+    // rawFeatures' TEST-11 subtask PR has a real body (SECRET-PR-BODY-MARKER)
+    // in data/raw's shape — buildSnapshot must never carry it through,
+    // whether via a subtask's PrRef or a releaseGate's PrRef.
+    expect(rawFeatures[0]?.subtasks[0]?.prs[0]?.body).toMatch(/SECRET-PR-BODY-MARKER/);
+    const snapshot = buildSnapshot({
+      date: "2026-01-15",
+      epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
+      rawFeatures,
+      judgment: judgment.value,
+      overrides: {},
+      now: new Date("2026-01-15T12:00:00.000Z"),
+      timezone: "Europe/Dublin",
+      collectionErrors: [],
+      people: { alice: "Alice" },
+    });
+    const serialized = JSON.stringify(snapshot);
+    expect(serialized).not.toMatch(/SECRET-PR-BODY-MARKER/);
+    // Confirm structurally, not just by absence of this one marker: no
+    // PrRef embedded anywhere in the snapshot carries a `body` key at all.
+    for (const f of snapshot.features) {
+      for (const s of f.subtasks) {
+        for (const pr of s.prs) {
+          expect(pr).not.toHaveProperty("body");
+        }
+      }
+      if (f.releaseGate?.pr) {
+        expect(f.releaseGate.pr).not.toHaveProperty("body");
+      }
+    }
+  });
+
   it("resolves owner to the display name from config.people", () => {
     const snapshot = buildSnapshot({
       date: "2026-01-15",
