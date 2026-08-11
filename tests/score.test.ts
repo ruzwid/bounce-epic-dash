@@ -1,0 +1,80 @@
+import { describe, expect, it } from "vitest";
+import { computeScore, deriveStage } from "../src/lib/score.ts";
+
+const DEFAULT_WEIGHTS = {
+  shipped: 1.0,
+  staged: 0.5,
+  in_review: 0.3,
+  in_progress: 0.15,
+  blocked: 0,
+  todo: 0,
+};
+
+describe("computeScore", () => {
+  it("computes a weighted mean and rounds to the nearest 5", () => {
+    // (1.0 + 0.3 + 0) / 3 * 100 = 43.33... -> rounds to 45.
+    const result = computeScore(["shipped", "in_review", "todo"], DEFAULT_WEIGHTS);
+    expect(result.score).toBe(45);
+  });
+
+  it("produces a scoreBasis with raw counts per status, not weighted values", () => {
+    const result = computeScore(
+      ["shipped", "shipped", "staged", "in_review", "in_progress", "blocked", "todo"],
+      DEFAULT_WEIGHTS,
+    );
+    expect(result.scoreBasis).toEqual({
+      shipped: 2,
+      staged: 1,
+      inReview: 1,
+      inProgress: 1,
+      blocked: 1,
+      todo: 1,
+      total: 7,
+    });
+  });
+
+  it("is 100 only when every subtask is shipped", () => {
+    const result = computeScore(["shipped", "shipped", "shipped"], DEFAULT_WEIGHTS);
+    expect(result.score).toBe(100);
+  });
+
+  it("is 0, not NaN, when there are no subtasks", () => {
+    const result = computeScore([], DEFAULT_WEIGHTS);
+    expect(result.score).toBe(0);
+    expect(result.scoreBasis.total).toBe(0);
+  });
+});
+
+describe("deriveStage", () => {
+  it.each([
+    [0, true, "not_started"],
+    [10, true, "early"],
+    [24, true, "early"],
+    [25, true, "underway"],
+    [69, true, "underway"],
+    [70, true, "nearly_done"],
+    [99, true, "nearly_done"],
+  ] as const)("score %i -> %s", (score, allShipped, expected) => {
+    expect(deriveStage(score, allShipped)).toBe(expected);
+  });
+
+  it("is 'done' at score 100 when every subtask shipped to the default branch", () => {
+    expect(deriveStage(100, true)).toBe("done");
+  });
+
+  it("is 'nearly_done', NOT 'done', at score 100 when subtasks are only staged (not shipped)", () => {
+    // A feature can hit 100 by weight (e.g. custom scoreWeights where staged
+    // counts fully) while every subtask is still stuck on an integration
+    // branch. That must never render as "done".
+    expect(deriveStage(100, false)).toBe("nearly_done");
+  });
+});
+
+describe("computeScore + deriveStage integration: staged never masquerades as done", () => {
+  it("a fully-staged feature with staged-weighted-as-1.0 scores 100 but is not done", () => {
+    const stagedCountsAsFullWeight = { ...DEFAULT_WEIGHTS, staged: 1.0 };
+    const { score } = computeScore(["staged", "staged"], stagedCountsAsFullWeight);
+    expect(score).toBe(100);
+    expect(deriveStage(score, false)).toBe("nearly_done");
+  });
+});
