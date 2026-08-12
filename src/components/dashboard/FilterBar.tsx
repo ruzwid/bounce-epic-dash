@@ -43,7 +43,7 @@ export function FilterBar({ search, onSearchChange, engineers }: FilterBarProps)
   }, [])
 
   return (
-    <div className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center gap-3 border-y border-border bg-background/95 px-4 py-2.5 backdrop-blur-sm sm:mx-0 sm:rounded-lg sm:border-x">
+    <div className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center gap-3 border-y border-border bg-background/95 px-4 py-2.5 backdrop-blur-sm sm:mx-0 sm:rounded-xl sm:border-x">
       <ToggleGroup
         value={[search.milestone]}
         onValueChange={(value) => onSearchChange({ milestone: (value[0] as DashboardSearch["milestone"]) ?? "all" })}
