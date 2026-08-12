@@ -40,7 +40,7 @@ github:
   # of this epic's pull requests were invisible. Crawling all 25 active
   # repos instead takes ~10s, so there was never a performance reason for
   # the narrower scope either.
-  excludeRepos: []   # never search these (noisy infra, vendored mirrors)
+  excludeRepos: ["emulator-data"]   # never search these (noisy infra, vendored mirrors)
   includeRepos: []   # always search these, even if not pushed recently
 
 timezone: Europe/Dublin
