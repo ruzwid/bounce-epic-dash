@@ -24,7 +24,7 @@ export function StaleBanner({ generatedAt, now }: StaleBannerProps) {
         message: `This snapshot is ${ageHours}h old — data may be out of date.`,
         refs: [],
       }}
-      className="rounded-md bg-muted/60 pr-3"
+      className="bg-muted/60 pr-3"
     />
   )
 }

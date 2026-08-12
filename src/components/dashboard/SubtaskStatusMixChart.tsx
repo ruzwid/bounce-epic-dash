@@ -29,7 +29,7 @@ export function SubtaskStatusMixChart({ features }: SubtaskStatusMixChartProps) 
   return (
     <section className="flex flex-col gap-3">
       <h2 className="m-0 text-sm font-semibold text-muted-foreground uppercase tracking-wide">Subtask status mix</h2>
-      <div className="h-72 w-full rounded-xl border border-border bg-card p-4">
+      <div className="surface h-72 w-full rounded-xl border border-border bg-card p-4">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />

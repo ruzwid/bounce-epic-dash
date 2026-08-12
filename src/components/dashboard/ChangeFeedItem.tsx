@@ -12,7 +12,7 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
   switch (change.kind) {
     case "shipped":
       return (
-        <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">
+        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-2">
             <StatusPill status="shipped" label="Shipped to master" />
             <span className="font-mono-data text-xs text-muted-foreground">▲ {change.scoreDelta} pts</span>
@@ -30,7 +30,7 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
       )
     case "newly_staged":
       return (
-        <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">
+        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
           <StatusPill status="staged" label="Moved to staged" />
           <p className="m-0 text-sm">
             {change.subtask.key} merged into{" "}
@@ -43,7 +43,7 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
       )
     case "newly_blocked":
       return (
-        <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">
+        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
           <StatusPill status="blocked" label="Newly blocked" />
           <p className="m-0 text-sm">{change.subtask.key} — {change.subtask.summary}</p>
           <p className="m-0 text-xs text-muted-foreground">
@@ -53,7 +53,7 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
       )
     case "newly_stalled":
       return (
-        <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">
+        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
           <StatusPill status="blocked" label="Newly stalled" />
           <p className="m-0 text-sm">
             {change.feature.code} crossed <span className="font-mono-data">{change.daysSinceLastActivity}</span> days

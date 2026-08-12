@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import { ChevronRight } from "lucide-react"
 import type { Feature as FeatureSchema } from "@/lib/schema"
 import { cn } from "@/lib/utils"
 import { StatusPill } from "./StatusPill"
@@ -29,7 +30,7 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
 
   if (!feature.dataOk) {
     return (
-      <div className={cn("rounded-xl border border-border bg-card p-4", isCondensed ? "sm:p-3" : "sm:p-5")}>
+      <div className={cn("surface-card rounded-xl border border-border bg-card p-4", isCondensed ? "sm:p-3" : "sm:p-5")}>
         <CardTitleRow feature={feature} />
         <EmptyState message="Data unavailable for this feature — a collection error affected it. See the notice above." className="mt-3" />
       </div>
@@ -40,7 +41,12 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
   const scoreDelta = previousFeature ? feature.score - previousFeature.score : null
 
   return (
-    <div className={cn("flex flex-col gap-3 rounded-xl border border-border bg-card p-4", isCondensed ? "sm:p-3" : "sm:p-5")}>
+    <div
+      className={cn(
+        "surface-card flex flex-col gap-3 rounded-xl border border-border bg-card p-4",
+        isCondensed ? "sm:p-3" : "sm:p-5",
+      )}
+    >
       <CardTitleRow feature={feature} />
 
       <div className="flex flex-col gap-1">
@@ -54,7 +60,7 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
       </div>
 
       <p className="m-0 text-sm">
-        <span className="mr-1.5 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+        <span className="mr-1.5 rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
           {CONFIDENCE_LABEL[feature.confidence]}
         </span>
         {feature.rationale}
@@ -87,8 +93,9 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
 
       {feature.override ? <OverrideNote override={feature.override} /> : null}
 
-      <details className="text-sm">
-        <summary className="cursor-pointer text-muted-foreground select-none">
+      <details className="group text-sm">
+        <summary className="inline-flex list-none cursor-pointer items-center gap-1 rounded-lg text-muted-foreground select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
+          <ChevronRight className="size-3.5 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90" />
           {feature.subtasks.length} subtask{feature.subtasks.length === 1 ? "" : "s"}
         </summary>
         <div className="mt-2">

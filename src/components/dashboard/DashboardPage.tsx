@@ -13,6 +13,15 @@ import { ChangeFeedItem } from "./ChangeFeedItem"
 import { KpiStat } from "./KpiStat"
 import { EmptyState } from "./EmptyState"
 import { Callout } from "./Callout"
+// Recharts (~100KB gzipped) is imported eagerly here rather than via
+// React.lazy()/Suspense. That's a deliberate call, not an oversight: this
+// site's hard constraint is "prefer fully prerendered" — a Suspense
+// boundary around a dynamically-imported chart risks the prerenderer
+// baking in the loading fallback instead of the resolved chart if the
+// build's SSR step doesn't await it, which would be strictly worse than
+// a larger bundle. Both charts are real above-the-fold-adjacent content
+// (reachable by a normal scroll, not hidden behind a toggle), so there's
+// no idle-time win from deferring them anyway.
 import { SubtaskStatusMixChart } from "./SubtaskStatusMixChart"
 import { BurnUpChart } from "./BurnUpChart"
 import { ReviewQueueTable } from "./ReviewQueueTable"
@@ -49,9 +58,12 @@ export function DashboardPage({ snapshot, previous, history, search, onSearchCha
       {/* 1. Header */}
       <DashboardHeader snapshot={snapshot} now={now} />
 
-      {/* 2. Headline — the release gate. Largest text on the page. */}
+      {/* 2. Headline — the release gate. Largest text on the page, by a
+             clear margin over the KPI numbers below it. */}
       <section className="flex flex-col gap-3">
-        <p className="m-0 text-2xl font-semibold leading-tight sm:text-4xl">{snapshot.headline.sentence}</p>
+        <p className="m-0 text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl md:text-6xl">
+          {snapshot.headline.sentence}
+        </p>
         {snapshot.collectionErrors.length > 0 ? (
           <div className="flex flex-col gap-1.5">
             {snapshot.collectionErrors.map((error, i) => (
@@ -88,7 +100,7 @@ export function DashboardPage({ snapshot, previous, history, search, onSearchCha
       </section>
 
       {/* 4. KPI row */}
-      <section className="flex flex-wrap gap-x-8 gap-y-4 rounded-xl border border-border bg-card p-4 sm:p-6">
+      <section className="surface flex flex-wrap gap-x-8 gap-y-4 rounded-xl border border-border bg-card p-4 sm:p-6">
         <KpiStat
           label="Features tracked"
           value={snapshot.kpis.featuresTracked}
@@ -121,6 +133,7 @@ export function DashboardPage({ snapshot, previous, history, search, onSearchCha
 
       {/* 6. M1, full tier */}
       <section className="flex flex-col gap-4">
+        <h2 className="m-0 text-sm font-semibold text-muted-foreground uppercase tracking-wide">M1 — full tier</h2>
         {m1Features.length === 0 ? (
           <EmptyState message="No M1 features match the current filters." />
         ) : (

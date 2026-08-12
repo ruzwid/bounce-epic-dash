@@ -18,7 +18,7 @@ export function EmptyState({ message, icon, className }: EmptyStateProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground",
+        "flex items-center gap-2.5 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground",
         className,
       )}
     >
