@@ -337,6 +337,45 @@ with a synchronous `fs.readdirSync` at config-eval time (not a runtime
 read) — if you add a new snapshot date, it's picked up automatically on
 the next build.
 
+Nitro wraps that build into a deployable server. Locally you get a plain
+Node server:
+
+```bash
+pnpm build && pnpm preview
+```
+
+## Deploying to Vercel
+
+Nothing to configure — no `vercel.json`, no output directory setting.
+Import the repo on Vercel and it works, because:
+
+- **Nitro picks its own target.** No `preset` is set in `vite.config.ts`
+  on purpose: Nitro reads the environment, so the same `pnpm build`
+  produces a Node server in `.output/` locally and Vercel's Build Output
+  API v3 in `.vercel/output/` on Vercel. Vercel detects that directory
+  itself and ignores any framework/output-directory guess.
+- **Every real page is static.** All 72 prerendered pages land in
+  `.vercel/output/static/`, and the generated route config puts
+  `handle: filesystem` *before* the server function — so normal traffic is
+  served from the CDN and never wakes the function. Hashed assets get a
+  one-year immutable cache header.
+- **The function is only a fallback.** It handles URLs that were never
+  prerendered — a snapshot date that doesn't exist, a renamed feature slug
+  — so those render the app's own not-found page (`/2099-01-01` returns a
+  real 404) instead of a bare platform error page.
+
+**No environment variables are needed for the deployment.** `JIRA_*` and
+`GITHUB_TOKEN` are only read by `scripts/collect.ts`, which runs on your
+machine (or CI), never in the browser or in the deployed function. The
+site is built entirely from what's committed: `data/snapshots/*.json` and
+`config.yaml`. Deploying does not talk to JIRA or GitHub at all.
+
+The consequence worth knowing: **the deployed dashboard only updates when
+you commit a new snapshot and redeploy.** Run the daily routine
+(`pnpm collect` → `/judge` → `pnpm merge`), commit the new
+`data/snapshots/<date>.json`, and push — Vercel rebuilds and the new date
+is prerendered automatically.
+
 ## Design system
 
 `src/components/dashboard/` is a small, consistently-used component

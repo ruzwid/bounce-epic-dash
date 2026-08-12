@@ -4,7 +4,7 @@
 # Ticket keys, milestone/feature structure, and owner logins below were
 # discovered via read-only JIRA/GitHub API queries and confirmed with the
 # project owner. Items marked "PROVISIONAL" below are best-effort starting
-# points, not confirmed final — edit freely as the real repo/tier mapping
+# points, not confirmed final — edit freely as the real tier mapping
 # becomes clearer.
 
 epic:
@@ -29,6 +29,19 @@ jira:
 
 github:
   org: bounceinsights
+  # Repos are NOT listed per feature. Every non-archived repo in the org
+  # pushed since epic.startDate is searched on each run, and PRs are
+  # attributed to subtasks by ticket key in the branch name or title.
+  #
+  # Listing repos per feature used to be the mechanism, and it silently
+  # lost data: a ticket's work routinely spans a UI repo, its API and a
+  # shared types package, so scoping the search to `[dashboard]` hid every
+  # PR in dashboard-api, ts-types, admin-v2 and cron-api. About two thirds
+  # of this epic's pull requests were invisible. Crawling all 25 active
+  # repos instead takes ~10s, so there was never a performance reason for
+  # the narrower scope either.
+  excludeRepos: []   # never search these (noisy infra, vendored mirrors)
+  includeRepos: []   # always search these, even if not pushed recently
 
 timezone: Europe/Dublin
 
@@ -46,35 +59,22 @@ milestones:
     tier: full
     owner: ruzwid
     ticket: BOUN-11205
-    repos: []
     features:
-      # PROVISIONAL: all five features default to the one confirmed repo
-      # (dashboard). Per-feature repo usage varies in practice ("it really
-      # depends on the features... sometimes only 1, sometimes 5") — add
-      # more repos to a feature's list here as PRs turn out to live
-      # elsewhere; collect.ts attributes PRs to subtasks by ticket key in
-      # the branch/title, so listing an extra repo is always safe, just
-      # slower.
       - key: BOUN-11207
         code: "F1.1"
         owner: ruzwid
-        repos: [dashboard]
       - key: BOUN-11208
         code: "F1.2"
         owner: VivekMurarkaIndIre
-        repos: [dashboard]
       - key: BOUN-11209
         code: "F1.3"
         owner: gelbh
-        repos: [dashboard]
       - key: BOUN-11210
         code: "F1.4"
         owner: gelbh
-        repos: [dashboard]
       - key: BOUN-11211
         code: "F1.5"
         owner: EmadNazzal
-        repos: [dashboard]
 
   - id: M2
     title: "Expansion & Follow-On Builds"
@@ -84,80 +84,59 @@ milestones:
     tier: full
     owner: ruzwid
     ticket: BOUN-11206
-    repos: []
     features:
       # Keys, codes and owners read from JIRA (children of BOUN-11206) on
       # 2026-08-12. Note F2.9 exists in JIRA but is absent from the
       # milestone description's "Features Included" list — the ticket tree
       # is the source of truth here, so it is tracked.
-      # PROVISIONAL repos, same caveat as M1: all default to `dashboard`
-      # until PRs show up elsewhere.
       - key: BOUN-11212
         code: "F2.1"
         owner: VivekMurarkaIndIre
-        repos: [dashboard]
       - key: BOUN-11213
         code: "F2.2"
         owner: ruzwid
-        repos: [dashboard]
       # Unassigned in JIRA (pending a decision from Walr) — owner defaults
       # to the milestone owner, same convention as DF4.1.1.
       - key: BOUN-11214
         code: "F2.3"
         owner: ruzwid
-        repos: [dashboard]
       - key: BOUN-11255
         code: "F2.4"
         owner: gelbh
-        repos: [dashboard]
       - key: BOUN-11340
         code: "F2.5"
         owner: EmadNazzal
-        repos: [dashboard]
       - key: BOUN-11341
         code: "F2.6"
         owner: ruzwid
-        repos: [dashboard]
       - key: BOUN-11423
         code: "F2.7"
         owner: gelbh
-        repos: [dashboard]
       - key: BOUN-11496
         code: "F2.8"
         owner: gelbh
-        repos: [dashboard]
       - key: BOUN-11514
         code: "F2.9"
         owner: gelbh
-        repos: [dashboard]
 
   - id: M3
     title: "WPP API Platform"
     tier: light
     owner: TonyCasey
     ticket: BOUN-11290
-    repos: []
     features:
-      # PROVISIONAL: fieldwork-processing, confirmed "for now" — the old
-      # fieldwork-api repo is archived, and F3.2/F3.4 literally describe
-      # migrating off it, so this is where that work is expected to land.
-      # Revisit if PRs turn out to still be filed elsewhere.
       - key: BOUN-11291
         code: "F3.1"
         owner: TonyCasey
-        repos: [fieldwork-processing]
       - key: BOUN-11292
         code: "F3.2"
         owner: TonyCasey
-        repos: [fieldwork-processing]
       - key: BOUN-11293
         code: "F3.3"
         owner: TonyCasey
-        repos: [fieldwork-processing]
       - key: BOUN-11294
         code: "F3.4"
         owner: TonyCasey
-        repos: [fieldwork-processing]
 
   - id: M4
     title: "WPP Dashboard"
@@ -166,32 +145,25 @@ milestones:
     tier: light
     owner: TonyCasey
     ticket: BOUN-11248
-    repos: []
     features:
-      # PROVISIONAL repo, same caveat as M1: could span more than one repo.
       - key: BOUN-11465
         code: "F4.1"
         owner: TonyCasey
-        repos: [fieldwork-dashboard]
       - key: BOUN-11466
         code: "F4.2"
         owner: TonyCasey
-        repos: [fieldwork-dashboard]
       - key: BOUN-11467
         code: "F4.3"
         owner: TonyCasey
-        repos: [fieldwork-dashboard]
       - key: BOUN-11468
         code: "F4.4"
         owner: TonyCasey
-        repos: [fieldwork-dashboard]
       # Doesn't match the F#.# pattern and is unassigned in JIRA (owner
       # defaulted to the milestone owner) — kept as-is per project owner:
       # "there might be a reason for that naming."
       - key: BOUN-11516
         code: "DF4.1.1"
         owner: TonyCasey
-        repos: [fieldwork-dashboard]
 
 people:
   ruzwid: Ruzzell

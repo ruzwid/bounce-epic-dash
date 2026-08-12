@@ -51,6 +51,74 @@ export async function getDefaultBranch(org: string, repo: string): Promise<strin
   return branch;
 }
 
+export type OrgRepo = { name: string; defaultBranch: string };
+
+const ORG_REPOS_QUERY = `
+  query ListOrgRepos($org: String!, $after: String) {
+    organization(login: $org) {
+      repositories(first: 100, after: $after, orderBy: { field: PUSHED_AT, direction: DESC }) {
+        pageInfo { hasNextPage endCursor }
+        nodes {
+          name
+          pushedAt
+          isArchived
+          defaultBranchRef { name }
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * Every repository in the org that could plausibly hold work for this
+ * epic: not archived, and pushed to on or after `sinceISO`.
+ *
+ * Which repo a pull request lives in is not knowable in advance — a single
+ * ticket routinely spans a UI repo, its API, and a shared types package —
+ * so repo scope is discovered here rather than declared per feature in
+ * config.yaml. `pushedAt` is ordered descending, so pagination stops at
+ * the first page that is entirely too old.
+ *
+ * Default branches come back in the same query: they're needed to classify
+ * every PR, and fetching them here costs nothing extra.
+ */
+export async function listOrgRepos(org: string, sinceISO: string): Promise<OrgRepo[]> {
+  const since = new Date(sinceISO).getTime();
+  const repos: OrgRepo[] = [];
+  let after: string | undefined;
+
+  for (;;) {
+    const result: {
+      organization: {
+        repositories: {
+          pageInfo: { hasNextPage: boolean; endCursor: string | null };
+          nodes: Array<{ name: string; pushedAt: string | null; isArchived: boolean; defaultBranchRef: { name: string } | null }>;
+        };
+      };
+    } = await getClient()(ORG_REPOS_QUERY, { org, after });
+
+    const { nodes, pageInfo } = result.organization.repositories;
+    let hitOlderThanSince = false;
+    for (const node of nodes) {
+      if (!node.pushedAt || new Date(node.pushedAt).getTime() < since) {
+        hitOlderThanSince = true;
+        break;
+      }
+      // An archived or empty repo can still be recent; skip rather than
+      // stop, since ordering is by pushedAt and later pages may qualify.
+      if (node.isArchived || !node.defaultBranchRef) continue;
+      repos.push({ name: node.name, defaultBranch: node.defaultBranchRef.name });
+      defaultBranchCache.set(`${org}/${node.name}`, node.defaultBranchRef.name);
+    }
+
+    if (hitOlderThanSince || !pageInfo.hasNextPage) break;
+    after = pageInfo.endCursor ?? undefined;
+    if (!after) break;
+  }
+
+  return repos;
+}
+
 type PrNode = {
   number: number;
   title: string;

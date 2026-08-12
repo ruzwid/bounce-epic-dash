@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
 import { parse } from 'yaml'
+import { nitro } from 'nitro/vite'
 import { devtools } from '@tanstack/devtools-vite'
 
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -71,6 +72,19 @@ const config = defineConfig({
       },
       pages: [{ path: '/' }, ...snapshotDatePages().map((path) => ({ path }))],
     }),
+    // Nitro turns the Start build into a deployable server. No preset is
+    // set here on purpose: Nitro detects its target from the environment,
+    // so `pnpm build` locally produces a plain Node server in .output/ and
+    // the same command on Vercel produces Build Output API v3 in
+    // .vercel/output/. Hardcoding `preset: 'vercel'` would break the
+    // local build for no gain.
+    //
+    // Note that every real page is still prerendered to static HTML above
+    // and served straight from the CDN — the server function only handles
+    // URLs that were never prerendered (an unknown snapshot date, a
+    // renamed feature slug), so those get the app's own not-found page
+    // instead of a bare platform 404.
+    nitro(),
     viteReact(),
   ],
 })

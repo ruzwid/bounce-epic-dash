@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Outlet, createFileRoute, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { loadHistory, loadLatestSnapshot, loadPreviousSnapshot } from '@/lib/dashboard/snapshots'
-import { dashboardSearchSchema } from '@/lib/dashboard/search'
+import { DASHBOARD_SEARCH_DEFAULTS, dashboardSearchSchema } from '@/lib/dashboard/search'
 import { AppShell } from '@/components/dashboard/shell/AppShell'
 
 // Pathless layout for the "latest snapshot" half of the app: it owns the
@@ -10,6 +10,10 @@ import { AppShell } from '@/components/dashboard/shell/AppShell'
 // historical snapshot into the identical shell.
 export const Route = createFileRoute('/_shell')({
   validateSearch: dashboardSearchSchema,
+  // Keeps default filter values out of the URL — without it every page
+  // load rewrites "/" to "/?milestone=all&engineer=null&…", which makes
+  // shared links noisy and costs a redirect before the prerendered HTML.
+  search: { middlewares: [stripSearchParams(DASHBOARD_SEARCH_DEFAULTS)] },
   loader: async () => {
     const snapshot = await loadLatestSnapshot()
     const [previous, history] = await Promise.all([

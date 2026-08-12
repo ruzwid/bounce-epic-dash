@@ -39,6 +39,21 @@ export function ConfigPage() {
       </section>
 
       <section className="flex flex-col gap-3">
+        <SectionHeading note="which repositories are searched for pull requests">Repository scope</SectionHeading>
+        <p className="m-0 max-w-[70ch] text-[13.5px] leading-relaxed text-muted-foreground">
+          Every non-archived repository in{" "}
+          <span className="font-mono-data">{config.github.org}</span> pushed since{" "}
+          <span className="font-mono-data">{config.epic.startDate}</span> is searched on each run. Pull requests are
+          attributed to a subtask by ticket key in the branch name or title, so a ticket's work is found wherever it
+          landed — there is no per-feature repository list to keep up to date.
+        </p>
+        <dl className="surface m-0 grid gap-x-6 gap-y-0 rounded-xl border border-border bg-card px-5 py-1 sm:grid-cols-2">
+          <Field label="Always included" value={config.github.includeRepos.join(", ") || "none"} mono />
+          <Field label="Excluded" value={config.github.excludeRepos.join(", ") || "none"} mono />
+        </dl>
+      </section>
+
+      <section className="flex flex-col gap-3">
         <SectionHeading note="weighted mean across a feature's subtasks">Score weights</SectionHeading>
         <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
           {(Object.keys(SUBTASK_STATUS_LABELS) as (keyof typeof SUBTASK_STATUS_LABELS)[]).map((status) => (
@@ -86,10 +101,7 @@ export function ConfigPage() {
                     >
                       <span className="font-mono-data w-16 shrink-0 text-xs">{feature.code}</span>
                       <span className="font-mono-data text-xs text-muted-foreground">{feature.key}</span>
-                      <span className="text-xs text-muted-foreground">{feature.owner}</span>
-                      <span className="font-mono-data ml-auto text-xs text-muted-foreground">
-                        {feature.repos.join(", ") || "no repo"}
-                      </span>
+                      <span className="ml-auto text-xs text-muted-foreground">{feature.owner}</span>
                     </li>
                   ))}
                 </ul>

@@ -18,7 +18,7 @@ import {
 } from "../src/lib/classify.ts";
 import { loadConfig, logicalDate } from "../src/lib/config.ts";
 import type { Config, MilestoneFeature } from "../src/lib/config-schema.ts";
-import { getDefaultBranch, getRepoPrs } from "../src/lib/github.ts";
+import { getDefaultBranch, getRepoPrs, listOrgRepos } from "../src/lib/github.ts";
 import { writeJsonAtomic } from "../src/lib/io.ts";
 import { cleanPrBody } from "../src/lib/prbody.ts";
 import { getIssue, searchSubtasks, type RawJiraIssue } from "../src/lib/jira.ts";
@@ -125,12 +125,106 @@ export type Deps = {
   getIssue: typeof getIssue;
   getDefaultBranch: typeof getDefaultBranch;
   getRepoPrs: typeof getRepoPrs;
+  listOrgRepos: typeof listOrgRepos;
 };
 
-export const defaultDeps: Deps = { searchSubtasks, getIssue, getDefaultBranch, getRepoPrs };
+export const defaultDeps: Deps = { searchSubtasks, getIssue, getDefaultBranch, getRepoPrs, listOrgRepos };
 
+/**
+ * Every pull request in the org since the epic's start date, fetched once
+ * per run and shared by every feature.
+ *
+ * This is deliberately not scoped per feature. Attribution has always been
+ * by ticket key — a PR belongs to BOUN-11312 because its branch or title
+ * says so, not because of which repo it's in — so scoping the *fetch* by
+ * repo could only ever hide matches. It did: a hand-maintained
+ * `repos: [dashboard]` per feature meant PRs in dashboard-api, ts-types,
+ * admin-v2 and cron-api were never even looked at, and roughly two thirds
+ * of this epic's pull requests were invisible.
+ */
+export type PrIndex = {
+  allPrs: RawPr[];
+  prsByRepo: Record<string, RawPr[]>;
+  defaultBranchByRepo: Record<string, string>;
+  /** True when GitHub gave us nothing at all this run. Features collected
+   *  against a degraded index are marked dataOk: false — otherwise a total
+   *  GitHub outage would render every feature as a confident 0%, which is
+   *  exactly the false certainty this dashboard exists to avoid. A single
+   *  unreachable repo out of twenty-five is not degraded; it's recorded as
+   *  a collection error and the rest of the run stands. */
+  degraded: boolean;
+};
+
+export async function buildPrIndex(
+  config: Config,
+  deps: Deps,
+): Promise<{ index: PrIndex; errors: CollectionError[] }> {
+  const errors: CollectionError[] = [];
+  const org = config.github.org;
+
+  let discovered: { name: string; defaultBranch: string }[] = [];
+  try {
+    discovered = await deps.listOrgRepos(org, config.epic.startDate);
+  } catch (err) {
+    errors.push({ source: "github", scope: org, message: `Repo discovery failed: ${errMsg(err)}` });
+  }
+
+  const excluded = new Set(config.github.excludeRepos);
+  const names = new Set(discovered.filter((r) => !excluded.has(r.name)).map((r) => r.name));
+  for (const name of config.github.includeRepos) names.add(name);
+
+  const defaultBranchByRepo: Record<string, string> = {};
+  for (const repo of discovered) defaultBranchByRepo[repo.name] = repo.defaultBranch;
+
+  const prsByRepo: Record<string, RawPr[]> = {};
+  await Promise.all(
+    [...names].map(async (repo) => {
+      try {
+        // An explicitly included repo may not have come from discovery, so
+        // its default branch isn't known yet.
+        defaultBranchByRepo[repo] ??= await deps.getDefaultBranch(org, repo);
+        prsByRepo[repo] = await deps.getRepoPrs(org, repo, config.epic.startDate);
+      } catch (err) {
+        // One unreachable repo must not cost us the other twenty-four.
+        errors.push({ source: "github", scope: `${org}/${repo}`, message: errMsg(err) });
+      }
+    }),
+  );
+
+  const fetched = Object.keys(prsByRepo).length;
+  return {
+    index: {
+      allPrs: Object.values(prsByRepo).flat(),
+      prsByRepo,
+      defaultBranchByRepo,
+      degraded: names.size === 0 || fetched === 0,
+    },
+    errors,
+  };
+}
+
+/** Whether `text` references `key` as a whole token.
+ *
+ *  A plain `includes` would let BOUN-11312 match a PR for BOUN-113120.
+ *  That was near-harmless while only three repos were searched; across
+ *  every repo in the org it is a real way to attribute someone else's
+ *  work to a feature. */
+export function mentionsTicket(text: string, key: string): boolean {
+  return new RegExp(`(^|[^A-Za-z0-9])${key}([^0-9]|$)`).test(text);
+}
+
+/** Collection errors are rendered verbatim in the dashboard's banner, so
+ *  they have to survive an upstream that answers with an HTML error page
+ *  rather than JSON — a raw nginx 502 body would otherwise fill the
+ *  callout with markup. Tags are stripped, whitespace collapsed, and the
+ *  result capped at a readable length. */
 function errMsg(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
+  const raw = err instanceof Error ? err.message : String(err);
+  const text = raw
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length > 200 ? `${text.slice(0, 200)}…` : text;
 }
 
 function toIso(jiraDate: unknown): string {
@@ -195,11 +289,13 @@ function buildRawFeature(params: {
   acBullets: { id: string; text: string }[];
   overview?: string;
   releaseGate: RawReleaseGate | null;
+  /** Derived from the feature's attributed PRs; empty when none matched. */
+  repos?: string[];
   now: Date;
   dataOk: boolean;
   scoreWeights: Config["scoreWeights"];
 }): RawFeature {
-  const { target, subtasks, acBullets, overview = "", releaseGate, now, dataOk, scoreWeights } = params;
+  const { target, subtasks, acBullets, overview = "", releaseGate, repos = [], now, dataOk, scoreWeights } = params;
   const { score, scoreBasis } = computeScore(subtasks.map((s) => s.status), scoreWeights);
   const allShippedToDefault = subtasks.length > 0 && subtasks.every((s) => s.status === "shipped");
   const stage = deriveStage(score, allShippedToDefault);
@@ -225,7 +321,7 @@ function buildRawFeature(params: {
     milestone: target.milestone,
     tier: target.tier,
     owner: target.owner,
-    repos: target.repos,
+    repos,
     score,
     scoreBasis,
     stage,
@@ -248,6 +344,7 @@ export async function collectFeature(
   config: Config,
   now: Date,
   deps: Deps = defaultDeps,
+  prIndex: PrIndex = { allPrs: [], prsByRepo: {}, defaultBranchByRepo: {}, degraded: false },
 ): Promise<{ feature: RawFeature; errors: CollectionError[] }> {
   const errors: CollectionError[] = [];
 
@@ -284,56 +381,16 @@ export async function collectFeature(
   const resolvedTarget: FeatureTarget =
     typeof liveTitle === "string" && liveTitle.length > 0 ? { ...target, title: liveTitle } : target;
 
-  let defaultBranchByRepo: Record<string, string> = {};
-  let prsByRepo: Record<string, RawPr[]> = {};
-  try {
-    for (const repo of target.repos) {
-      const [branch, prs] = await Promise.all([
-        deps.getDefaultBranch(config.github.org, repo),
-        deps.getRepoPrs(config.github.org, repo, config.epic.startDate),
-      ]);
-      defaultBranchByRepo[repo] = branch;
-      prsByRepo[repo] = prs;
-    }
-  } catch (err) {
-    errors.push({ source: "github", scope: target.key, message: errMsg(err) });
-    // Best-effort: JIRA data is good, so build subtasks from JIRA status
-    // alone (no PR-derived overrides) rather than dropping the feature.
-    const toJiraOnlySubtask = (issue: RawJiraIssue): RawSubtask => {
-      const jiraStatus = String(((issue.fields as Record<string, unknown>).status as { name?: string } | undefined)?.name ?? "");
-      return {
-        key: issue.key,
-        summary: String((issue.fields as Record<string, unknown>).summary ?? ""),
-        jiraStatus,
-        status: deriveSubtaskStatus(jiraStatus, config.jira.statusMap, [], ""),
-        assignee: ((issue.fields as Record<string, unknown>).assignee as { displayName?: string } | null)?.displayName ?? null,
-        updatedAt: toIso((issue.fields as Record<string, unknown>).updated),
-        prs: [],
-      };
-    };
-    const subtasks: RawSubtask[] =
-      subtaskIssues.length > 0 ? subtaskIssues.map(toJiraOnlySubtask) : [toJiraOnlySubtask(parentIssue)];
-    return {
-      feature: buildRawFeature({
-        target: resolvedTarget,
-        subtasks,
-        acBullets,
-        overview,
-        releaseGate: null,
-        now,
-        dataOk: false,
-        scoreWeights: config.scoreWeights,
-      }),
-      errors,
-    };
-  }
-
-  const allPrs = Object.values(prsByRepo).flat();
+  const { allPrs, prsByRepo, defaultBranchByRepo } = prIndex;
 
   const toRawSubtask = (issue: RawJiraIssue): RawSubtask => {
     const key = issue.key;
     const jiraStatus = String(((issue.fields as Record<string, unknown>).status as { name?: string } | undefined)?.name ?? "");
-    const matched = allPrs.filter((pr) => pr.headRefName.includes(key) || pr.title.includes(key));
+    // Searched across every repo in the org — a subtask's work is wherever
+    // its key says it is. When the index is empty (GitHub unreachable this
+    // run, recorded by buildPrIndex), this degrades to the JIRA status
+    // alone rather than dropping the feature.
+    const matched = allPrs.filter((pr) => mentionsTicket(pr.headRefName, key) || mentionsTicket(pr.title, key));
     const status = combineSubtaskStatus(jiraStatus, config.jira.statusMap, matched, defaultBranchByRepo);
     const prs = matched.map((pr) => toPrRecord(pr, config.github.org, defaultBranchByRepo[pr.repo]!, prsByRepo[pr.repo]!));
     return {
@@ -387,8 +444,12 @@ export async function collectFeature(
       acBullets,
       overview,
       releaseGate,
+      // The repos this feature's work actually landed in, derived from the
+      // PRs attributed to it — not declared up front. A feature with no
+      // PRs yet reports none, which is the honest answer.
+      repos: [...new Set(featurePrs.map((pr) => pr.repo))].sort(),
       now,
-      dataOk: true,
+      dataOk: !prIndex.degraded,
       scoreWeights: config.scoreWeights,
     }),
     errors,
@@ -418,7 +479,6 @@ function expandTargets(config: Config): { targets: FeatureTarget[]; errors: Coll
         key: milestone.ticket,
         code: milestone.id,
         owner: milestone.owner,
-        repos: milestone.repos,
         title: milestone.title,
         milestone: milestone.id,
         tier: milestone.tier,
@@ -573,12 +633,21 @@ export async function runCollect(config: Config, now: Date, deps: Deps = default
   const date = logicalDate(config.timezone, now);
   const { targets, errors: expandErrors } = expandTargets(config);
 
-  const [results, context] = await Promise.all([
-    Promise.all(targets.map((target) => collectFeature(target, config, now, deps))),
-    collectContext(config, deps),
-  ]);
+  // The PR index is built once, before any feature is collected, and
+  // shared by all of them — every repo in the org is fetched exactly once
+  // per run no matter how many features reference it.
+  const [prIndex, context] = await Promise.all([buildPrIndex(config, deps), collectContext(config, deps)]);
+
+  const results = await Promise.all(
+    targets.map((target) => collectFeature(target, config, now, deps, prIndex.index)),
+  );
   const features = results.map((r) => r.feature);
-  const collectionErrors = [...expandErrors, ...results.flatMap((r) => r.errors), ...context.errors];
+  const collectionErrors = [
+    ...expandErrors,
+    ...prIndex.errors,
+    ...results.flatMap((r) => r.errors),
+    ...context.errors,
+  ];
 
   const raw = {
     schemaVersion: 1 as const,

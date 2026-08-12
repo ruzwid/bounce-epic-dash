@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Link, Outlet, createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
+import { Link, Outlet, createFileRoute, notFound, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { loadHistory, loadPreviousSnapshot, loadSnapshot } from '@/lib/dashboard/snapshots'
-import { dashboardSearchSchema } from '@/lib/dashboard/search'
+import { DASHBOARD_SEARCH_DEFAULTS, dashboardSearchSchema } from '@/lib/dashboard/search'
 import { AppShell } from '@/components/dashboard/shell/AppShell'
 
 // The historical mirror of /_shell: same shell, same pages, one specific
@@ -9,6 +9,8 @@ import { AppShell } from '@/components/dashboard/shell/AppShell'
 // browsing an old snapshot never silently drops you back onto today's.
 export const Route = createFileRoute('/$date')({
   validateSearch: dashboardSearchSchema,
+  // See the note on the same option in _shell.tsx.
+  search: { middlewares: [stripSearchParams(DASHBOARD_SEARCH_DEFAULTS)] },
   loader: async ({ params }) => {
     const snapshot = await loadSnapshot(params.date)
     if (!snapshot) throw notFound()

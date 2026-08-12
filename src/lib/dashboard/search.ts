@@ -17,6 +17,22 @@ export const dashboardSearchSchema = z.object({
 });
 
 export type DashboardSearch = z.infer<typeof dashboardSearchSchema>;
+
+/** The value each filter takes when nothing is filtered.
+ *
+ *  Every field above has a default, which means a bare "/" validates to a
+ *  fully-populated search object and the router rewrites the URL to match
+ *  — turning every shared link into
+ *  "/?milestone=all&engineer=null&needsAttention=false&q=". Pairing the
+ *  defaults with stripSearchParams (see each shell route) keeps the
+ *  defaults in code and out of the address bar, so "/" stays "/" and only
+ *  filters the reader actually set are carried in a link. */
+export const DASHBOARD_SEARCH_DEFAULTS: DashboardSearch = {
+  milestone: "all",
+  engineer: null,
+  needsAttention: false,
+  q: "",
+};
 type FeatureT = z.infer<typeof FeatureSchema>;
 
 const STALL_DAYS = 7;

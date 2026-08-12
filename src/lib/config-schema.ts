@@ -8,7 +8,6 @@ export const MilestoneFeature = z.object({
   key: z.string(),
   code: z.string(),
   owner: z.string(),
-  repos: z.array(z.string()).default([]),
 });
 
 export const Milestone = z.object({
@@ -21,8 +20,6 @@ export const Milestone = z.object({
    *  only an error if collect.ts is asked to use it while features[] is
    *  also empty (see scripts/collect.ts). */
   ticket: z.string().nullable().default(null),
-  /** fallback repos for direct-subtask mode, or a milestone-wide default */
-  repos: z.array(z.string()).default([]),
   features: z.array(MilestoneFeature).default([]),
 });
 
@@ -44,6 +41,19 @@ export const JiraConfig = z.object({
 
 export const GithubConfig = z.object({
   org: z.string(),
+  /**
+   * Repos are discovered from the org on every run — every non-archived
+   * repo pushed since epic.startDate — rather than listed per feature.
+   * Which repo a ticket's PR lands in isn't knowable in advance, and a
+   * hand-maintained list silently drops the PRs it doesn't mention.
+   *
+   * These two are escape hatches, not the mechanism:
+   *   excludeRepos — never crawl (noisy infra repos, vendored mirrors)
+   *   includeRepos — always crawl, even if it hasn't been pushed since
+   *                  startDate (a repo that only gets release commits)
+   */
+  excludeRepos: z.array(z.string()).default([]),
+  includeRepos: z.array(z.string()).default([]),
 });
 
 export const EpicConfig = z.object({
