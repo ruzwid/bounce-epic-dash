@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-08-12",
-  "generatedAt": "2026-08-12T09:28:24.900Z",
+  "generatedAt": "2026-08-12T12:02:59.284Z",
   "epic": {
     "key": "BOUN-11204",
     "title": "WPP at Scale",
@@ -50,10 +50,10 @@
   "kpis": {
     "featuresTracked": 23,
     "lightTierMilestones": 2,
-    "subtasksTracked": 71,
+    "subtasksTracked": 72,
     "shipped": 37,
     "staged": 3,
-    "inReview": 11,
+    "inReview": 12,
     "blockedOrTodo": 18
   },
   "features": [
@@ -81,36 +81,39 @@
         "total": 5
       },
       "scoreOverride": null,
-      "confidence": "medium",
-      "rationale": "All five subtasks are shipped to master, but two of them rest on pull requests that were closed rather than merged, so the shipped count is stronger than the code evidence behind it.",
+      "confidence": "high",
+      "rationale": "All 5 subtasks are shipped, including the gating validation route and its E2E coverage, so the demographic-question validation checks land as designed.",
       "daysSinceLastActivity": 14,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Template demographic questions are checked against the questions workbook before a survey is created",
-          "coverage": "partial",
+          "label": "Validation diffs the template's demographic questions against the questions workbook before creation.",
+          "coverage": "covered",
           "evidence": [
-            "dashboard-api#2053",
-            "dashboard#3806"
+            "BOUN-11312",
+            "dashboard-api#2053"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Creation proceeds when the template and workbook agree",
+          "label": "Aligned demographics let survey creation proceed.",
           "coverage": "covered",
           "evidence": [
-            "dashboard#3820",
-            "dashboard-api#2066"
+            "BOUN-11314",
+            "dashboard#3806"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Creation is halted when they disagree, until the mismatch is fixed",
-          "coverage": "partial",
+          "label": "Mismatched demographics block creation until resolved.",
+          "coverage": "covered",
           "evidence": [
-            "dashboard#3806"
+            "BOUN-11314",
+            "dashboard#3806",
+            "BOUN-11321",
+            "dashboard-api#2066"
           ]
         }
       ],
@@ -187,22 +190,6 @@
           "updatedAt": "2026-07-29T16:06:41.225Z",
           "prs": [
             {
-              "repo": "dashboard",
-              "number": 3820,
-              "title": "[BOUN-11321] - Validation step E2Es",
-              "url": "https://github.com/bounceinsights/dashboard/pull/3820",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11321",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-29T13:34:28Z",
-              "updatedAt": "2026-07-29T13:34:28Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "dashboard-api",
               "number": 2066,
               "title": "[BOUN-11321] - Validation step E2Es",
@@ -214,6 +201,22 @@
               "shippedToDefault": true,
               "mergedAt": "2026-07-29T13:34:25Z",
               "updatedAt": "2026-07-29T13:34:25Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3820,
+              "title": "[BOUN-11321] - Validation step E2Es",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3820",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11321",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T13:34:28Z",
+              "updatedAt": "2026-07-29T13:34:28Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -247,19 +250,7 @@
           ]
         }
       ],
-      "callouts": [
-        {
-          "type": "drift",
-          "severity": "warn",
-          "message": "Two subtasks read as shipped while their only pull requests were closed without merging, so their status rests on the ticket alone.",
-          "refs": [
-            "BOUN-11312",
-            "BOUN-11314",
-            "dashboard-api#2053",
-            "dashboard#3806"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
       "dataOk": true
     },
@@ -288,65 +279,69 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "All nine subtasks are shipped to master with thirteen merged pull requests spanning the admin UI and its API, and every acceptance criterion has a merged change behind it.",
+      "rationale": "All 9 subtasks are shipped, delivering every planned bulk action (move, rename, RD/resume toggle, red herrings, bucket reset) plus per-survey success/failure reporting.",
       "daysSinceLastActivity": 6,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Bulk status move applies to every selected survey",
+          "label": "Bulk move-to applies the chosen status to every selected survey.",
           "coverage": "covered",
           "evidence": [
             "BOUN-11284",
-            "admin-v2#642",
+            "BOUN-11379",
             "admin-v2#645"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Bucket reset touches only open buckets, leaving closed ones alone",
+          "label": "Bulk bucket reset only zeroes buckets that were open/available.",
           "coverage": "covered",
           "evidence": [
-            "admin-v2#657",
-            "admin-api#1139"
+            "BOUN-11289",
+            "admin-api#1139",
+            "admin-v2#657"
           ]
         },
         {
           "id": "ac-3",
-          "label": "One shared external name can be applied across a selection",
+          "label": "Same-name-for-all rename applies one external name to every selected survey.",
           "coverage": "covered",
           "evidence": [
-            "admin-v2#648",
-            "admin-api#1130"
+            "BOUN-11285",
+            "admin-v2#648"
           ]
         },
         {
           "id": "ac-4",
-          "label": "Names can instead be set individually per survey",
+          "label": "Set-individually rename lets each survey keep its own name.",
           "coverage": "covered",
           "evidence": [
+            "BOUN-11285",
             "admin-v2#648"
           ]
         },
         {
           "id": "ac-5",
-          "label": "Research Defender and survey resume can be toggled in bulk",
+          "label": "Bulk Research Defender / resume toggles update all selected surveys without opening them.",
           "coverage": "covered",
           "evidence": [
+            "BOUN-11286",
             "admin-v2#650",
-            "admin-v2#656",
-            "admin-api#1132",
-            "admin-api#1137"
+            "BOUN-11287",
+            "admin-v2#656"
           ]
         },
         {
           "id": "ac-6",
-          "label": "Failures are surfaced per survey and per action",
+          "label": "Per-survey failures are surfaced with which action failed on which survey.",
           "coverage": "covered",
           "evidence": [
-            "admin-v2#657",
-            "admin-v2#645"
+            "BOUN-11285",
+            "admin-v2#648",
+            "BOUN-11289",
+            "admin-v2#657"
           ]
         }
       ],
@@ -679,47 +674,48 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The one tracked subtask is shipped, but it is a labels and copy polish — the filtering behaviour the acceptance criteria describe has no subtask or pull request referencing it.",
+      "confidence": "medium",
+      "rationale": "The only tracked subtask is a copy/label polish, shipped; the core multi-facet bucket-filtering logic described in the AC bullets predates this dataset's visibility and has no PR evidence here.",
       "daysSinceLastActivity": 12,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Selecting a targeting value checks every matching open bucket and leaves completed ones out",
+          "label": "Selecting one criteria value auto-checks matching available buckets only.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Two values in one facet match buckets satisfying either",
+          "label": "Two values in one facet check buckets matching either.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Values across two facets narrow to buckets satisfying both",
+          "label": "Values across two facets check only buckets matching both.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "A bulk action applies only to the checked buckets",
+          "label": "Bulk actions apply only to checked buckets.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "Clear resets both the filter selections and the checkboxes",
+          "label": "Clear resets both criteria selections and checkboxes.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-6",
-          "label": "Criteria beyond gender and age appear as filterable facets",
+          "label": "Balance criteria beyond gender/age also appear as filterable facets.",
           "coverage": "partial",
           "evidence": [
+            "BOUN-11400",
             "admin-v2#655"
           ]
         }
@@ -755,11 +751,10 @@
       "callouts": [
         {
           "type": "spec_gap",
-          "severity": "warn",
-          "message": "The feature reads as complete on a single copy-and-labels subtask while five of six acceptance criteria have no ticket or pull request referencing them.",
+          "severity": "info",
+          "message": "Only a label/copy polish subtask is tracked for this feature; no ticket or PR in this dataset evidences the underlying multi-facet filter or bulk-scoping logic the AC bullets describe.",
           "refs": [
-            "BOUN-11400",
-            "admin-v2#655"
+            "BOUN-11400"
           ]
         }
       ],
@@ -790,60 +785,63 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "All five subtasks are shipped to master across five merged pull requests, covering both panel providers, the hash and code transforms, and the follow-up product feedback.",
+      "rationale": "All 5 subtasks are shipped; the stacked PRs implement PureSpectrum and Walr bulk apply/export rules matching the spec bullets.",
       "daysSinceLastActivity": 5,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "No provider fields appear until a panel is chosen",
-          "coverage": "partial",
+          "label": "No panel chosen means no provider-specific fields render.",
+          "coverage": "covered",
           "evidence": [
+            "BOUN-11332",
             "admin-v2#640"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Entry-link export strips the respondent identifier",
+          "label": "PureSpectrumQual export strips respondentId with a clean query string.",
           "coverage": "covered",
           "evidence": [
-            "admin-v2#639",
-            "admin-v2#640"
+            "BOUN-11331",
+            "admin-v2#639"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Applying a hash updates only the complete, quality and dedupe links",
+          "label": "PureSpectrum hash apply only touches complete/quality/dedupe links.",
           "coverage": "covered",
           "evidence": [
+            "BOUN-11331",
             "admin-v2#639"
           ]
         },
         {
           "id": "ac-4",
-          "label": "The second provider swaps in its own code and produces an export",
+          "label": "Walr Quality code apply replaces respondentId and produces an export.",
           "coverage": "covered",
           "evidence": [
-            "admin-v2#640",
+            "BOUN-11452",
             "admin-v2#659"
           ]
         },
         {
           "id": "ac-5",
-          "label": "A locale code is appended to generated links correctly",
-          "coverage": "covered",
+          "label": "Locale code appends correctly with a single ampersand.",
+          "coverage": "partial",
           "evidence": [
+            "BOUN-11452",
             "admin-v2#659"
           ]
         },
         {
           "id": "ac-6",
-          "label": "Values set in bulk are reflected when a survey is opened on its own",
+          "label": "Bulk-set panel config matches what the single-survey screen later shows.",
           "coverage": "partial",
           "evidence": [
-            "admin-v2#659",
-            "admin-v2#658"
+            "BOUN-11332",
+            "admin-v2#640"
           ]
         }
       ],
@@ -1009,7 +1007,7 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Two subtasks are shipped to master, but the other three are only staged on an integration branch and have sat there for twenty days with the release pull request still open — the reporting work exists but is not live.",
+      "rationale": "2 of 5 subtasks (the consolidation base and the at-scale market rollout) are shipped, but the column/theme, grade-region mapping, and day-on-day subtasks are merged only to an integration branch and have sat there 20 days with the release gate still open — that's staged, not shipped.",
       "daysSinceLastActivity": 8,
       "daysInStaged": 20,
       "releaseGate": {
@@ -1035,36 +1033,36 @@
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Quota tables carry an all-cells current, goal and remaining rollup",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard-api#2045",
-            "dashboard-api#2046"
-          ]
+          "label": "Quota tables show a populated All Cells rollup for every row.",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Day-on-day completes reporting shows totals, remaining and percentage filled",
+          "label": "Day-on-day report shows completes/remaining/% filled overall and per cell.",
           "coverage": "partial",
           "evidence": [
-            "dashboard-api#2048",
-            "BOUN-11303"
+            "BOUN-11303",
+            "dashboard-api#2048"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Markets needing social grade or region quotas are reflected in the report",
-          "coverage": "partial",
+          "label": "Markets needing social grade or region quotas get those dimensions in the report.",
+          "coverage": "covered",
           "evidence": [
-            "dashboard-api#2046",
-            "BOUN-11295"
+            "BOUN-11295",
+            "dashboard-api#2046"
           ]
         },
         {
           "id": "ac-4",
-          "label": "Non-nested quota targets come from the setup page rather than being blank",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Non-nested quota targets are sourced from the setup page, not invented.",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11295",
+            "dashboard-api#2046"
+          ]
         }
       ],
       "subtasks": [
@@ -1245,25 +1243,12 @@
       "callouts": [
         {
           "type": "release_blocked",
-          "severity": "risk",
-          "message": "Three subtasks have been merged into an integration branch for twenty days with the release pull request still open, so none of that reporting work is on master.",
+          "severity": "warn",
+          "message": "Three subtasks (columns/themes, grade/region mapping, day-on-day sheet) are merged to an integration branch, not the default branch, and the release gate has been open for 20 days.",
           "refs": [
             "BOUN-11273",
             "BOUN-11295",
-            "BOUN-11303",
-            "dashboard-api#2045",
-            "dashboard-api#2046",
-            "dashboard-api#2048"
-          ]
-        },
-        {
-          "type": "drift",
-          "severity": "info",
-          "message": "The first subtask reads as shipped although its pull request was closed rather than merged; the work appears to have landed through the later scale-up change instead.",
-          "refs": [
-            "BOUN-11251",
-            "dashboard-api#2044",
-            "dashboard-api#2062"
+            "BOUN-11303"
           ]
         }
       ],
@@ -1294,60 +1279,57 @@
         "total": 9
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "One of nine subtasks is in review and the remaining eight are untouched; both pull requests raised so far were closed rather than merged, so nothing is on master.",
+      "confidence": "high",
+      "rationale": "Only the WPP Excel-import subtask is in review, and its PRs cover multilingual category/brand displayName plumbing, not the survey-render or response-mapping behaviour the AC bullets describe; the other eight subtasks are still todo.",
       "daysSinceLastActivity": 2,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "A survey renders in the language named by the URL when translations exist",
+          "label": "Survey renders in the language given by the URL parameter.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "An unmapped language falls back to English",
+          "label": "Unmapped language parameter falls back to English.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Answers are mapped back to English at capture, recording the language used",
+          "label": "Translated responses are captured and mapped back to English with the language recorded.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "The existing translation process is left untouched",
+          "label": "The existing translation process stays untouched.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "Manual edits survive unless the language is re-imported",
-          "coverage": "partial",
-          "evidence": [
-            "BOUN-11474",
-            "dashboard-api#2083"
-          ]
+          "label": "Manual Creator edits persist unless the language is re-imported.",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-6",
-          "label": "Publishing is blocked when a language is incomplete, naming the language",
+          "label": "Publish is blocked when a language's content is incomplete.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-7",
-          "label": "An already-translated targeting criterion is not exported as a blank slot",
+          "label": "Exported shells omit already-translated targeting criteria as blanks.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-8",
-          "label": "Publishing is blocked when the client-facing title is missing",
+          "label": "Publish is blocked without a client-facing title.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -1470,13 +1452,11 @@
       ],
       "callouts": [
         {
-          "type": "drift",
-          "severity": "warn",
-          "message": "The only subtask in review has both of its pull requests closed without merging, so the work reported as under review has nothing open behind it.",
+          "type": "spec_gap",
+          "severity": "info",
+          "message": "No ticket or PR references the render, response-mapping, or publish-validation behaviour in the AC bullets yet; the only in-review work is foundational Excel-import displayName plumbing.",
           "refs": [
-            "BOUN-11474",
-            "dashboard-api#2083",
-            "ts-types#643"
+            "BOUN-11474"
           ]
         }
       ],
@@ -1510,38 +1490,38 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Two subtasks are in review and one is in progress across five open pull requests touching the editor, its API and shared types; nothing has merged yet.",
+      "rationale": "The template-tagging and Q-ID-resolution subtasks are both in review with real PRs, but generation still sends the hardcoded wppConfig until BOUN-11431 merges, so no hardcoded value has actually moved to config yet.",
       "daysSinceLastActivity": 1,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Generation resolves question identifiers from template configuration instead of hardcoded constants",
+          "label": "Scripts read a value from template config instead of a hardcoded constant.",
           "coverage": "partial",
           "evidence": [
-            "dashboard-api#2091",
-            "dashboard#3843"
+            "BOUN-11431",
+            "dashboard-api#2091"
           ]
         },
         {
           "id": "ac-2",
-          "label": "A missing configuration value falls back to a default",
+          "label": "Missing template config falls back to a sensible default.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Tagged configurable values are visible and editable in the survey editor",
+          "label": "Editor UI lets users view/edit configurable question values.",
           "coverage": "partial",
           "evidence": [
-            "dashboard#3839",
-            "api-core#1015"
+            "BOUN-11430",
+            "dashboard#3839"
           ]
         },
         {
           "id": "ac-4",
-          "label": "An edited value takes effect on the next run without a deployment",
+          "label": "An edited config value takes effect on the next run without a deploy.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -1555,22 +1535,6 @@
           "assignee": "Ruzzell Widjaja",
           "updatedAt": "2026-08-07T08:17:32.595Z",
           "prs": [
-            {
-              "repo": "api-core",
-              "number": 1015,
-              "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
-              "url": "https://github.com/bounceinsights/api-core/pull/1015",
-              "state": "OPEN",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11430",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-11T15:00:17Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
             {
               "repo": "ts-types",
               "number": 641,
@@ -1587,6 +1551,22 @@
               "reviewRequests": [
                 "VivekMurarkaIndIre"
               ],
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1015,
+              "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+              "url": "https://github.com/bounceinsights/api-core/pull/1015",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11430",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-11T15:00:17Z",
+              "stackChain": [],
+              "reviewRequests": [],
               "filesTouched": []
             },
             {
@@ -1618,6 +1598,24 @@
           "updatedAt": "2026-08-10T08:14:56.263Z",
           "prs": [
             {
+              "repo": "dashboard-api",
+              "number": 2091,
+              "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
+              "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11431",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-11T13:17:49Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "VivekMurarkaIndIre"
+              ],
+              "filesTouched": []
+            },
+            {
               "repo": "dashboard",
               "number": 3843,
               "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
@@ -1636,24 +1634,6 @@
                 "gelbh"
               ],
               "filesTouched": []
-            },
-            {
-              "repo": "dashboard-api",
-              "number": 2091,
-              "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
-              "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
-              "state": "OPEN",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11431",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-11T13:17:49Z",
-              "stackChain": [],
-              "reviewRequests": [
-                "VivekMurarkaIndIre"
-              ],
-              "filesTouched": []
             }
           ]
         },
@@ -1667,7 +1647,17 @@
           "prs": []
         }
       ],
-      "callouts": [],
+      "callouts": [
+        {
+          "type": "drift",
+          "severity": "warn",
+          "message": "BOUN-11431's PR describes throwing a descriptive error when a template lacks required role tags, which reads as fail-hard rather than the fallback-to-default the AC calls for.",
+          "refs": [
+            "BOUN-11431",
+            "dashboard-api#2091"
+          ]
+        }
+      ],
       "override": null,
       "dataOk": true
     },
@@ -1692,27 +1682,27 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The single subtask is still to do with no pull request referencing it and no activity for thirty-three days.",
+      "confidence": "high",
+      "rationale": "No subtasks or PRs exist beyond the feature ticket itself, and there has been no activity for 33 days.",
       "daysSinceLastActivity": 33,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "A respondent hitting quota is routed to another open cell that matches their targeting",
+          "label": "Quota fill on a cell redirects to another open matching cell in the project.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "With no suitable open cell, the standard quota-fill redirect applies",
+          "label": "No suitable open cell falls back to the standard quota-fill redirect.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Projects not flagged for cross-cell routing keep today's behaviour",
+          "label": "Projects not flagged for cross-cell routing keep the standard redirect.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -1732,7 +1722,7 @@
         {
           "type": "stalled",
           "severity": "warn",
-          "message": "No activity for thirty-three days and no pull request references this ticket.",
+          "message": "No activity for 33 days and still todo with no subtasks or PRs.",
           "refs": [
             "BOUN-11214"
           ]
@@ -1765,43 +1755,45 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "Both subtasks are shipped to master with merged pull requests that add the two quality-check methods and remove the ad-hoc endpoints they replaced.",
+      "rationale": "Both subtasks are shipped: the age-bracket and employment-exclusivity QC methods are in place, and the old manual GET-based bypass checks are removed.",
       "daysSinceLastActivity": 14,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Entered age is validated against the selected bracket and mismatches are removed",
+          "label": "Entered age is validated against the selected bracket and mismatches are removed.",
           "coverage": "covered",
           "evidence": [
-            "dashboard-api#2057",
-            "BOUN-11343"
+            "BOUN-11343",
+            "dashboard-api#2057"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Respondents failing the employment exclusivity rule are removed automatically",
+          "label": "Respondents failing mutual-exclusivity criteria are removed automatically.",
           "coverage": "covered",
           "evidence": [
+            "BOUN-11343",
             "dashboard-api#2057"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Respondents meeting both rules are kept",
+          "label": "Respondents meeting both criteria are retained.",
           "coverage": "partial",
           "evidence": [
+            "BOUN-11343",
             "dashboard-api#2057"
           ]
         },
         {
           "id": "ac-4",
-          "label": "The manual step is fully replaced by the scripts",
+          "label": "The prior manual cleaning step is fully replaced by the scripts.",
           "coverage": "covered",
           "evidence": [
-            "dashboard-api#2058",
-            "BOUN-11344"
+            "BOUN-11344",
+            "dashboard-api#2058"
           ]
         }
       ],
@@ -1881,37 +1873,34 @@
       "scoreBasis": {
         "shipped": 0,
         "staged": 0,
-        "inReview": 5,
+        "inReview": 6,
         "inProgress": 0,
         "blocked": 0,
         "todo": 0,
-        "total": 5
+        "total": 6
       },
       "scoreOverride": null,
-      "confidence": "medium",
-      "rationale": "All five subtasks are in review with open pull requests and recent activity, but four of those pull requests carry no description, so what they cover cannot be judged from them.",
-      "daysSinceLastActivity": 2,
+      "confidence": "low",
+      "rationale": "All 6 subtasks are in review, but five of the six PRs are unfilled review-tool templates with no description, so there's no textual evidence yet that monitoring relocation or cross-market QC automation actually works — only that the tickets have PRs open.",
+      "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Monitoring lives in the dedicated repository with no loss of behaviour",
+          "label": "Monitoring now lives in the WPP-specific repo with no functional loss.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Quality checks run automatically across all markets rather than per market by hand",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard-api#2087",
-            "BOUN-11439"
-          ]
+          "label": "Quality checks run automatically across all markets.",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Monitoring reflects respondents removed by a quality check",
+          "label": "Slack bot monitoring reflects QC-driven respondent removals.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -2060,18 +2049,51 @@
               "filesTouched": []
             }
           ]
+        },
+        {
+          "key": "BOUN-11518",
+          "summary": "F2.5.6 - WPP QC: drop per-response answersHash — detect duplicates by respid, classify via on-demand batched re-read",
+          "jiraStatus": "In Progress",
+          "status": "in_review",
+          "assignee": "Emad Nazzal",
+          "updatedAt": "2026-08-12T10:11:07.381Z",
+          "prs": [
+            {
+              "repo": "dashboard-api",
+              "number": 2092,
+              "title": "[BOUN-11518] - F2.5.6 - WPP QC: drop per-response answersHash — detect duplicates by respid, classify via on-demand batched re-read",
+              "url": "https://github.com/bounceinsights/dashboard-api/pull/2092",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "BOUN-11495",
+              "headRef": "BOUN-11518",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-12T11:39:15Z",
+              "stackChain": [
+                2087,
+                2080,
+                2079,
+                2077,
+                2076
+              ],
+              "reviewRequests": [],
+              "filesTouched": []
+            }
+          ]
         }
       ],
       "callouts": [
         {
-          "type": "drift",
+          "type": "spec_gap",
           "severity": "info",
-          "message": "Four of the five open pull requests have no description filled in, so coverage for this feature rests on ticket titles rather than stated changes.",
+          "message": "5 of 6 PRs for this feature are empty review-tool templates with no description of what changed.",
           "refs": [
-            "dashboard-api#2076",
-            "dashboard-api#2077",
-            "dashboard-api#2079",
-            "dashboard-api#2080"
+            "BOUN-11435",
+            "BOUN-11437",
+            "BOUN-11438",
+            "BOUN-11439",
+            "BOUN-11518"
           ]
         }
       ],
@@ -2099,27 +2121,27 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The single subtask is still to do with no pull request referencing it and no activity for twenty days.",
+      "confidence": "high",
+      "rationale": "No subtasks beyond the feature ticket and no PR activity; nothing has started, and it's been 20 days since any activity.",
       "daysSinceLastActivity": 20,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Delivery code and automation live in the dedicated repository",
+          "label": "Data delivery code/automation lives in the WPP-specific repo.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Delivery reads a market's workbook and generates output from that template",
+          "label": "A market's Excel drives its own generated data delivery.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Delivery can be triggered from the agreed entry point",
+          "label": "Triggering from the agreed entry point generates the delivery.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -2139,7 +2161,7 @@
         {
           "type": "stalled",
           "severity": "warn",
-          "message": "No activity for twenty days and no pull request references this ticket.",
+          "message": "No activity for 20 days and still todo with no subtasks or PRs.",
           "refs": [
             "BOUN-11341"
           ]
@@ -2173,53 +2195,64 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "The single subtask is in review with two open pull requests updated yesterday that generalise the bucket filter to completed buckets; nothing has merged yet.",
-      "daysSinceLastActivity": 1,
+      "rationale": "The single subtask is in review; its admin-v2 PR extends the F1.3 bucket-filter logic to include Completed buckets, but it hasn't merged and the tracked AC text still reads as F1.3's original wording (completed buckets excluded), which doesn't match what the PR actually implements.",
+      "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Selecting a targeting value checks matching buckets, now including completed ones",
+          "label": "Selecting one criteria value auto-checks matching buckets, completed ones untouched.",
           "coverage": "partial",
           "evidence": [
-            "admin-v2#665",
-            "admin-api#1145"
+            "BOUN-11423",
+            "admin-v2#665"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Two values in one facet match buckets satisfying either",
+          "label": "Two values in one facet check buckets matching either.",
           "coverage": "partial",
           "evidence": [
+            "BOUN-11423",
             "admin-v2#665"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Values across two facets narrow to buckets satisfying both",
+          "label": "Values across two facets check only buckets matching both.",
           "coverage": "partial",
           "evidence": [
+            "BOUN-11423",
             "admin-v2#665"
           ]
         },
         {
           "id": "ac-4",
-          "label": "A bulk action applies only to the checked buckets",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Bulk actions apply only to checked buckets.",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11423",
+            "admin-v2#665"
+          ]
         },
         {
           "id": "ac-5",
-          "label": "Clear resets both the filter selections and the checkboxes",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Clear resets both criteria selections and checkboxes.",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11423",
+            "admin-v2#665"
+          ]
         },
         {
           "id": "ac-6",
-          "label": "Criteria beyond gender and age appear as filterable facets",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Balance criteria beyond gender/age also appear as filterable facets.",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11423",
+            "admin-v2#665"
+          ]
         }
       ],
       "subtasks": [
@@ -2242,11 +2275,10 @@
               "headRef": "BOUN-11423",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-11T13:05:43Z",
+              "updatedAt": "2026-08-12T09:51:05Z",
               "stackChain": [],
               "reviewRequests": [
-                "Madjda",
-                "EmadNazzal"
+                "Madjda"
               ],
               "filesTouched": []
             },
@@ -2261,18 +2293,26 @@
               "headRef": "BOUN-11423",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-11T13:05:46Z",
+              "updatedAt": "2026-08-12T09:49:56Z",
               "stackChain": [],
               "reviewRequests": [
-                "Madjda",
-                "EmadNazzal"
+                "Madjda"
               ],
               "filesTouched": []
             }
           ]
         }
       ],
-      "callouts": [],
+      "callouts": [
+        {
+          "type": "spec_gap",
+          "severity": "warn",
+          "message": "The tracked AC bullets for this ticket are identical to F1.3's and still say completed buckets should stay unaffected, but the open PR deliberately extends filtering to include and auto-check Completed buckets — the AC text looks stale for this ticket's actual scope.",
+          "refs": [
+            "admin-v2#665"
+          ]
+        }
+      ],
       "override": null,
       "dataOk": true
     },
@@ -2300,16 +2340,17 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "The single subtask is shipped to master with a merged pull request that sets the validation error text to the same size as question copy.",
+      "rationale": "The single subtask is shipped; the PR matches WPP validation error font size to the question copy size exactly as specced.",
       "daysSinceLastActivity": 2,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Error text matches the size of the surrounding question copy",
+          "label": "Error text renders at the same size as question copy.",
           "coverage": "covered",
           "evidence": [
+            "BOUN-11496",
             "web-surveys#572"
           ]
         }
@@ -2373,47 +2414,49 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "The single subtask is in review with four open pull requests updated yesterday spanning the editor, its API, shared types and the survey service; nothing has merged yet.",
-      "daysSinceLastActivity": 1,
+      "rationale": "The single subtask is in review; the PR stack adds an optional gridColumns field end-to-end (schema, publish processing, web-survey rendering) seeded to 1, but none of it has merged yet and there's no confirmation of the actual grid-layout UI control or that it reuses question-option layout logic.",
+      "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "A column-count control appears on a selected targeting criterion",
+          "label": "RL sees a control for the number of grid columns.",
           "coverage": "partial",
           "evidence": [
+            "BOUN-11514",
             "dashboard#3845"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Options distribute across the chosen columns using existing layout behaviour",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard#3845",
-            "api-core#1020"
-          ]
+          "label": "Chosen column count distributes options identically to question options, no new layout logic.",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Setting a column count on one question leaves the others alone",
+          "label": "Setting a column count on one targeting question doesn't affect others.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Leaving it unset renders exactly as today",
+          "label": "No column count set renders exactly as today.",
           "coverage": "partial",
           "evidence": [
+            "BOUN-11514",
             "dashboard#3845"
           ]
         },
         {
           "id": "ac-5",
-          "label": "Already-live surveys keep their current behaviour",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Live surveys keep default behaviour unless changed.",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11514",
+            "dashboard#3845"
+          ]
         }
       ],
       "subtasks": [
@@ -2425,22 +2468,6 @@
           "assignee": "Tomer Gelbhart",
           "updatedAt": "2026-08-11T16:03:11.533Z",
           "prs": [
-            {
-              "repo": "api-core",
-              "number": 1020,
-              "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-              "url": "https://github.com/bounceinsights/api-core/pull/1020",
-              "state": "OPEN",
-              "isDraft": true,
-              "baseRef": "master",
-              "headRef": "BOUN-11514",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-11T16:02:59Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
             {
               "repo": "ts-types",
               "number": 646,
@@ -2458,17 +2485,17 @@
               "filesTouched": []
             },
             {
-              "repo": "dashboard",
-              "number": 3845,
+              "repo": "api-core",
+              "number": 1020,
               "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-              "url": "https://github.com/bounceinsights/dashboard/pull/3845",
+              "url": "https://github.com/bounceinsights/api-core/pull/1020",
               "state": "OPEN",
               "isDraft": true,
               "baseRef": "master",
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-11T16:02:03Z",
+              "updatedAt": "2026-08-11T16:02:59Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -2485,6 +2512,22 @@
               "shippedToDefault": false,
               "mergedAt": null,
               "updatedAt": "2026-08-11T16:03:10Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3845,
+              "title": "[BOUN-11514] - Allow grid columns for targeting question options",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3845",
+              "state": "OPEN",
+              "isDraft": true,
+              "baseRef": "master",
+              "headRef": "BOUN-11514",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-12T11:01:37Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -2517,33 +2560,33 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The ticket has been in progress for over a week with no pull request referencing it — the scaffolding work in that repository is attributed to the metrics feature's subtasks instead.",
+      "confidence": "medium",
+      "rationale": "The single subtask is in progress but no PRs exist yet, and it's been 8 days since any recorded activity.",
       "daysSinceLastActivity": 8,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Continuous integration passes and layer-boundary import rules are enforced",
+          "label": "CI enforces build/lint/tests and layer-boundary import rules.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Requests without a valid token or scope are rejected at the gateway",
+          "label": "Requests without a valid Firebase JWT/scope are rejected at the gateway.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "The seeded cell registry returns data identical to today's constants",
+          "label": "The cell registry reproduces today's UK constants; refresh requires wpp:admin.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Repository implementations are exercised against emulators in the integration suite",
+          "label": "The integration suite exercises repositories against emulators, including SQS redelivery idempotency.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -2561,9 +2604,9 @@
       ],
       "callouts": [
         {
-          "type": "drift",
-          "severity": "warn",
-          "message": "Marked in progress for eight days with no pull request referencing this ticket, so its stated progress has no code evidence behind it.",
+          "type": "stalled",
+          "severity": "info",
+          "message": "In progress for at least 8 days with no PR opened yet.",
           "refs": [
             "BOUN-11291"
           ]
@@ -2593,33 +2636,33 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The single subtask is still to do with no pull request referencing it, though the ticket was touched today.",
+      "confidence": "high",
+      "rationale": "Still todo with no subtasks beyond the feature ticket and no PRs.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Moved endpoints produce output identical to the originals on the same seed data",
+          "label": "Moved endpoints produce identical output old vs new, allowing the async envelope change.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "A crashed or redelivered job still produces exactly one artifact",
+          "label": "Worker crash or SQS redelivery still produces exactly one artifact.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "A non-admin token is refused on admin-only routes",
+          "label": "A wpp:user token calling an admin-only route gets 403.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Downloads re-check authorization before returning a presigned link",
+          "label": "Download route re-checks authorization before issuing a presigned URL.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -2662,45 +2705,53 @@
         "total": 14
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Ten of fourteen subtasks are shipped to master with eleven merged pull requests and activity today; one is in review and three — the export builders, the scheduled state machine and the end-to-end harness — remain to do.",
+      "confidence": "medium",
+      "rationale": "10 of 14 subtasks are shipped — the domain core, metrics schema/aggregation, repositories, and Firestore/RTDB readers are all built and match the spec — but the hourly Step Functions orchestration with the fail-closed QC gate and alarms (BOUN-11444) is still todo, so the gating/alerting behaviour in the AC bullets isn't provably in place yet.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Per-market metrics are published for the dashboard to poll",
-          "coverage": "partial",
+          "label": "Dashboard polls a per-market snapshot with computedAt, no per-request Firestore fanout.",
+          "coverage": "covered",
           "evidence": [
+            "BOUN-11442",
             "fieldwork-processing#20",
-            "BOUN-11442"
+            "BOUN-11414",
+            "fieldwork-processing#11"
           ]
         },
         {
           "id": "ac-2",
-          "label": "A failed compute preserves the last good snapshot and badges it stale",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "A failed compute preserves the last-known-good snapshot, badged stale, with an alarm after missed cycles.",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11414",
+            "fieldwork-processing#11"
+          ]
         },
         {
           "id": "ac-3",
-          "label": "A late or duplicate execution cannot overwrite a newer snapshot",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Delayed or duplicate writes can't overwrite a newer snapshot.",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11414",
+            "fieldwork-processing#11"
+          ]
         },
         {
           "id": "ac-4",
-          "label": "Snapshots validate against a strict versioned schema",
+          "label": "The snapshot validates against a strict, versioned, aggregate-only schema with no PII.",
           "coverage": "covered",
           "evidence": [
-            "fieldwork-processing#8",
-            "BOUN-11411"
+            "BOUN-11411",
+            "fieldwork-processing#8"
           ]
         },
         {
           "id": "ac-5",
-          "label": "A quality-check failure stops the cycle and leaves the existing snapshot untouched",
+          "label": "A QC failure blocks metrics compute and leaves the existing snapshot untouched.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3028,7 +3079,16 @@
           ]
         }
       ],
-      "callouts": [],
+      "callouts": [
+        {
+          "type": "spec_gap",
+          "severity": "warn",
+          "message": "The hourly Step Functions state machine with the fail-closed QC gate and snapshot-age alarm is still todo, so the AC bullets about gating on QC failure and alerting after missed cycles have no implementation yet.",
+          "refs": [
+            "BOUN-11444"
+          ]
+        }
+      ],
       "override": null,
       "dataOk": true
     },
@@ -3053,33 +3113,33 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The single cutover subtask is still to do with no pull request referencing it and no activity for sixteen days.",
+      "confidence": "high",
+      "rationale": "Still todo with no subtasks beyond the ticket itself and no PR activity for 16 days; this is downstream of F3.2/F3.3 landing first.",
       "daysSinceLastActivity": 16,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "All traffic reaches the new service with no error-rate regression",
+          "label": "All frontend WPP traffic reaches fieldwork-api with no error-rate regression.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "The old routes and moved subtrees are removed once parity is confirmed",
+          "label": "The old routes/utilities and mounts are removed from dashboard-api after parity.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "The origin service still builds and passes tests after the cleanup",
+          "label": "dashboard-api CI still compiles/passes with survey upload/generation retained.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "The spent one-off migration endpoint is deleted rather than ported",
+          "label": "The one-off question-name migration route is deleted, not ported.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3099,7 +3159,7 @@
         {
           "type": "stalled",
           "severity": "info",
-          "message": "No activity for sixteen days; this cutover follows the migration work that is still in progress.",
+          "message": "No activity for 16 days; cutover work is blocked behind F3.2/F3.3 completing.",
           "refs": [
             "BOUN-11294"
           ]
@@ -3131,61 +3191,71 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "medium",
-      "rationale": "The single subtask is shipped to master on one merged pull request, which is thin evidence against seven acceptance criteria — most of them have nothing referencing them.",
+      "confidence": "high",
+      "rationale": "The single subtask is shipped; the dashboard PR delivers the snapshot client, derived-value computation, market overview components, and fixture-driven tests, though the PR body doesn't confirm the visual-design details or the exact poll interval and unknown-schema-version fallback state.",
       "daysSinceLastActivity": 1,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "A standalone static app typed against the snapshot schema",
-          "coverage": "covered",
+          "label": "Static app is typed against the snapshot schema with a clear fallback for unknown versions.",
+          "coverage": "partial",
           "evidence": [
+            "BOUN-11465",
             "fieldwork-dashboard#1"
           ]
         },
         {
           "id": "ac-2",
-          "label": "A clean, minimal interface with emphasis on labels",
-          "coverage": "partial",
-          "evidence": [
-            "fieldwork-dashboard#1"
-          ]
+          "label": "Clean, minimal UI with bold labels/emphasis.",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "The app polls the published snapshot rather than recomputing or reading the database",
+          "label": "Polls the latest snapshot on an interval with no direct Firestore access.",
           "coverage": "partial",
           "evidence": [
+            "BOUN-11465",
             "fieldwork-dashboard#1"
           ]
         },
         {
           "id": "ac-4",
-          "label": "The market overview renders the agreed content blocks",
-          "coverage": "partial",
+          "label": "Market overview renders all v1 content blocks.",
+          "coverage": "covered",
           "evidence": [
+            "BOUN-11465",
             "fieldwork-dashboard#1"
           ]
         },
         {
           "id": "ac-5",
-          "label": "Derived values are computed in the client rather than stored",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Derived values are computed client-side from source blocks.",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11465",
+            "fieldwork-dashboard#1"
+          ]
         },
         {
           "id": "ac-6",
-          "label": "It works against the demo-mode snapshots so it need not wait on the quality-check port",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Works against demo-QC snapshots for UI development.",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11465",
+            "fieldwork-dashboard#1"
+          ]
         },
         {
           "id": "ac-7",
-          "label": "Unit and component tests are driven by a schema-parsed fixture",
-          "coverage": "no_signal",
-          "evidence": []
+          "label": "Unit and fixture-driven component tests cover the derived values.",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11465",
+            "fieldwork-dashboard#1"
+          ]
         }
       ],
       "subtasks": [
@@ -3216,17 +3286,7 @@
           ]
         }
       ],
-      "callouts": [
-        {
-          "type": "spec_gap",
-          "severity": "info",
-          "message": "The feature reads as complete on a single pull request while three of seven acceptance criteria have nothing referencing them.",
-          "refs": [
-            "BOUN-11465",
-            "fieldwork-dashboard#1"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
       "dataOk": true
     },
@@ -3251,39 +3311,39 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The single hosting and access-control subtask is still to do with no pull request referencing it.",
+      "confidence": "high",
+      "rationale": "Still todo with no PRs; hosting/CDN/access-control decisions haven't started.",
       "daysSinceLastActivity": 6,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Static assets and snapshot data are served from one distribution",
+          "label": "One CloudFront distribution serves both private dashboard and snapshot buckets.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Caching is long-lived for hashed assets and short for the latest snapshot",
+          "label": "Long-lived caching for static assets, short TTL for the latest snapshot.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Access is restricted to stakeholders rather than public",
+          "label": "Access control for the dashboard is decided and implemented.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Infrastructure ownership follows the agreed split",
+          "label": "Terraform owns stateful infra, nothing stateful in SAM.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "A runbook covers invalidation and verifying snapshot freshness",
+          "label": "A runbook entry covers invalidation and freshness verification.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3324,39 +3384,39 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The single drill-down subtask is still to do with no pull request referencing it.",
+      "confidence": "high",
+      "rationale": "Still todo with no PRs; drill-down views build on F4.1's dashboard, which just shipped, but this hasn't started.",
       "daysSinceLastActivity": 6,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Each cell opens a drill-down rendered from the same snapshot document",
+          "label": "Each study/cell opens a drill-down from the same snapshot document, no extra requests.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "The drill-down shows the cell's funnel and quota fill per targeting combination",
+          "label": "Drill-down shows the cell's funnel, quota fill, grade/region, QC counts, and section LOI.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Cells needing attention are visually flagged",
+          "label": "Cells needing attention are visually flagged against client-side thresholds.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "A drill-down is deep-linkable by market and cell",
+          "label": "A deep link identifies market + cell for sharing.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "Component tests run against the shared fixture snapshot",
+          "label": "Component tests are driven by the shared fixture snapshot.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3397,51 +3457,51 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "The single staleness and data-status subtask is still to do with no pull request referencing it.",
+      "confidence": "high",
+      "rationale": "Still todo with no PRs; staleness badging and data-status UX haven't started.",
       "daysSinceLastActivity": 6,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Every view shows when the data was last computed",
+          "label": "A visible last-sync timestamp renders on every view.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "A flagged stale document produces an explicit degraded banner",
+          "label": "A stale-flagged snapshot shows a degraded-data banner while keeping last-known-good metrics.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Data that is quietly old triggers the same banner without a flag",
+          "label": "Silent staleness past 3 cycles shows the same degraded banner client-side.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Panels awaiting missing inputs are hidden rather than zero-filled",
+          "label": "Date-derived v2 panels stay hidden, not zero-filled, until field dates exist.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "Demo-mode quality-check panels are clearly marked as such",
+          "label": "Demo-QC panels carry a clear marker until real QC lands.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-6",
-          "label": "A failed poll keeps the last data with a connection indicator",
+          "label": "A failed poll keeps last-rendered data with a connection-lost indicator.",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-7",
-          "label": "Each data state has component test coverage",
+          "label": "Component tests cover fresh, stale, silently-stale, demo-QC, and fetch-failed states.",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3485,7 +3545,7 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "The single subtask is shipped to master with a merged pull request swapping one market for two others in the dashboard.",
+      "rationale": "The single subtask is shipped; the dashboard's market list was updated to swap Germany for Italy and Saudi Arabia, plus an unrelated CI test-environment fix.",
       "daysSinceLastActivity": 1,
       "daysInStaged": null,
       "releaseGate": null,
@@ -3518,16 +3578,7 @@
           ]
         }
       ],
-      "callouts": [
-        {
-          "type": "spec_gap",
-          "severity": "info",
-          "message": "This ticket has no acceptance criteria recorded, so completeness cannot be assessed against a stated definition of done.",
-          "refs": [
-            "BOUN-11516"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
       "dataOk": true
     }
@@ -3583,6 +3634,30 @@
     },
     {
       "pr": {
+        "repo": "dashboard-api",
+        "number": 2091,
+        "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11431",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-11T13:17:49Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "VivekMurarkaIndIre"
+        ],
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-11T13:17:49Z",
+      "ageDays": 1
+    },
+    {
+      "pr": {
         "repo": "dashboard",
         "number": 3843,
         "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
@@ -3609,30 +3684,6 @@
     },
     {
       "pr": {
-        "repo": "dashboard-api",
-        "number": 2091,
-        "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
-        "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11431",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-11T13:17:49Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "VivekMurarkaIndIre"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11213",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-11T13:17:49Z",
-      "ageDays": 1
-    },
-    {
-      "pr": {
         "repo": "admin-api",
         "number": 1145,
         "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
@@ -3643,43 +3694,17 @@
         "headRef": "BOUN-11423",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-11T13:05:43Z",
+        "updatedAt": "2026-08-12T09:51:05Z",
         "stackChain": [],
         "reviewRequests": [
-          "Madjda",
-          "EmadNazzal"
+          "Madjda"
         ],
         "filesTouched": []
       },
       "featureKey": "BOUN-11423",
       "reviewer": "Madjda",
-      "requestedAt": "2026-08-11T13:05:43Z",
-      "ageDays": 1
-    },
-    {
-      "pr": {
-        "repo": "admin-api",
-        "number": 1145,
-        "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
-        "url": "https://github.com/bounceinsights/admin-api/pull/1145",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11423",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-11T13:05:43Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "Madjda",
-          "EmadNazzal"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11423",
-      "reviewer": "EmadNazzal",
-      "requestedAt": "2026-08-11T13:05:43Z",
-      "ageDays": 1
+      "requestedAt": "2026-08-12T09:51:05Z",
+      "ageDays": 0
     },
     {
       "pr": {
@@ -3693,43 +3718,17 @@
         "headRef": "BOUN-11423",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-11T13:05:46Z",
+        "updatedAt": "2026-08-12T09:49:56Z",
         "stackChain": [],
         "reviewRequests": [
-          "Madjda",
-          "EmadNazzal"
+          "Madjda"
         ],
         "filesTouched": []
       },
       "featureKey": "BOUN-11423",
       "reviewer": "Madjda",
-      "requestedAt": "2026-08-11T13:05:46Z",
-      "ageDays": 1
-    },
-    {
-      "pr": {
-        "repo": "admin-v2",
-        "number": 665,
-        "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
-        "url": "https://github.com/bounceinsights/admin-v2/pull/665",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11423",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-11T13:05:46Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "Madjda",
-          "EmadNazzal"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11423",
-      "reviewer": "EmadNazzal",
-      "requestedAt": "2026-08-11T13:05:46Z",
-      "ageDays": 1
+      "requestedAt": "2026-08-12T09:49:56Z",
+      "ageDays": 0
     }
   ],
   "collectionErrors": [
