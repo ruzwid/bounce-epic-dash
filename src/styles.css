@@ -41,6 +41,17 @@
   --ring: oklch(0.5 0.008 90);
   --radius: 0.5rem;
 
+  /* Motion: strong custom easings, not the weak CSS built-ins — see
+     https://easing.dev. ease-out for anything entering/responding
+     (starts fast, feels immediate); ease-in-out for on-screen movement. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Two-tier elevation: cards/panels get a soft ambient shadow (rest),
+     a slightly stronger one on hover — never a hard drop shadow. */
+  --shadow-surface: 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-surface-hover: 0 8px 24px -8px oklch(0 0 0 / 0.1), 0 2px 6px -2px oklch(0 0 0 / 0.06);
+
   /* Status family — six hues, matched lightness/chroma so they sit together
      as a family. Distinct hues (not distinct saturation) so shipped vs.
      staged is unambiguous at a glance and under common color-vision
@@ -81,6 +92,9 @@
   --status-blocked: oklch(0.7 0.17 25);
   --status-todo: oklch(0.62 0.015 90);
   --destructive: var(--status-blocked);
+
+  --shadow-surface: 0 1px 2px oklch(0 0 0 / 0.32);
+  --shadow-surface-hover: 0 8px 24px -8px oklch(0 0 0 / 0.55), 0 2px 6px -2px oklch(0 0 0 / 0.4);
 }
 
 @theme inline {
@@ -125,6 +139,38 @@ body,
   min-height: 100%;
 }
 
+html {
+  /* Native anchor-click navigation (the "Jump to" links) animates smoothly
+     for free — no JS needed. The on-load scroll-to-hash in
+     src/lib/dashboard/anchors.ts explicitly forces `behavior: "instant"`,
+     so a page load never animates; only a user clicking a jump-to link
+     while already on the page does. */
+  scroll-behavior: smooth;
+}
+
+/* Squircle corners everywhere, as a progressive enhancement: any element
+   with a Tailwind rounded-* class gets the continuous-curvature corner
+   profile instead of a circular arc. Elements already at their maximum
+   radius (rounded-full pills/dots) are visually unaffected — there's no
+   flat edge left for the curve profile to reshape — so this is safe to
+   apply globally rather than opting in per component. */
+@supports (corner-shape: squircle) {
+  [class*="rounded-"] {
+    corner-shape: squircle;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body {
   margin: 0;
   color: var(--foreground);
@@ -139,6 +185,7 @@ a {
   text-decoration-color: var(--border);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
+  transition: text-decoration-color 150ms var(--ease-out);
 }
 
 a:hover {
@@ -188,6 +235,31 @@ code {
   background-image:
     linear-gradient(90deg, transparent calc(25% - 1px), rgba(128, 128, 128, 0.9) calc(25% - 1px), rgba(128, 128, 128, 0.9) 25%, transparent 25%),
     linear-gradient(90deg, transparent calc(70% - 1px), rgba(128, 128, 128, 0.9) calc(70% - 1px), rgba(128, 128, 128, 0.9) 70%, transparent 70%);
+}
+
+/* Two radius tiers, used consistently everywhere: "surface" (rounded-xl)
+   for cards/panels, "chip" (rounded-lg) for pills/badges/small notes. */
+
+/* Ambient shadow only, no hover response — for surfaces that display
+   information but aren't themselves a single clickable target
+   (change-feed items, empty states). */
+.surface {
+  box-shadow: var(--shadow-surface);
+}
+
+/* Feature cards get the same ambient shadow at rest and lift slightly on
+   hover — enough to read as "interactive/scannable", never a heavy
+   drop-shadow. Border and shadow animate together at the same easing. */
+.surface-card {
+  box-shadow: var(--shadow-surface);
+  transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .surface-card:hover {
+    border-color: color-mix(in oklch, var(--foreground) 16%, var(--border));
+    box-shadow: var(--shadow-surface-hover);
+  }
 }
 
 /* Status pill / dot color, computed from one --status-* token via
