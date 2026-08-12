@@ -67,14 +67,21 @@ export const Override = z.object({
   expires: z.string().date(),
 });
 
+export const Milestone = z.enum(["M1", "M2", "M3", "M4"]);
+
 export const Feature = z.object({
   key: z.string(),                 // BOUN-11207
   code: z.string(),                // "F1.1"
   title: z.string(),
-  milestone: z.enum(["M1", "M3", "M4"]),
+  milestone: Milestone,
   tier: z.enum(["full", "light"]),
   owner: z.string(),               // display name
   repos: z.array(z.string()),
+  /** The ticket's own "Goal" prose, extracted verbatim from the JIRA
+   *  description — what the work is for, as opposed to `rationale`, which
+   *  is the judge's read on how far along it is. Empty when the ticket has
+   *  no such section. */
+  overview: z.string().default(""),
 
   stage: Stage,
   /** deterministic weighted score, rounded to 5 */
@@ -115,12 +122,33 @@ export const CollectionError = z.object({
   message: z.string(),
 });
 
+/** A milestone as published: identity plus the ticket's own description.
+ *  Progress is never stored here — it's derived from the features that
+ *  belong to it, so the two can't drift apart. */
+export const MilestoneSummary = z.object({
+  id: Milestone,
+  key: z.string(),
+  title: z.string(),
+  tier: z.enum(["full", "light"]),
+  owner: z.string(),
+  overview: z.string().default(""),
+});
+
 export const StatusSnapshot = z.object({
   schemaVersion: z.literal(1),
   /** logical Europe/Dublin date, YYYY-MM-DD — the file name */
   date: z.string().date(),
   generatedAt: z.string().datetime(),
-  epic: z.object({ key: z.string(), title: z.string(), targetDate: z.string().date().nullable() }),
+  epic: z.object({
+    key: z.string(),
+    title: z.string(),
+    targetDate: z.string().date().nullable(),
+    overview: z.string().default(""),
+  }),
+
+  /** Defaulted, so snapshots written before milestones were published
+   *  still parse — the UI falls back to grouping by feature.milestone. */
+  milestones: z.array(MilestoneSummary).default([]),
 
   headline: z.object({
     featuresWithNothingOnMaster: z.number(),

@@ -76,9 +76,60 @@ milestones:
         owner: EmadNazzal
         repos: [dashboard]
 
-  # M2 ("Expansion & Follow-On Builds", BOUN-11206) exists in JIRA but is
-  # intentionally excluded here: src/lib/schema.ts's Feature.milestone enum
-  # is M1/M3/M4 only, and that contract is not ours to change.
+  - id: M2
+    title: "Expansion & Follow-On Builds"
+    # Full tier, matching M1: these are four different owners' active
+    # feature work, where light tier is explicitly the condensed shape for
+    # a single owner's milestone (see MethodologyFooter).
+    tier: full
+    owner: ruzwid
+    ticket: BOUN-11206
+    repos: []
+    features:
+      # Keys, codes and owners read from JIRA (children of BOUN-11206) on
+      # 2026-08-12. Note F2.9 exists in JIRA but is absent from the
+      # milestone description's "Features Included" list — the ticket tree
+      # is the source of truth here, so it is tracked.
+      # PROVISIONAL repos, same caveat as M1: all default to `dashboard`
+      # until PRs show up elsewhere.
+      - key: BOUN-11212
+        code: "F2.1"
+        owner: VivekMurarkaIndIre
+        repos: [dashboard]
+      - key: BOUN-11213
+        code: "F2.2"
+        owner: ruzwid
+        repos: [dashboard]
+      # Unassigned in JIRA (pending a decision from Walr) — owner defaults
+      # to the milestone owner, same convention as DF4.1.1.
+      - key: BOUN-11214
+        code: "F2.3"
+        owner: ruzwid
+        repos: [dashboard]
+      - key: BOUN-11255
+        code: "F2.4"
+        owner: gelbh
+        repos: [dashboard]
+      - key: BOUN-11340
+        code: "F2.5"
+        owner: EmadNazzal
+        repos: [dashboard]
+      - key: BOUN-11341
+        code: "F2.6"
+        owner: ruzwid
+        repos: [dashboard]
+      - key: BOUN-11423
+        code: "F2.7"
+        owner: gelbh
+        repos: [dashboard]
+      - key: BOUN-11496
+        code: "F2.8"
+        owner: gelbh
+        repos: [dashboard]
+      - key: BOUN-11514
+        code: "F2.9"
+        owner: gelbh
+        repos: [dashboard]
 
   - id: M3
     title: "WPP API Platform"

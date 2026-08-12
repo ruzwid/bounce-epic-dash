@@ -37,6 +37,7 @@ function makeFeature(overrides: Partial<FeatureT> = {}): FeatureT {
     tier: "full",
     owner: "Alice",
     repos: ["service-a"],
+    overview: "",
     stage: "underway",
     score: 50,
     scoreBasis: { shipped: 1, staged: 1, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 2 },

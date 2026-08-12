@@ -52,6 +52,7 @@ export function FilterBar({ search, onSearchChange, engineers }: FilterBarProps)
       >
         <ToggleGroupItem value="all">All</ToggleGroupItem>
         <ToggleGroupItem value="m1">M1</ToggleGroupItem>
+        <ToggleGroupItem value="m2">M2</ToggleGroupItem>
         <ToggleGroupItem value="m3-m4">M3–M4</ToggleGroupItem>
       </ToggleGroup>
 

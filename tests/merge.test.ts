@@ -89,6 +89,7 @@ function makeRawFeature(overrides: Partial<RawFeature> = {}): RawFeature {
     tier: "full",
     owner: "alice",
     repos: ["service-a"],
+    overview: "",
     score: 80,
     scoreBasis: { shipped: 3, staged: 1, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 4 },
     stage: "nearly_done",
@@ -258,7 +259,8 @@ describe("runMerge", () => {
     schemaVersion: 1,
     date: "2026-01-15",
     generatedAt: "2026-01-15T08:00:00.000Z",
-    epic: config.epic,
+    epic: { ...config.epic, overview: "" },
+    milestones: [],
     features: [makeRawFeature()],
     collectionErrors: [],
   };

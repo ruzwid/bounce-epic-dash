@@ -25,7 +25,7 @@ import {
   type PrRef as PrRefSchema,
   type ReviewRequest as ReviewRequestSchema,
 } from "../src/lib/schema.ts";
-import type { PendingFile, RawFeature, RawFile, RawPrRecord } from "./collect.ts";
+import type { PendingFile, RawFeature, RawFile, RawMilestone, RawPrRecord } from "./collect.ts";
 
 type JudgmentT = z.infer<typeof Judgment>;
 type FeatureT = z.infer<typeof FeatureSchema>;
@@ -136,7 +136,10 @@ function isExpired(expires: string, timezone: string, now: Date): boolean {
 
 export function buildSnapshot(params: {
   date: string;
-  epic: { key: string; title: string; targetDate: string | null };
+  epic: { key: string; title: string; targetDate: string | null; overview?: string };
+  /** Defaulted so a raw file written before milestones were collected
+   *  still merges — the snapshot simply publishes an empty list. */
+  milestones?: RawMilestone[];
   rawFeatures: RawFeature[];
   judgment: JudgmentT;
   overrides: OverridesFile;
@@ -145,7 +148,7 @@ export function buildSnapshot(params: {
   collectionErrors: CollectionErrorT[];
   people: Record<string, string>;
 }): z.infer<typeof StatusSnapshot> {
-  const { date, epic, rawFeatures, judgment, overrides, now, timezone, collectionErrors, people } = params;
+  const { date, epic, milestones = [], rawFeatures, judgment, overrides, now, timezone, collectionErrors, people } = params;
   const judgmentByKey = new Map(judgment.features.map((f) => [f.featureKey, f]));
 
   const features: FeatureT[] = rawFeatures.map((raw) => {
@@ -171,6 +174,7 @@ export function buildSnapshot(params: {
       tier: raw.tier,
       owner: people[raw.owner] ?? raw.owner,
       repos: raw.repos,
+      overview: raw.overview ?? "",
       stage,
       score: raw.score,
       scoreBasis: raw.scoreBasis,
@@ -238,7 +242,13 @@ export function buildSnapshot(params: {
     schemaVersion: 1,
     date,
     generatedAt: now.toISOString(),
-    epic,
+    epic: { ...epic, overview: epic.overview ?? "" },
+    // Only milestones that actually have tracked features are published —
+    // a milestone configured but not yet expanded would otherwise render as
+    // an empty group in the sidebar.
+    milestones: milestones
+      .filter((m) => features.some((f) => f.milestone === m.id))
+      .map((m) => ({ ...m, owner: people[m.owner] ?? m.owner })),
     headline: { featuresWithNothingOnMaster, totalFeatures, sentence: headlineSentence },
     kpis: {
       featuresTracked: totalFeatures,
@@ -312,6 +322,7 @@ export async function runMerge(
   const snapshot = buildSnapshot({
     date,
     epic: raw.epic,
+    milestones: raw.milestones,
     rawFeatures: raw.features,
     judgment: validated.value,
     overrides,

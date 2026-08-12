@@ -1,66 +1,101 @@
+import type { ReactNode } from "react"
 import type { ChangeItem } from "@/lib/dashboard/diff"
-import { StatusPill } from "./StatusPill"
+import { PrChip } from "./PrChip"
 
 type ChangeFeedItemProps = {
   change: ChangeItem
 }
 
-/** One visual per since-last-snapshot change kind — what shipped, which
- *  PR, whose feature, the score delta, matching the information density
- *  the goal asks for without copying the reference mockup's styling. */
+/**
+ * One row in the since-last-snapshot feed. The dot carries the status hue,
+ * the headline says what happened in four words, and the sub-line carries
+ * the attribution — feature, owner, and the score move it caused. Rows,
+ * not cards: these are a chronology, and boxing each one would break the
+ * list into unrelated fragments.
+ */
 export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
   switch (change.kind) {
     case "shipped":
       return (
-        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
-          <div className="flex items-center gap-2">
-            <StatusPill status="shipped" label="Shipped to master" />
-            <span className="font-mono-data text-xs text-muted-foreground">▲ {change.scoreDelta} pts</span>
-          </div>
-          <p className="m-0 text-sm">
-            <a href={change.pr.url} target="_blank" rel="noreferrer" className="font-mono-data underline">
-              {change.pr.repo}#{change.pr.number}
-            </a>{" "}
-            merged into <span className="font-mono-data">{change.pr.baseRef}</span>.
-          </p>
-          <p className="m-0 text-xs text-muted-foreground">
-            {change.feature.code} · {change.subtask.key} · {change.feature.owner}
-          </p>
-        </div>
+        <Row
+          status="shipped"
+          headline="Shipped to master"
+          trailing={<Delta value={change.scoreDelta} color="var(--status-shipped)" />}
+          detail={
+            <>
+              <PrChip pr={change.pr} className="align-middle" /> merged into{" "}
+              <code className="rounded-sm bg-muted px-1.5 py-0.5">{change.pr.baseRef}</code>.
+            </>
+          }
+          attribution={`${change.feature.code} · ${change.subtask.key} · ${change.feature.owner}`}
+        />
       )
     case "newly_staged":
       return (
-        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
-          <StatusPill status="staged" label="Moved to staged" />
-          <p className="m-0 text-sm">
-            {change.subtask.key} merged into{" "}
-            <span className="font-mono-data">{change.integrationBranch}</span>, not master.
-          </p>
-          <p className="m-0 text-xs text-muted-foreground">
-            {change.feature.code} · {change.feature.owner}
-          </p>
-        </div>
+        <Row
+          status="staged"
+          headline="Moved to staged"
+          detail={
+            <>
+              <span className="font-mono-data">{change.subtask.key}</span> merged into{" "}
+              <code className="rounded-sm bg-muted px-1.5 py-0.5">{change.integrationBranch}</code>, not master.
+            </>
+          }
+          attribution={`${change.feature.code} · ${change.feature.owner}`}
+        />
       )
     case "newly_blocked":
       return (
-        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
-          <StatusPill status="blocked" label="Newly blocked" />
-          <p className="m-0 text-sm">{change.subtask.key} — {change.subtask.summary}</p>
-          <p className="m-0 text-xs text-muted-foreground">
-            {change.feature.code} · {change.feature.owner}
-          </p>
-        </div>
+        <Row
+          status="blocked"
+          headline="Newly blocked"
+          detail={
+            <>
+              <span className="font-mono-data">{change.subtask.key}</span> — {change.subtask.summary}
+            </>
+          }
+          attribution={`${change.feature.code} · ${change.feature.owner}`}
+        />
       )
     case "newly_stalled":
       return (
-        <div className="flex flex-col gap-1 surface rounded-xl border border-border bg-card p-3">
-          <StatusPill status="blocked" label="Newly stalled" />
-          <p className="m-0 text-sm">
-            {change.feature.code} crossed <span className="font-mono-data">{change.daysSinceLastActivity}</span> days
-            with no activity.
-          </p>
-          <p className="m-0 text-xs text-muted-foreground">{change.feature.owner}</p>
-        </div>
+        <Row
+          status="blocked"
+          headline="Newly stalled"
+          trailing={<span className="font-mono-data text-xs text-muted-foreground">{change.daysSinceLastActivity}d</span>}
+          detail={<>{change.feature.code} crossed the stall threshold with no commit.</>}
+          attribution={change.feature.owner}
+        />
       )
   }
+}
+
+type RowProps = {
+  status: string
+  headline: string
+  detail: ReactNode
+  attribution: string
+  trailing?: ReactNode
+}
+
+function Row({ status, headline, detail, attribution, trailing }: RowProps) {
+  return (
+    <li className="flex list-none items-start gap-3.5 border-b border-border-soft px-5 py-4 last:border-b-0">
+      <span aria-hidden="true" data-status-dot={status} className="mt-[7px] size-2 shrink-0 rounded-full" />
+      <div className="min-w-0 flex-1 text-sm leading-relaxed">
+        <span className="font-semibold">{headline}</span> — {detail}
+        <div className="mt-0.5 text-xs text-muted-foreground">{attribution}</div>
+      </div>
+      {trailing ? <span className="mt-0.5 shrink-0">{trailing}</span> : null}
+    </li>
+  )
+}
+
+function Delta({ value, color }: { value: number; color: string }) {
+  if (value === 0) return <span className="font-mono-data text-xs text-muted-foreground">=</span>
+  return (
+    <span className="font-mono-data text-xs" style={{ color }}>
+      {value > 0 ? "▲" : "▼"} {Math.abs(value)}
+    </span>
+  )
 }

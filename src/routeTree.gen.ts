@@ -9,55 +9,168 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as DateRouteImport } from './routes/$date'
+import { Route as ShellRouteImport } from './routes/_shell'
+import { Route as DateIndexRouteImport } from './routes/$date.index'
+import { Route as DateAttentionRouteImport } from './routes/$date.attention'
+import { Route as DateConfigRouteImport } from './routes/$date.config'
+import { Route as DateReviewsRouteImport } from './routes/$date.reviews'
+import { Route as ShellIndexRouteImport } from './routes/_shell.index'
+import { Route as ShellAttentionRouteImport } from './routes/_shell.attention'
+import { Route as ShellConfigRouteImport } from './routes/_shell.config'
+import { Route as ShellReviewsRouteImport } from './routes/_shell.reviews'
+import { Route as DateFCodeRouteImport } from './routes/$date.f.$code'
+import { Route as ShellFCodeRouteImport } from './routes/_shell.f.$code'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DateRoute = DateRouteImport.update({
   id: '/$date',
   path: '/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShellRoute = ShellRouteImport.update({
+  id: '/_shell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DateIndexRoute = DateIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DateRoute,
+} as any)
+const DateAttentionRoute = DateAttentionRouteImport.update({
+  id: '/attention',
+  path: '/attention',
+  getParentRoute: () => DateRoute,
+} as any)
+const DateConfigRoute = DateConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => DateRoute,
+} as any)
+const DateReviewsRoute = DateReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => DateRoute,
+} as any)
+const ShellIndexRoute = ShellIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellAttentionRoute = ShellAttentionRouteImport.update({
+  id: '/attention',
+  path: '/attention',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellConfigRoute = ShellConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellReviewsRoute = ShellReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => ShellRoute,
+} as any)
+const DateFCodeRoute = DateFCodeRouteImport.update({
+  id: '/f/$code',
+  path: '/f/$code',
+  getParentRoute: () => DateRoute,
+} as any)
+const ShellFCodeRoute = ShellFCodeRouteImport.update({
+  id: '/f/$code',
+  path: '/f/$code',
+  getParentRoute: () => ShellRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/$date': typeof DateRoute
+  '/$date': typeof DateRouteWithChildren
+  '/': typeof ShellIndexRoute
+  '/$date/attention': typeof DateAttentionRoute
+  '/$date/config': typeof DateConfigRoute
+  '/$date/reviews': typeof DateReviewsRoute
+  '/attention': typeof ShellAttentionRoute
+  '/config': typeof ShellConfigRoute
+  '/reviews': typeof ShellReviewsRoute
+  '/$date/': typeof DateIndexRoute
+  '/$date/f/$code': typeof DateFCodeRoute
+  '/f/$code': typeof ShellFCodeRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/$date': typeof DateRoute
+  '/$date/attention': typeof DateAttentionRoute
+  '/$date/config': typeof DateConfigRoute
+  '/$date/reviews': typeof DateReviewsRoute
+  '/attention': typeof ShellAttentionRoute
+  '/config': typeof ShellConfigRoute
+  '/reviews': typeof ShellReviewsRoute
+  '/$date': typeof DateIndexRoute
+  '/': typeof ShellIndexRoute
+  '/$date/f/$code': typeof DateFCodeRoute
+  '/f/$code': typeof ShellFCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/$date': typeof DateRoute
+  '/$date': typeof DateRouteWithChildren
+  '/_shell': typeof ShellRouteWithChildren
+  '/$date/attention': typeof DateAttentionRoute
+  '/$date/config': typeof DateConfigRoute
+  '/$date/reviews': typeof DateReviewsRoute
+  '/_shell/attention': typeof ShellAttentionRoute
+  '/_shell/config': typeof ShellConfigRoute
+  '/_shell/reviews': typeof ShellReviewsRoute
+  '/$date/': typeof DateIndexRoute
+  '/_shell/': typeof ShellIndexRoute
+  '/$date/f/$code': typeof DateFCodeRoute
+  '/_shell/f/$code': typeof ShellFCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$date'
+  fullPaths:
+    | '/$date'
+    | '/'
+    | '/$date/attention'
+    | '/$date/config'
+    | '/$date/reviews'
+    | '/attention'
+    | '/config'
+    | '/reviews'
+    | '/$date/'
+    | '/$date/f/$code'
+    | '/f/$code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$date'
-  id: '__root__' | '/' | '/$date'
+  to:
+    | '/$date/attention'
+    | '/$date/config'
+    | '/$date/reviews'
+    | '/attention'
+    | '/config'
+    | '/reviews'
+    | '/$date'
+    | '/'
+    | '/$date/f/$code'
+    | '/f/$code'
+  id:
+    | '__root__'
+    | '/$date'
+    | '/_shell'
+    | '/$date/attention'
+    | '/$date/config'
+    | '/$date/reviews'
+    | '/_shell/attention'
+    | '/_shell/config'
+    | '/_shell/reviews'
+    | '/$date/'
+    | '/_shell/'
+    | '/$date/f/$code'
+    | '/_shell/f/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DateRoute: typeof DateRoute
+  DateRoute: typeof DateRouteWithChildren
+  ShellRoute: typeof ShellRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/$date': {
       id: '/$date'
       path: '/$date'
@@ -65,12 +178,125 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_shell': {
+      id: '/_shell'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ShellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$date/': {
+      id: '/$date/'
+      path: '/'
+      fullPath: '/$date/'
+      preLoaderRoute: typeof DateIndexRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/$date/attention': {
+      id: '/$date/attention'
+      path: '/attention'
+      fullPath: '/$date/attention'
+      preLoaderRoute: typeof DateAttentionRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/$date/config': {
+      id: '/$date/config'
+      path: '/config'
+      fullPath: '/$date/config'
+      preLoaderRoute: typeof DateConfigRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/$date/reviews': {
+      id: '/$date/reviews'
+      path: '/reviews'
+      fullPath: '/$date/reviews'
+      preLoaderRoute: typeof DateReviewsRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/_shell/': {
+      id: '/_shell/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof ShellIndexRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/attention': {
+      id: '/_shell/attention'
+      path: '/attention'
+      fullPath: '/attention'
+      preLoaderRoute: typeof ShellAttentionRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/config': {
+      id: '/_shell/config'
+      path: '/config'
+      fullPath: '/config'
+      preLoaderRoute: typeof ShellConfigRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/reviews': {
+      id: '/_shell/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ShellReviewsRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/$date/f/$code': {
+      id: '/$date/f/$code'
+      path: '/f/$code'
+      fullPath: '/$date/f/$code'
+      preLoaderRoute: typeof DateFCodeRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/_shell/f/$code': {
+      id: '/_shell/f/$code'
+      path: '/f/$code'
+      fullPath: '/f/$code'
+      preLoaderRoute: typeof ShellFCodeRouteImport
+      parentRoute: typeof ShellRoute
+    }
   }
 }
 
+interface DateRouteChildren {
+  DateAttentionRoute: typeof DateAttentionRoute
+  DateConfigRoute: typeof DateConfigRoute
+  DateReviewsRoute: typeof DateReviewsRoute
+  DateIndexRoute: typeof DateIndexRoute
+  DateFCodeRoute: typeof DateFCodeRoute
+}
+
+const DateRouteChildren: DateRouteChildren = {
+  DateAttentionRoute: DateAttentionRoute,
+  DateConfigRoute: DateConfigRoute,
+  DateReviewsRoute: DateReviewsRoute,
+  DateIndexRoute: DateIndexRoute,
+  DateFCodeRoute: DateFCodeRoute,
+}
+
+const DateRouteWithChildren = DateRoute._addFileChildren(DateRouteChildren)
+
+interface ShellRouteChildren {
+  ShellAttentionRoute: typeof ShellAttentionRoute
+  ShellConfigRoute: typeof ShellConfigRoute
+  ShellReviewsRoute: typeof ShellReviewsRoute
+  ShellIndexRoute: typeof ShellIndexRoute
+  ShellFCodeRoute: typeof ShellFCodeRoute
+}
+
+const ShellRouteChildren: ShellRouteChildren = {
+  ShellAttentionRoute: ShellAttentionRoute,
+  ShellConfigRoute: ShellConfigRoute,
+  ShellReviewsRoute: ShellReviewsRoute,
+  ShellIndexRoute: ShellIndexRoute,
+  ShellFCodeRoute: ShellFCodeRoute,
+}
+
+const ShellRouteWithChildren = ShellRoute._addFileChildren(ShellRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DateRoute: DateRoute,
+  DateRoute: DateRouteWithChildren,
+  ShellRoute: ShellRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

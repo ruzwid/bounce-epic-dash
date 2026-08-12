@@ -2,7 +2,7 @@
 // Zod schemas describing the shape of config.yaml and overrides.yaml.
 // Kept separate from config.ts so the shape is easy to scan on its own.
 import { z } from "zod";
-import { Override, SubtaskStatus } from "./schema.ts";
+import { Milestone as MilestoneId, Override, SubtaskStatus } from "./schema.ts";
 
 export const MilestoneFeature = z.object({
   key: z.string(),
@@ -12,7 +12,7 @@ export const MilestoneFeature = z.object({
 });
 
 export const Milestone = z.object({
-  id: z.enum(["M1", "M3", "M4"]),
+  id: MilestoneId,
   title: z.string(),
   tier: z.enum(["full", "light"]),
   owner: z.string(),

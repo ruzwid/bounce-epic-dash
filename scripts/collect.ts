@@ -8,7 +8,7 @@
 // data/pending/<date>.json and writing data/judgment/<date>.json.
 import { config as loadEnv } from "dotenv";
 loadEnv({ path: ".env.local" });
-import { extractAcBullets } from "../src/lib/adf.ts";
+import { extractAcBullets, extractOverview } from "../src/lib/adf.ts";
 import {
   classifyPr,
   deriveSubtaskStatus,
@@ -44,7 +44,7 @@ const STATUS_PRIORITY: Record<SubtaskStatus, number> = {
  *  milestone's own ticket. */
 export type FeatureTarget = MilestoneFeature & {
   title: string;
-  milestone: "M1" | "M3" | "M4";
+  milestone: "M1" | "M2" | "M3" | "M4";
   tier: "full" | "light";
 };
 
@@ -89,7 +89,7 @@ export type RawFeature = {
   key: string;
   code: string;
   title: string;
-  milestone: "M1" | "M3" | "M4";
+  milestone: "M1" | "M2" | "M3" | "M4";
   tier: "full" | "light";
   owner: string;
   repos: string[];
@@ -100,8 +100,24 @@ export type RawFeature = {
   daysInStaged: number | null;
   releaseGate: RawReleaseGate | null;
   acBullets: { id: string; text: string }[];
+  /** The ticket's "Goal" prose. Comes free — the description is already
+   *  fetched for AC extraction, and this reads a different section of the
+   *  same payload rather than making a second call. */
+  overview: string;
   subtasks: RawSubtask[];
   dataOk: boolean;
+};
+
+/** One milestone's identity and stated purpose, read from its own JIRA
+ *  ticket. Progress is deliberately absent — it's derived downstream from
+ *  the milestone's features. */
+export type RawMilestone = {
+  id: "M1" | "M2" | "M3" | "M4";
+  key: string;
+  title: string;
+  tier: "full" | "light";
+  owner: string;
+  overview: string;
 };
 
 export type Deps = {
@@ -177,12 +193,13 @@ function buildRawFeature(params: {
   target: FeatureTarget;
   subtasks: RawSubtask[];
   acBullets: { id: string; text: string }[];
+  overview?: string;
   releaseGate: RawReleaseGate | null;
   now: Date;
   dataOk: boolean;
   scoreWeights: Config["scoreWeights"];
 }): RawFeature {
-  const { target, subtasks, acBullets, releaseGate, now, dataOk, scoreWeights } = params;
+  const { target, subtasks, acBullets, overview = "", releaseGate, now, dataOk, scoreWeights } = params;
   const { score, scoreBasis } = computeScore(subtasks.map((s) => s.status), scoreWeights);
   const allShippedToDefault = subtasks.length > 0 && subtasks.every((s) => s.status === "shipped");
   const stage = deriveStage(score, allShippedToDefault);
@@ -216,6 +233,7 @@ function buildRawFeature(params: {
     daysInStaged,
     releaseGate,
     acBullets,
+    overview,
     subtasks,
     dataOk,
   };
@@ -256,9 +274,9 @@ export async function collectFeature(
     };
   }
 
-  const acBullets = extractAcBullets((parentIssue.fields as Record<string, unknown>).description).map(
-    (text, i) => ({ id: `ac-${i + 1}`, text }),
-  );
+  const description = (parentIssue.fields as Record<string, unknown>).description;
+  const acBullets = extractAcBullets(description).map((text, i) => ({ id: `ac-${i + 1}`, text }));
+  const overview = extractOverview(description);
 
   // Prefer the live JIRA summary over config's fallback title, so
   // config.yaml doesn't have to duplicate (and go stale on) ticket titles.
@@ -300,6 +318,7 @@ export async function collectFeature(
         target: resolvedTarget,
         subtasks,
         acBullets,
+        overview,
         releaseGate: null,
         now,
         dataOk: false,
@@ -366,6 +385,7 @@ export async function collectFeature(
       target: resolvedTarget,
       subtasks,
       acBullets,
+      overview,
       releaseGate,
       now,
       dataOk: true,
@@ -420,13 +440,17 @@ export type PendingFeature = {
   code: string;
   title: string;
   owner: string;
-  milestone: "M1" | "M3" | "M4";
+  milestone: "M1" | "M2" | "M3" | "M4";
   score: number;
   scoreBasis: ScoreBasis;
   daysSinceLastActivity: number | null;
   daysInStaged: number | null;
   releaseGateStatus: "open" | "merged" | "not_found" | null;
   acBullets: { id: string; text: string }[];
+  /** The ticket's stated goal, so the judge writes its rationale against
+   *  what the feature is supposed to do rather than inferring intent from
+   *  subtask titles alone. */
+  overview: string;
   subtasks: { key: string; summary: string; status: SubtaskStatus }[];
   prs: {
     ref: string;
@@ -454,10 +478,64 @@ export type RawFile = {
   schemaVersion: 1;
   date: string;
   generatedAt: string;
-  epic: Config["epic"];
+  epic: Config["epic"] & { overview: string };
+  milestones: RawMilestone[];
   features: RawFeature[];
   collectionErrors: CollectionError[];
 };
+
+/**
+ * The epic's and each milestone's own description.
+ *
+ * One extra JIRA read per milestone plus one for the epic — a handful of
+ * calls against the dozens this run already makes for features and PRs.
+ * Nothing here is cached between runs: the text is fetched, not generated,
+ * so re-reading it costs a request and guarantees the dashboard never
+ * shows a description that was edited in JIRA yesterday.
+ *
+ * A milestone whose ticket can't be read is recorded and skipped, never
+ * fatal — the features underneath it are the actual payload.
+ */
+async function collectContext(
+  config: Config,
+  deps: Deps,
+): Promise<{ epicOverview: string; milestones: RawMilestone[]; errors: CollectionError[] }> {
+  const errors: CollectionError[] = [];
+
+  const epicOverview = await deps
+    .getIssue(config.epic.key, ["summary", "description"])
+    .then((issue) => extractOverview((issue.fields as Record<string, unknown>).description))
+    .catch((err) => {
+      errors.push({ source: "jira", scope: config.epic.key, message: errMsg(err) });
+      return "";
+    });
+
+  const milestones = await Promise.all(
+    config.milestones.map(async (milestone): Promise<RawMilestone> => {
+      const base = {
+        id: milestone.id,
+        key: milestone.ticket ?? "",
+        title: milestone.title,
+        tier: milestone.tier,
+        owner: milestone.owner,
+      };
+      if (!milestone.ticket) return { ...base, overview: "" };
+      try {
+        const issue = await deps.getIssue(milestone.ticket, ["summary", "description"]);
+        const fields = issue.fields as Record<string, unknown>;
+        // Prefer the live JIRA summary, same as features do, so config.yaml
+        // doesn't have to duplicate (and go stale on) milestone titles.
+        const liveTitle = typeof fields.summary === "string" && fields.summary ? fields.summary : milestone.title;
+        return { ...base, title: liveTitle, overview: extractOverview(fields.description) };
+      } catch (err) {
+        errors.push({ source: "jira", scope: milestone.ticket, message: errMsg(err) });
+        return { ...base, overview: "" };
+      }
+    }),
+  );
+
+  return { epicOverview, milestones, errors };
+}
 
 export function toPending(feature: RawFeature): PendingFeature {
   const prs = feature.subtasks.flatMap((s) => s.prs);
@@ -473,6 +551,7 @@ export function toPending(feature: RawFeature): PendingFeature {
     daysInStaged: feature.daysInStaged,
     releaseGateStatus: feature.releaseGate?.status ?? null,
     acBullets: feature.acBullets,
+    overview: feature.overview,
     subtasks: feature.subtasks.map((s) => ({ key: s.key, summary: s.summary, status: s.status })),
     prs: prs.map((p) => {
       const cleaned = cleanPrBody(p.body);
@@ -494,15 +573,19 @@ export async function runCollect(config: Config, now: Date, deps: Deps = default
   const date = logicalDate(config.timezone, now);
   const { targets, errors: expandErrors } = expandTargets(config);
 
-  const results = await Promise.all(targets.map((target) => collectFeature(target, config, now, deps)));
+  const [results, context] = await Promise.all([
+    Promise.all(targets.map((target) => collectFeature(target, config, now, deps))),
+    collectContext(config, deps),
+  ]);
   const features = results.map((r) => r.feature);
-  const collectionErrors = [...expandErrors, ...results.flatMap((r) => r.errors)];
+  const collectionErrors = [...expandErrors, ...results.flatMap((r) => r.errors), ...context.errors];
 
   const raw = {
     schemaVersion: 1 as const,
     date,
     generatedAt: now.toISOString(),
-    epic: config.epic,
+    epic: { ...config.epic, overview: context.epicOverview },
+    milestones: context.milestones,
     features,
     collectionErrors,
   };

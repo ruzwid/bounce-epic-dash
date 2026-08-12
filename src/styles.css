@@ -4,13 +4,15 @@
 @import "@fontsource-variable/geist-mono";
 
 /*
- * Design system for the WPP status dashboard.
+ * Design system for the WPP at Scale status dashboard.
  *
- * Discipline: color is reserved ENTIRELY for status semantics. All
- * interface chrome (buttons, links, borders, focus rings, surfaces) is
- * achromatic. The six --status-* hues below are the only color anywhere
- * on the page — that's deliberate: it's what makes them read as a family
- * instead of competing with brand/decoration color.
+ * Warm editorial surface, one olive accent, and a six-hue status family.
+ * The discipline: olive is the *interface* accent (links, active nav, open
+ * PRs) and the six --status-* hues are the *data* accent. Nothing else is
+ * allowed to introduce a colour. Every chip on the page — status pills, PR
+ * refs, callouts — derives its background and text from a single hue token
+ * via color-mix, so the family stays in tune in both themes without any
+ * per-variant colour being hand-picked twice.
  */
 
 @custom-variant dark (&:is(.dark *));
@@ -21,25 +23,35 @@
 }
 
 :root {
-  /* Achromatic chrome — same hue-less family in light and dark, varying only L. */
-  --background: oklch(0.984 0.002 90);
-  --foreground: oklch(0.22 0.01 90);
-  --card: oklch(1 0 0);
+  /* Warm paper, not grey. The page and the sidebar are deliberately two
+     different off-whites — that half-step is what separates the rail from
+     the content without needing a heavy border. */
+  --background: #fcfcf8;
+  --foreground: #292929;
+  --card: #ffffff;
   --card-foreground: var(--foreground);
-  --popover: oklch(1 0 0);
+  --popover: #ffffff;
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.22 0.01 90);
-  --primary-foreground: oklch(0.984 0.002 90);
-  --secondary: oklch(0.945 0.004 90);
+  --sidebar: #fbfaf5;
+
+  --primary: #5b6f00;
+  --primary-hover: #4e5f00;
+  --primary-foreground: #fcfcf8;
+  --secondary: #f5f4ee;
   --secondary-foreground: var(--foreground);
-  --muted: oklch(0.945 0.004 90);
-  --muted-foreground: oklch(0.5 0.008 90);
-  --accent: oklch(0.945 0.004 90);
-  --accent-foreground: var(--foreground);
-  --border: oklch(0.89 0.005 90);
-  --input: oklch(0.89 0.005 90);
-  --ring: oklch(0.5 0.008 90);
-  --radius: 0.5rem;
+  --muted: #f5f4ee;
+  --muted-foreground: #6e6c63;
+  --accent: #f0f2e3;
+  --accent-foreground: #3d4a00;
+
+  --border: #e3e3e3;
+  /* Hairlines *inside* a surface — rows in a card, dividers in a stat
+     strip. Lighter than --border so a card's own edge still reads as the
+     outer boundary. */
+  --border-soft: #efede4;
+  --input: #e3e3e3;
+  --ring: #5b6f00;
+  --radius: 0.75rem;
 
   /* Motion: strong custom easings, not the weak CSS built-ins — see
      https://easing.dev. ease-out for anything entering/responding
@@ -47,54 +59,62 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
-  /* Two-tier elevation: cards/panels get a soft ambient shadow (rest),
-     a slightly stronger one on hover — never a hard drop shadow. */
-  --shadow-surface: 0 1px 2px oklch(0 0 0 / 0.04);
-  --shadow-surface-hover: 0 8px 24px -8px oklch(0 0 0 / 0.1), 0 2px 6px -2px oklch(0 0 0 / 0.06);
+  /* Two-tier elevation, both barely there. Depth in this system comes from
+     the border first and the shadow second, never the other way round. */
+  --shadow-surface: 0 1px 2px rgb(71 67 42 / 0.05);
+  --shadow-surface-hover: 0 8px 24px -8px rgb(71 67 42 / 0.12), 0 2px 6px -2px rgb(71 67 42 / 0.08);
 
-  /* Status family — six hues, matched lightness/chroma so they sit together
-     as a family. Distinct hues (not distinct saturation) so shipped vs.
-     staged is unambiguous at a glance and under common color-vision
+  /* Status family — six hues, matched lightness/chroma so they sit
+     together. Distinct hues (not distinct saturation) so shipped vs.
+     staged is unambiguous at a glance and under common colour-vision
      deficiencies. --destructive reuses --status-blocked deliberately,
      rather than inventing a seventh hue. */
-  --status-shipped: oklch(0.52 0.13 152);
-  --status-staged: oklch(0.5 0.15 235);
-  --status-in-review: oklch(0.53 0.135 300);
-  --status-in-progress: oklch(0.6 0.15 70);
-  --status-blocked: oklch(0.55 0.19 25);
-  --status-todo: oklch(0.62 0.012 90);
+  --status-shipped: #2f7d32;
+  --status-staged: #9a7b4f;
+  --status-in-review: #5f6b7a;
+  --status-in-progress: #b5654a;
+  --status-blocked: #d32f2f;
+  --status-todo: #a9a89f;
   --destructive: var(--status-blocked);
 }
 
 .dark {
-  --background: oklch(0.19 0.006 90);
-  --foreground: oklch(0.935 0.005 90);
-  --card: oklch(0.23 0.007 90);
+  /* Warm dark, not blue-black: the same paper hue rotated down in
+     lightness, so switching themes never changes the temperature of the
+     page. */
+  --background: #1a1917;
+  --foreground: #edebe3;
+  --card: #211f1c;
   --card-foreground: var(--foreground);
-  --popover: oklch(0.23 0.007 90);
+  --popover: #211f1c;
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.935 0.005 90);
-  --primary-foreground: oklch(0.19 0.006 90);
-  --secondary: oklch(0.28 0.008 90);
-  --secondary-foreground: var(--foreground);
-  --muted: oklch(0.28 0.008 90);
-  --muted-foreground: oklch(0.68 0.01 90);
-  --accent: oklch(0.28 0.008 90);
-  --accent-foreground: var(--foreground);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.68 0.01 90);
+  --sidebar: #1e1c19;
 
-  --status-shipped: oklch(0.72 0.13 152);
-  --status-staged: oklch(0.72 0.13 235);
-  --status-in-review: oklch(0.74 0.13 300);
-  --status-in-progress: oklch(0.78 0.14 70);
-  --status-blocked: oklch(0.7 0.17 25);
-  --status-todo: oklch(0.62 0.015 90);
+  --primary: #a9c24a;
+  --primary-hover: #b8d155;
+  --primary-foreground: #1a1917;
+  --secondary: #26241f;
+  --secondary-foreground: var(--foreground);
+  --muted: #26241f;
+  --muted-foreground: #9c988c;
+  --accent: #2a2e1e;
+  --accent-foreground: #c8dd6b;
+
+  --border: rgb(237 235 227 / 0.13);
+  --border-soft: rgb(237 235 227 / 0.07);
+  --input: rgb(237 235 227 / 0.16);
+  --ring: #a9c24a;
+
+  --status-shipped: #6fb073;
+  --status-staged: #c7a472;
+  --status-in-review: #93a3b5;
+  --status-in-progress: #de9078;
+  --status-blocked: #eb6f6b;
+  --status-todo: #7c7a72;
   --destructive: var(--status-blocked);
 
-  --shadow-surface: 0 1px 2px oklch(0 0 0 / 0.32);
-  --shadow-surface-hover: 0 8px 24px -8px oklch(0 0 0 / 0.55), 0 2px 6px -2px oklch(0 0 0 / 0.4);
+  --shadow-surface: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-surface-hover: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 2px 6px -2px rgb(0 0 0 / 0.45);
 }
 
 @theme inline {
@@ -104,6 +124,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-sidebar: var(--sidebar);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -114,6 +135,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-status-shipped: var(--status-shipped);
@@ -122,11 +144,15 @@
   --color-status-in-progress: var(--status-in-progress);
   --color-status-blocked: var(--status-blocked);
   --color-status-todo: var(--status-todo);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  /* One scale, tuned so the squircle profile has something to reshape at
+     every tier — a chip at 8px and a card at 16px both read as continuous
+     curves, where a stadium pill (radius = half the height) would leave no
+     straight edge and fall back to a plain arc. */
+  --radius-sm: calc(var(--radius) * 0.45);
+  --radius-md: calc(var(--radius) * 0.7);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-xl: calc(var(--radius) * 1.35);
+  --radius-2xl: calc(var(--radius) * 1.75);
 }
 
 * {
@@ -140,11 +166,11 @@ body,
 }
 
 html {
-  /* Native anchor-click navigation (the "Jump to" links) animates smoothly
-     for free — no JS needed. The on-load scroll-to-hash in
-     src/lib/dashboard/anchors.ts explicitly forces `behavior: "instant"`,
-     so a page load never animates; only a user clicking a jump-to link
-     while already on the page does. */
+  /* Native anchor-click navigation animates smoothly for free — no JS
+     needed. The on-load scroll-to-hash in src/lib/dashboard/anchors.ts
+     explicitly forces `behavior: "instant"`, so a page load never
+     animates; only a user clicking a jump-to link while already on the
+     page does. */
   scroll-behavior: smooth;
 }
 
@@ -181,15 +207,15 @@ body {
 }
 
 a {
-  color: var(--foreground);
+  color: inherit;
   text-decoration-color: var(--border);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
-  transition: text-decoration-color 150ms var(--ease-out);
+  transition: text-decoration-color 150ms var(--ease-out), color 150ms var(--ease-out);
 }
 
 a:hover {
-  text-decoration-color: var(--foreground);
+  text-decoration-color: currentColor;
 }
 
 :focus-visible {
@@ -203,15 +229,35 @@ code {
 }
 
 .page-wrap {
-  width: min(1120px, calc(100% - 2rem));
+  width: min(1120px, calc(100% - 2.5rem));
   margin-inline: auto;
 }
 
-/* Numbers-as-data-hero: every score/KPI number and every ticket/PR/branch
-   ref renders in this. Tabular figures so columns of numbers align. */
+/* The display role. The reference design carried its editorial voice in a
+   slab serif; this app is standardised on Geist, so the same role is
+   carried by size and tracking instead — Geist tightened well past its
+   default at large sizes, which is where the family actually gets its
+   character. Never used below ~18px, where the negative tracking would
+   just look cramped. */
+.font-display {
+  font-weight: 500;
+  letter-spacing: -0.028em;
+}
+
+/* Numbers-as-data: every score/KPI number and every ticket/PR/branch ref
+   renders in this. Tabular figures so columns of numbers align. */
 .font-mono-data {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* Micro-label above a group: sidebar section headers, stat captions. */
+.eyebrow {
+  font-size: 0.65rem;
+  line-height: 1rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
 }
 
 /* The signature element: ruler ticks at the real Stage boundaries
@@ -222,10 +268,10 @@ code {
   position: relative;
 }
 
-/* ::after (not ::before) so it paints on top of the fill div — a
-   ::before would paint first and get covered by the actual bar fill.
-   mix-blend-mode keeps the ticks visible against any fill color or
-   track color, light or dark, without needing per-theme tick colors. */
+/* ::after (not ::before) so it paints on top of the fill div — a ::before
+   would paint first and get covered by the actual bar fill.
+   mix-blend-mode keeps the ticks visible against any fill colour or track
+   colour, light or dark, without needing per-theme tick colours. */
 .tick-marks::after {
   content: "";
   position: absolute;
@@ -233,23 +279,18 @@ code {
   pointer-events: none;
   mix-blend-mode: difference;
   background-image:
-    linear-gradient(90deg, transparent calc(25% - 1px), rgba(128, 128, 128, 0.9) calc(25% - 1px), rgba(128, 128, 128, 0.9) 25%, transparent 25%),
-    linear-gradient(90deg, transparent calc(70% - 1px), rgba(128, 128, 128, 0.9) calc(70% - 1px), rgba(128, 128, 128, 0.9) 70%, transparent 70%);
+    linear-gradient(90deg, transparent calc(25% - 1px), rgb(128 128 128 / 0.9) calc(25% - 1px), rgb(128 128 128 / 0.9) 25%, transparent 25%),
+    linear-gradient(90deg, transparent calc(70% - 1px), rgb(128 128 128 / 0.9) calc(70% - 1px), rgb(128 128 128 / 0.9) 70%, transparent 70%);
 }
 
-/* Two radius tiers, used consistently everywhere: "surface" (rounded-xl)
-   for cards/panels, "chip" (rounded-lg) for pills/badges/small notes. */
-
 /* Ambient shadow only, no hover response — for surfaces that display
-   information but aren't themselves a single clickable target
-   (change-feed items, empty states). */
+   information but aren't themselves a single clickable target. */
 .surface {
   box-shadow: var(--shadow-surface);
 }
 
-/* Feature cards get the same ambient shadow at rest and lift slightly on
-   hover — enough to read as "interactive/scannable", never a heavy
-   drop-shadow. Border and shadow animate together at the same easing. */
+/* Cards that *are* a target: same ambient shadow at rest, lifting slightly
+   on hover. Border and shadow animate together at the same easing. */
 .surface-card {
   box-shadow: var(--shadow-surface);
   transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
@@ -262,12 +303,35 @@ code {
   }
 }
 
-/* Status pill / dot color, computed from one --status-* token via
+/* Sidebar nav row. Active state is a filled soft surface rather than a
+   left rule or a colour swap — it survives both themes and doesn't
+   compete with the status dots sitting inside the same row. */
+.nav-item {
+  transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-item:hover {
+    background-color: color-mix(in oklch, var(--foreground) 5%, transparent);
+  }
+}
+
+.nav-item[data-active="true"] {
+  background-color: color-mix(in oklch, var(--foreground) 7%, transparent);
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.dark .nav-item[data-active="true"] {
+  background-color: color-mix(in oklch, var(--foreground) 11%, transparent);
+}
+
+/* Status pill / dot colour, computed from one --status-* token via
    color-mix — one rule for all six statuses, no per-status one-offs. */
 [data-status] {
   --status-color: var(--status-todo);
-  background: color-mix(in oklch, var(--status-color) 16%, var(--card));
-  color: color-mix(in oklch, var(--status-color) 78%, var(--foreground));
+  background: color-mix(in oklch, var(--status-color) 15%, var(--card));
+  color: color-mix(in oklch, var(--status-color) 76%, var(--foreground));
 }
 
 [data-status="shipped"] {
@@ -308,6 +372,89 @@ code {
 
 [data-status] .status-dot {
   background: var(--status-color);
+}
+
+/* A bare dot outside a pill (sidebar rows, feed items) — same six hues,
+   no chip background. */
+[data-status-dot] {
+  --status-color: var(--status-todo);
+  background: var(--status-color);
+}
+[data-status-dot="shipped"],
+[data-status-dot="done"] {
+  --status-color: var(--status-shipped);
+}
+[data-status-dot="staged"],
+[data-status-dot="nearly_done"] {
+  --status-color: var(--status-staged);
+}
+[data-status-dot="in_review"] {
+  --status-color: var(--status-in-review);
+}
+[data-status-dot="in_progress"],
+[data-status-dot="early"],
+[data-status-dot="underway"] {
+  --status-color: var(--status-in-progress);
+}
+[data-status-dot="blocked"] {
+  --status-color: var(--status-blocked);
+}
+[data-status-dot="todo"],
+[data-status-dot="not_started"] {
+  --status-color: var(--status-todo);
+}
+
+/* PR reference chips. The hue encodes *where the code actually is*, which
+   is this dashboard's whole thesis: green only for merged-to-default,
+   gold for merged-into-an-integration-branch, olive for an open PR. Same
+   color-mix construction as the status pills so the two families match. */
+[data-pr] {
+  --pr-color: var(--status-todo);
+  background: color-mix(in oklch, var(--pr-color) 12%, var(--card));
+  color: color-mix(in oklch, var(--pr-color) 72%, var(--foreground));
+  transition: background-color 150ms var(--ease-out);
+}
+
+[data-pr="shipped"] {
+  --pr-color: var(--status-shipped);
+}
+[data-pr="staged"] {
+  --pr-color: var(--status-staged);
+}
+[data-pr="open"] {
+  --pr-color: var(--primary);
+}
+[data-pr="draft"],
+[data-pr="closed"] {
+  --pr-color: var(--status-todo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-pr]:hover {
+    background: color-mix(in oklch, var(--pr-color) 22%, var(--card));
+  }
+}
+
+[data-pr] .pr-number {
+  color: color-mix(in oklch, var(--pr-color) 92%, var(--foreground));
+  font-weight: 500;
+}
+
+/* Filter chips (subtask filters, milestone filters). Unselected is a
+   hairline outline; selected inverts to ink. */
+.chip {
+  transition: background-color 150ms var(--ease-out), border-color 150ms var(--ease-out), color 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
+}
+
+.chip:active {
+  transform: scale(0.97);
+}
+
+.chip[data-selected="true"] {
+  background: var(--foreground);
+  border-color: var(--foreground);
+  color: var(--background);
 }
 
 /* Responsive tables: a real <table> for a11y, restacked to labeled cards

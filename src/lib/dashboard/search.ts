@@ -8,7 +8,9 @@ import { z } from "zod";
 import type { Feature as FeatureSchema } from "../schema.ts";
 
 export const dashboardSearchSchema = z.object({
-  milestone: z.enum(["all", "m1", "m3-m4"]).default("all").catch("all"),
+  // M3 and M4 share one filter value: they're both Tony's light-tier
+  // platform work and are always read together.
+  milestone: z.enum(["all", "m1", "m2", "m3-m4"]).default("all").catch("all"),
   engineer: z.string().nullable().default(null),
   needsAttention: z.boolean().default(false),
   q: z.string().default(""),
@@ -44,6 +46,7 @@ export function needsAttention(feature: FeatureT, now: Date): boolean {
 
 export function matchesFilters(feature: FeatureT, search: DashboardSearch, now: Date): boolean {
   if (search.milestone === "m1" && feature.milestone !== "M1") return false;
+  if (search.milestone === "m2" && feature.milestone !== "M2") return false;
   if (search.milestone === "m3-m4" && feature.milestone !== "M3" && feature.milestone !== "M4") return false;
   if (search.engineer !== null && feature.owner !== search.engineer) return false;
   if (search.needsAttention && !needsAttention(feature, now)) return false;

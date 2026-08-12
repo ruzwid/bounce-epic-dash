@@ -1,5 +1,8 @@
-import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts"
 import type { BurnUpPoint } from "@/lib/dashboard/burnup"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { SectionHeading } from "./SectionHeading"
+import { ChartKey } from "./ChartKey"
 import { EmptyState } from "./EmptyState"
 
 type BurnUpChartProps = {
@@ -10,52 +13,69 @@ type BurnUpChartProps = {
 // ~2 weeks of weekday snapshots.
 const MIN_HISTORY_FOR_CHART = 10
 
+const chartConfig = {
+  shipped: { label: "Shipped", color: "var(--status-shipped)" },
+  staged: { label: "Staged", color: "var(--status-staged)" },
+  total: { label: "Total tracked", color: "var(--foreground)" },
+  pace: { label: "Pace needed for target", color: "var(--muted-foreground)" },
+} satisfies ChartConfig
+
+// Explicit legend order — see the note in SubtaskStatusMixChart.
+const SERIES = Object.keys(chartConfig) as (keyof typeof chartConfig)[]
+
 export function BurnUpChart({ series, targetDate }: BurnUpChartProps) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="m-0 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-        Burn-up{targetDate ? ` vs. ${targetDate} target` : ""}
-      </h2>
+      <SectionHeading note={targetDate ? `against the ${targetDate} target` : "no target date set"}>
+        Burn-up
+      </SectionHeading>
       {series.length < MIN_HISTORY_FOR_CHART ? (
         <EmptyState message="Not enough history yet — check back after a couple of weeks of snapshots." />
       ) : (
         <>
-          <div className="surface h-72 w-full rounded-xl border border-border bg-card p-4">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="surface rounded-xl border border-border bg-card p-4">
+            <ChartContainer config={chartConfig} className="aspect-auto h-72 w-full">
               <ComposedChart data={series} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="date" tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} axisLine={{ stroke: "var(--border)" }} tickLine={false} />
-                <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} axisLine={{ stroke: "var(--border)" }} tickLine={false} allowDecimals={false} />
-                <Area type="monotone" dataKey="shipped" stackId="burnup" stroke="var(--status-shipped)" fill="var(--status-shipped)" fillOpacity={0.5} />
-                <Area type="monotone" dataKey="staged" stackId="burnup" stroke="var(--status-staged)" fill="var(--status-staged)" fillOpacity={0.5} />
-                <Line type="monotone" dataKey="total" stroke="var(--foreground)" strokeWidth={1.5} dot={false} />
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} width={28} allowDecimals={false} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="shipped"
+                  stackId="burnup"
+                  stroke="var(--color-shipped)"
+                  fill="var(--color-shipped)"
+                  fillOpacity={0.45}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="staged"
+                  stackId="burnup"
+                  stroke="var(--color-staged)"
+                  fill="var(--color-staged)"
+                  fillOpacity={0.45}
+                />
+                <Line type="monotone" dataKey="total" stroke="var(--color-total)" strokeWidth={1.5} dot={false} />
                 {targetDate ? (
-                  <Line type="linear" dataKey="pace" stroke="var(--muted-foreground)" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+                  <Line
+                    type="linear"
+                    dataKey="pace"
+                    stroke="var(--color-pace)"
+                    strokeWidth={1.5}
+                    strokeDasharray="4 4"
+                    dot={false}
+                  />
                 ) : null}
               </ComposedChart>
-            </ResponsiveContainer>
+            </ChartContainer>
+            <ChartKey
+              config={chartConfig}
+              keys={targetDate ? SERIES : SERIES.filter((key) => key !== "pace")}
+              className="pt-3"
+            />
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <span aria-hidden="true" className="size-2 rounded-full" style={{ background: "var(--status-shipped)" }} />
-              Shipped
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span aria-hidden="true" className="size-2 rounded-full" style={{ background: "var(--status-staged)" }} />
-              Staged
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span aria-hidden="true" className="h-px w-3 bg-foreground" />
-              Total tracked
-            </span>
-            {targetDate ? (
-              <span className="inline-flex items-center gap-1.5">
-                <span aria-hidden="true" className="h-px w-3 border-t border-dashed border-muted-foreground" />
-                Pace needed for target
-              </span>
-            ) : null}
-          </div>
-          <p className="m-0 text-xs text-muted-foreground">
+          <p className="m-0 text-xs leading-relaxed text-muted-foreground">
             The dashed line is the pace needed to hit the target date. The solid lines are the deterministic weighted
             counts, not an estimate.
           </p>

@@ -1,10 +1,14 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { loadHistory, loadLatestSnapshot, loadPreviousSnapshot } from '@/lib/dashboard/snapshots'
 import { dashboardSearchSchema } from '@/lib/dashboard/search'
-import { DashboardPage } from '@/components/dashboard/DashboardPage'
+import { AppShell } from '@/components/dashboard/shell/AppShell'
 
-export const Route = createFileRoute('/')({
+// Pathless layout for the "latest snapshot" half of the app: it owns the
+// sidebar, the epic header, and the loaded snapshot, so every page under
+// it is just content. Its mirror image is /$date, which loads one specific
+// historical snapshot into the identical shell.
+export const Route = createFileRoute('/_shell')({
   validateSearch: dashboardSearchSchema,
   loader: async () => {
     const snapshot = await loadLatestSnapshot()
@@ -25,26 +29,33 @@ export const Route = createFileRoute('/')({
         ]
       : [],
   }),
-  component: IndexRoute,
+  component: ShellRoute,
 })
 
-function IndexRoute() {
+function ShellRoute() {
   const { snapshot, previous, history } = Route.useLoaderData()
   const search = Route.useSearch()
-  const navigate = Route.useNavigate()
+  const navigate = useNavigate()
   // Computed once per mount (not on every render) — keeps SSR and the
   // client's initial hydration close enough that isStale/needsAttention
   // never disagree in practice, without freezing "now" forever.
   const [now] = useState(() => new Date())
 
   return (
-    <DashboardPage
-      snapshot={snapshot}
-      previous={previous}
-      history={history}
-      search={search}
-      onSearchChange={(updates) => navigate({ search: (prev) => ({ ...prev, ...updates }) })}
-      now={now}
-    />
+    <AppShell
+      value={{
+        snapshot,
+        previous,
+        history,
+        date: null,
+        now,
+        search,
+        // `to: '.'` keeps the reader on whichever child page they're on;
+        // filters are URL state and must survive navigation between pages.
+        onSearchChange: (updates) => navigate({ to: '.', search: (prev) => ({ ...prev, ...updates }) }),
+      }}
+    >
+      <Outlet />
+    </AppShell>
   )
 }

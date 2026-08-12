@@ -1,8 +1,9 @@
 // src/lib/adf.ts
 // Flattens Atlassian Document Format (ADF) JIRA descriptions into plain
-// text, specifically to pull the bullet list under a "## Acceptance
-// Criteria" heading. Never regex the raw payload — ADF is a real nested
-// document tree and headings/lists can appear in any order or not at all.
+// text: the bullet list under an "Acceptance Criteria" heading, and the
+// prose under whichever heading a ticket uses to say what it is for.
+// Never regex the raw payload — ADF is a real nested document tree and
+// headings/lists can appear in any order or not at all.
 
 type AdfNode = {
   type: string;
@@ -74,4 +75,53 @@ export function extractAcBullets(doc: unknown): string[] {
     }
   }
   return bullets;
+}
+
+/** Headings a ticket uses to state its purpose, in preference order.
+ *  Epics and features lead with "Goal"; milestones lead with "What it
+ *  delivers", except M3 which also uses "Goal" — so both are matched
+ *  rather than assuming a heading per issue type. */
+const OVERVIEW_HEADINGS = /^\s*(goal|what it delivers|overview|summary|purpose)\s*$/i;
+
+/** Every paragraph in `nodes` from `start` until the next heading. */
+function paragraphsFrom(nodes: AdfNode[], start: number): string[] {
+  const paragraphs: string[] = [];
+  for (let i = start; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (!node) continue;
+    if (isHeading(node)) break;
+    if (node.type === "paragraph") {
+      const text = flattenText(node).trim();
+      if (text.length > 0) paragraphs.push(text);
+    }
+  }
+  return paragraphs;
+}
+
+/**
+ * The ticket's own statement of what it is for: the prose under its
+ * "Goal" / "What it delivers" heading, falling back to whatever
+ * paragraphs open the description.
+ *
+ * Deliberately an extraction and not a summary. The text is already
+ * written by a human and already short — running it past a model every
+ * run would spend tokens to make a static sentence less accurate. Returns
+ * "" — never throws — when the description is missing or has no prose,
+ * on the same "record it and continue" principle as extractAcBullets.
+ */
+export function extractOverview(doc: unknown): string {
+  if (!isAdfNode(doc) || !Array.isArray(doc.content)) {
+    return "";
+  }
+
+  const topLevel = doc.content;
+  const headingIndex = topLevel.findIndex(
+    (node) => isHeading(node) && OVERVIEW_HEADINGS.test(flattenText(node)),
+  );
+
+  // No recognised heading: take the paragraphs before the first heading,
+  // which is where a ticket with no template puts its description.
+  const paragraphs = headingIndex === -1 ? paragraphsFrom(topLevel, 0) : paragraphsFrom(topLevel, headingIndex + 1);
+
+  return paragraphs.join("\n\n");
 }

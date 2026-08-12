@@ -1,5 +1,7 @@
-import { readdirSync } from 'node:fs'
-import { defineConfig } from 'vite'
+import { readFileSync, readdirSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { defineConfig, type Plugin } from 'vite'
+import { parse } from 'yaml'
 import { devtools } from '@tanstack/devtools-vite'
 
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -22,10 +24,45 @@ function snapshotDatePages(): string[] {
   }
 }
 
+// config.yaml, resolved to plain JS at build time.
+//
+// The browser needs two things from it: the people map (to turn a display
+// name back into a GitHub login for avatars) and the full structure (for
+// the Config page). Parsing YAML at *runtime* to get either would put the
+// `yaml` package in the bundle of every page that shows an avatar — about
+// 100KB to look up a username. Parsing here instead means the client ships
+// data, not a parser.
+function appConfigPlugin(): Plugin {
+  const virtualId = 'virtual:app-config'
+  const resolvedId = `\0${virtualId}`
+  // Absolute: a virtual module has no directory of its own, so a relative
+  // path here gets resolved against the virtual id and fails.
+  const configPath = fileURLToPath(new URL('./config.yaml', import.meta.url))
+
+  return {
+    name: 'app-config-yaml',
+    resolveId(id) {
+      return id === virtualId ? resolvedId : null
+    },
+    load(id) {
+      if (id !== resolvedId) return null
+      const source = readFileSync(configPath, 'utf8')
+      // Watched so editing config.yaml hot-reloads in dev rather than
+      // silently serving a stale copy until the next restart.
+      this.addWatchFile(configPath)
+      return [
+        `export const appConfig = ${JSON.stringify(parse(source))};`,
+        `export const appConfigSource = ${JSON.stringify(source)};`,
+      ].join('\n')
+    },
+  }
+}
+
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
     devtools(),
+    appConfigPlugin(),
     tailwindcss(),
     tanstackStart({
       prerender: {

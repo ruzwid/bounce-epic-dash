@@ -11,6 +11,7 @@ function makeFeature(overrides: Partial<RawFeature> = {}): RawFeature {
     tier: "full",
     owner: "alice",
     repos: ["service-a"],
+    overview: "",
     score: 100,
     scoreBasis: { shipped: 1, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 1 },
     stage: "done",

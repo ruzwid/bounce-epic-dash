@@ -51,6 +51,14 @@ the only project you know about.
    unambiguous. Never treat a `template_only` PR as silence about the
    whole feature — it's still evidence the ticket had *some* activity,
    just not evidence of *what* was covered.
+4. **`overview` is context, never evidence.** It's the feature ticket's own
+   "Goal" prose, extracted verbatim from JIRA, and it tells you what the
+   feature is *supposed* to do — useful for judging whether a PR is on
+   target and for writing a `rationale` that names the right thing. It says
+   nothing about what has been built, so it can never move an AC bullet
+   towards `covered` on its own. Do not quote it back in `rationale`; the
+   dashboard already renders it beside your sentence, and repeating it
+   wastes the one sentence you get on progress.
 
 **Output shape** (must validate against the `Judgment` schema in
 `src/lib/schema.ts` — do not deviate from this shape):
