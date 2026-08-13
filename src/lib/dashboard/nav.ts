@@ -176,6 +176,7 @@ export type MilestoneProgress = {
   score: number;
   stage: StageT;
   shipped: number;
+  doneUnverified: number;
   staged: number;
   inReview: number;
   blockedOrTodo: number;
@@ -191,6 +192,7 @@ export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
   const totals = features.reduce(
     (acc, f) => ({
       shipped: acc.shipped + f.scoreBasis.shipped,
+      doneUnverified: acc.doneUnverified + f.scoreBasis.doneUnverified,
       staged: acc.staged + f.scoreBasis.staged,
       inReview: acc.inReview + f.scoreBasis.inReview,
       inProgress: acc.inProgress + f.scoreBasis.inProgress,
@@ -198,12 +200,13 @@ export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
       todo: acc.todo + f.scoreBasis.todo,
       total: acc.total + f.scoreBasis.total,
     }),
-    { shipped: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 0 },
+    { shipped: 0, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 0 },
   );
 
   const weights = loadAppConfig().scoreWeights;
   const weighted =
     totals.shipped * weights.shipped +
+    totals.doneUnverified * weights.done_unverified +
     totals.staged * weights.staged +
     totals.inReview * weights.in_review +
     totals.inProgress * weights.in_progress +
@@ -216,6 +219,7 @@ export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
     score,
     stage: deriveStage(score, allDone),
     shipped: totals.shipped,
+    doneUnverified: totals.doneUnverified,
     staged: totals.staged,
     inReview: totals.inReview,
     blockedOrTodo: totals.blocked + totals.todo,
@@ -287,24 +291,26 @@ export type EpicProgress = {
   percent: number;
   /** share of all tracked stories, for the segmented bar */
   shippedShare: number;
+  doneUnverifiedShare: number;
   stagedShare: number;
   inReviewShare: number;
 };
 
 /** Epic-level completion, derived from the published KPI counts using the
  *  same weights as a single feature's score (src/lib/score.ts): shipped
- *  counts full, staged half, in review a third. Deliberately *not* the
- *  mean of feature scores — that would weight a one-story feature the
- *  same as a fourteen-story one. */
+ *  and done_unverified both count full, staged half, in review a third.
+ *  Deliberately *not* the mean of feature scores — that would weight a
+ *  one-story feature the same as a fourteen-story one. */
 export function epicProgress(kpis: StatusSnapshotT["kpis"]): EpicProgress {
   const total = kpis.storiesTracked;
   if (total === 0) {
-    return { percent: 0, shippedShare: 0, stagedShare: 0, inReviewShare: 0 };
+    return { percent: 0, shippedShare: 0, doneUnverifiedShare: 0, stagedShare: 0, inReviewShare: 0 };
   }
-  const weighted = kpis.shipped * 1 + kpis.staged * 0.5 + kpis.inReview * 0.3;
+  const weighted = kpis.shipped * 1 + kpis.doneUnverified * 1 + kpis.staged * 0.5 + kpis.inReview * 0.3;
   return {
     percent: Math.round((weighted / total) * 100),
     shippedShare: (kpis.shipped / total) * 100,
+    doneUnverifiedShare: (kpis.doneUnverified / total) * 100,
     stagedShare: (kpis.staged / total) * 100,
     inReviewShare: (kpis.inReview / total) * 100,
   };

@@ -91,7 +91,7 @@ function makeRawFeature(overrides: Partial<RawFeature> = {}): RawFeature {
     repos: ["service-a"],
     overview: "",
     score: 80,
-    scoreBasis: { shipped: 3, staged: 1, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 4 },
+    scoreBasis: { shipped: 3, doneUnverified: 0, staged: 1, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 4 },
     stage: "nearly_done",
     daysSinceLastActivity: 2,
     daysInStaged: 5,
@@ -252,7 +252,7 @@ describe("runMerge", () => {
     jira: { projectKey: "TEST", statusMap: {} },
     github: { org: "test-org" },
     timezone: "Europe/Dublin",
-    scoreWeights: { shipped: 1, staged: 0.5, in_review: 0.3, in_progress: 0.15, blocked: 0, todo: 0 },
+    scoreWeights: { shipped: 1, done_unverified: 1, staged: 0.5, in_review: 0.3, in_progress: 0.15, blocked: 0, todo: 0 },
     milestones: [],
     people: { alice: "Alice", bob: "Bob" },
   };

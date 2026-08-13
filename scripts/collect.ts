@@ -32,7 +32,8 @@ type Stage = z.infer<typeof StageSchema>;
 type CollectionError = z.infer<typeof CollectionErrorSchema>;
 
 const STATUS_PRIORITY: Record<WorkStatus, number> = {
-  shipped: 5,
+  shipped: 6,
+  done_unverified: 5,
   staged: 4,
   in_review: 3,
   in_progress: 2,
@@ -318,7 +319,11 @@ export function rollUpStoryStatus(ownStatus: WorkStatus, subtasks: { status: Wor
     STATUS_PRIORITY[candidate] > STATUS_PRIORITY[ownStatus] ? candidate : ownStatus;
 
   if (subtasks.every((s) => s.status === "shipped")) return atLeast("shipped");
-  if (subtasks.some((s) => s.status === "shipped" || s.status === "staged" || s.status === "in_review")) {
+  if (
+    subtasks.some(
+      (s) => s.status === "shipped" || s.status === "done_unverified" || s.status === "staged" || s.status === "in_review",
+    )
+  ) {
     return atLeast("in_review");
   }
   return ownStatus;

@@ -275,6 +275,7 @@ export function buildSnapshot(params: {
       lightTierMilestones: new Set(features.filter((f) => f.tier === "light").map((f) => f.milestone)).size,
       storiesTracked: features.reduce((sum, f) => sum + f.scoreBasis.total, 0),
       shipped: features.reduce((sum, f) => sum + f.scoreBasis.shipped, 0),
+      doneUnverified: features.reduce((sum, f) => sum + f.scoreBasis.doneUnverified, 0),
       staged: features.reduce((sum, f) => sum + f.scoreBasis.staged, 0),
       inReview: features.reduce((sum, f) => sum + f.scoreBasis.inReview, 0),
       blockedOrTodo: features.reduce((sum, f) => sum + f.scoreBasis.blocked + f.scoreBasis.todo, 0),
