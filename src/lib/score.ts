@@ -8,6 +8,7 @@ type Stage = z.infer<typeof StageSchema>;
 
 export type ScoreBasis = {
   shipped: number;
+  doneUnverified: number;
   staged: number;
   inReview: number;
   inProgress: number;
@@ -18,6 +19,7 @@ export type ScoreBasis = {
 
 const STATUS_TO_BASIS_KEY: Record<WorkStatus, keyof Omit<ScoreBasis, "total">> = {
   shipped: "shipped",
+  done_unverified: "doneUnverified",
   staged: "staged",
   in_review: "inReview",
   in_progress: "inProgress",
@@ -38,6 +40,7 @@ export function computeScore(
 ): { score: number; scoreBasis: ScoreBasis } {
   const scoreBasis: ScoreBasis = {
     shipped: 0,
+    doneUnverified: 0,
     staged: 0,
     inReview: 0,
     inProgress: 0,

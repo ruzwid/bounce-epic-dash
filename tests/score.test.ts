@@ -3,6 +3,7 @@ import { computeScore, deriveStage } from "../src/lib/score.ts";
 
 const DEFAULT_WEIGHTS = {
   shipped: 1.0,
+  done_unverified: 1.0,
   staged: 0.5,
   in_review: 0.3,
   in_progress: 0.15,
@@ -19,18 +20,26 @@ describe("computeScore", () => {
 
   it("produces a scoreBasis with raw counts per status, not weighted values", () => {
     const result = computeScore(
-      ["shipped", "shipped", "staged", "in_review", "in_progress", "blocked", "todo"],
+      ["shipped", "shipped", "done_unverified", "staged", "in_review", "in_progress", "blocked", "todo"],
       DEFAULT_WEIGHTS,
     );
     expect(result.scoreBasis).toEqual({
       shipped: 2,
+      doneUnverified: 1,
       staged: 1,
       inReview: 1,
       inProgress: 1,
       blocked: 1,
       todo: 1,
-      total: 7,
+      total: 8,
     });
+  });
+
+  it("weights done_unverified the same as shipped, and never folds its count into scoreBasis.shipped", () => {
+    const result = computeScore(["done_unverified", "done_unverified"], DEFAULT_WEIGHTS);
+    expect(result.score).toBe(100);
+    expect(result.scoreBasis.shipped).toBe(0);
+    expect(result.scoreBasis.doneUnverified).toBe(2);
   });
 
   it("is 100 only when every story is shipped", () => {
