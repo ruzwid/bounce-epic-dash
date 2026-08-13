@@ -73,6 +73,11 @@ export const Config = z.object({
   milestones: z.array(Milestone),
   /** login -> display name */
   people: z.record(z.string(), z.string()).default({}),
+  /** JIRA assignee `displayName` -> login */
+  jiraAssignees: z.record(z.string(), z.string()).default({}),
+  /** login -> hex, the average colour of their GitHub avatar. Precomputed
+   *  (see scripts/avatar-colors.mjs), not derived at runtime. */
+  peopleColors: z.record(z.string(), z.string()).default({}),
 });
 
 export type Config = z.infer<typeof Config>;

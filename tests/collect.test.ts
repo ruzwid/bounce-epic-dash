@@ -25,6 +25,8 @@ const CONFIG: Config = {
   scoreWeights: { shipped: 1, staged: 0.5, in_review: 0.3, in_progress: 0.15, blocked: 0, todo: 0 },
   milestones: [],
   people: {},
+  jiraAssignees: {},
+  peopleColors: {},
 };
 
 function target(overrides: Partial<FeatureTarget> = {}): FeatureTarget {

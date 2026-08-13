@@ -62,3 +62,38 @@ export function loginForDisplayName(displayName: string): string | null {
   }
   return loginsByDisplayName.get(displayName) ?? null;
 }
+
+/** The GitHub login behind a JIRA assignee's `displayName`, or null if
+ *  config.yaml's `jiraAssignees` doesn't map one.
+ *
+ *  Separate from loginForDisplayName: that one reverses `people`, whose
+ *  values are short first names ("Ruzzell") because owners are humanised
+ *  through it at merge time. Ticket assignees never go through that
+ *  humanisation — they're JIRA's raw `displayName` ("Ruzzell Widjaja",
+ *  or for one person a bare username, "vivek.murarka") — so reusing
+ *  `people` here would never match. */
+export function loginForJiraAssignee(displayName: string): string | null {
+  const jiraAssignees = (appConfig as { jiraAssignees?: Record<string, unknown> } | null)?.jiraAssignees ?? {};
+  const login = jiraAssignees[displayName];
+  return typeof login === "string" ? login : null;
+}
+
+let colorsByLogin: Map<string, string> | null = null;
+
+/** The subtle background colour for a GitHub login, or null if
+ *  config.yaml's `peopleColors` doesn't have one — the caller then falls
+ *  back to no tint at all rather than guessing a colour.
+ *
+ *  Reads `peopleColors` directly rather than going through
+ *  loadAppConfig(), same reasoning as loginForDisplayName: a badge colour
+ *  is decoration, not something a config error should be able to take the
+ *  whole dashboard down over. */
+export function colorForLogin(login: string): string | null {
+  if (!colorsByLogin) {
+    const peopleColors = (appConfig as { peopleColors?: Record<string, unknown> } | null)?.peopleColors ?? {};
+    colorsByLogin = new Map(
+      Object.entries(peopleColors).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+    );
+  }
+  return colorsByLogin.get(login) ?? null;
+}

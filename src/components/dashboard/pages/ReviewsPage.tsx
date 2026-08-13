@@ -1,7 +1,7 @@
 import type { TicketReviewGroup } from "@/lib/dashboard/nav"
 import { featureSlug, reviewsByTicket } from "@/lib/dashboard/nav"
 import { storyPrs } from "@/lib/stories"
-import { loginForDisplayName } from "@/lib/dashboard/appConfig"
+import { loginForJiraAssignee } from "@/lib/dashboard/appConfig"
 import { cn } from "@/lib/utils"
 import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
@@ -151,7 +151,7 @@ function ReviewGroupCard({ group }: { group: TicketReviewGroup }) {
           </JiraLink>
           {ticket.assignee ? (
             <Avatar
-              login={loginForDisplayName(ticket.assignee)}
+              login={loginForJiraAssignee(ticket.assignee)}
               name={ticket.assignee}
               size={20}
               className="ml-auto shrink-0"
@@ -181,7 +181,7 @@ function ReviewGroupCard({ group }: { group: TicketReviewGroup }) {
             ) : null}
             <span className="min-w-0 flex-1 truncate text-sm">{pr.title}</span>
             {!isMulti && ticket.assignee ? (
-              <Avatar login={loginForDisplayName(ticket.assignee)} name={ticket.assignee} size={20} className="shrink-0" />
+              <Avatar login={loginForJiraAssignee(ticket.assignee)} name={ticket.assignee} size={20} className="shrink-0" />
             ) : null}
             <ReviewWaitStatus waitingOn={waitingOn} />
           </li>

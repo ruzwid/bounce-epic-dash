@@ -171,3 +171,26 @@ people:
   TonyCasey: Tony
   gelbh: Tomer
   EmadNazzal: Emad
+
+# JIRA's assignee `displayName` -> GitHub login. Doesn't reuse `people`
+# above because JIRA's string is a full name (or, for Vivek, a bare
+# username) rather than the short first name `people` maps to — so a
+# ticket's assignee needs its own explicit lookup back to a login.
+jiraAssignees:
+  Ruzzell Widjaja: ruzwid
+  vivek.murarka: VivekMurarkaIndIre
+  Tony Casey: TonyCasey
+  Tomer Gelbhart: gelbh
+  Emad Nazzal: EmadNazzal
+
+# login -> average colour of their GitHub avatar, used as a subtle
+# background tint behind PersonChip badges. Regenerate with
+# `pnpm avatar-colors` (also picks up review-only logins that aren't in
+# `people` above, e.g. Madjda) and paste the result back in here.
+peopleColors:
+  EmadNazzal: "#c5a995"
+  Madjda: "#919D8E"
+  TonyCasey: "#241f1d"
+  VivekMurarkaIndIre: "#5c616e"
+  gelbh: "#716461"
+  ruzwid: "#c0bad1"
