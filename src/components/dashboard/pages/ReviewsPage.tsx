@@ -19,7 +19,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
 import { SectionHeading } from "../SectionHeading"
-import { StatStrip } from "../StatStrip"
 import { PrChip } from "../PrChip"
 import { PersonChip } from "../PersonChip"
 import { Avatar } from "../Avatar"
@@ -56,9 +55,6 @@ export function ReviewsPage() {
   if (author) groups = groups.map((g) => filterGroupByAuthor(g, author)).filter((g): g is StoryReviewGroup => g !== null)
   const waiting = groups.filter((g) => g.oldestWaitDays !== null)
   const needsReviewer = groups.filter((g) => g.oldestWaitDays === null)
-  const tickets = groups.flatMap((g) => g.tickets)
-  const openPrCount = tickets.reduce((n, t) => n + t.prs.length, 0)
-  const oldest = waiting.length > 0 ? Math.max(...waiting.map((g) => g.oldestWaitDays!)) : null
 
   // A story JIRA calls "in review" with no open pull request behind it.
   // This is why the header's "in review" count and the open-PR count on
@@ -77,22 +73,6 @@ export function ReviewsPage() {
           Every open pull request across the epic's repositories, grouped by ticket, and who each one is waiting on.
         </p>
       </header>
-
-      <StatStrip
-        stats={[
-          {
-            label: "Waiting on a reviewer",
-            value: reviewer || author ? waiting.length : snapshot.reviewQueue.length,
-            color: waiting.length > 0 ? "var(--status-in-review)" : undefined,
-          },
-          { label: "Open pull requests", value: openPrCount, sublabel: `${tickets.length} ticket${tickets.length === 1 ? "" : "s"}` },
-          {
-            label: "Oldest request",
-            value: oldest === null ? "—" : `${oldest}d`,
-            color: oldest !== null && oldest > 2 ? "var(--status-in-progress)" : undefined,
-          },
-        ]}
-      />
 
       <ReviewerLoad reviewQueue={snapshot.reviewQueue} selected={reviewer} onSelect={setReviewer} />
 
