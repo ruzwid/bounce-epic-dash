@@ -18,6 +18,7 @@ type StoryStatusMixChartProps = {
 // separate chart palette.
 const chartConfig = {
   shipped: { label: WORK_STATUS_LABELS.shipped, color: "var(--status-shipped)" },
+  doneUnverified: { label: WORK_STATUS_LABELS.done_unverified, color: "var(--status-done-unverified)" },
   staged: { label: WORK_STATUS_LABELS.staged, color: "var(--status-staged)" },
   inReview: { label: WORK_STATUS_LABELS.in_review, color: "var(--status-in-review)" },
   inProgress: { label: WORK_STATUS_LABELS.in_progress, color: "var(--status-in-progress)" },
