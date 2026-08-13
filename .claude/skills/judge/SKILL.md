@@ -114,14 +114,19 @@ exit and no snapshot written — if you violate any rule below.
    has no business in a published snapshot even paraphrased loosely into a
    near-quote.
 
-4. **Rationale distinguishes shipped from staged.** Your one-sentence
-   `rationale` per feature must be grounded in the real counts in
-   `scoreBasis` and must not blur "merged" with "shipped" — staged work
-   (merged to an integration branch, not yet on the default branch) is not
-   done. Say so plainly when it applies (e.g. "most subtasks are staged on
-   an integration branch awaiting a release PR" is correct; "already
-   shipped" would not be, if `scoreBasis.staged > 0` and `shipped` isn't the
-   whole total).
+4. **Rationale distinguishes shipped from staged from done-unverified.**
+   Your one-sentence `rationale` per feature must be grounded in the real
+   counts in `scoreBasis` and must not blur "merged" with "shipped" —
+   staged work (merged to an integration branch, not yet on the default
+   branch) is not done. Say so plainly when it applies (e.g. "most
+   subtasks are staged on an integration branch awaiting a release PR" is
+   correct; "already shipped" would not be, if `scoreBasis.staged > 0` and
+   `shipped` isn't the whole total). Similarly, a story that's
+   `doneUnverified` in `scoreBasis` means JIRA marks it Done but no PR
+   confirms it reached master — say so plainly when it applies (e.g. "JIRA
+   marks these Done, but GitHub hasn't confirmed any of them reached
+   master" is correct; "already shipped" would not be, if
+   `scoreBasis.doneUnverified > 0` and `shipped` isn't the whole total).
 
 5. **Confidence guardrails.** A tidy subtask breakdown combined with weeks
    of no activity (`daysSinceLastActivity` large) is `medium` or `low` and

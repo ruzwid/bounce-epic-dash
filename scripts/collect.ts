@@ -356,7 +356,7 @@ function buildRawFeature(params: {
   const daysSinceLastActivity = activityTimestamps.length ? daysBetween(new Date(Math.max(...activityTimestamps)), now) : null;
 
   const stagedMergeTimestamps = stories
-    .filter((s) => s.status === "staged")
+    .filter((s) => s.status === "staged" || s.status === "done_unverified")
     .flatMap((s) => storyPrs(s).filter((p) => p.state === "MERGED" && !p.shippedToDefault))
     .map((p) => p.mergedAt)
     .filter((d): d is string => Boolean(d))
@@ -763,12 +763,13 @@ async function main() {
   console.log(`\nCollected ${features.length} feature(s) for ${date}:\n`);
   for (const f of features) {
     const shipped = f.scoreBasis.shipped;
+    const doneUnverified = f.scoreBasis.doneUnverified;
     const staged = f.scoreBasis.staged;
     const total = f.scoreBasis.total;
     const gate = f.releaseGate ? f.releaseGate.status : "n/a";
     const flag = f.dataOk ? "" : "  [dataOk=false]";
     console.log(
-      `  ${f.code.padEnd(8)} ${f.key.padEnd(12)} score=${String(f.score).padStart(3)} stage=${f.stage.padEnd(11)} shipped/staged/total=${shipped}/${staged}/${total} gate=${gate}${flag}`,
+      `  ${f.code.padEnd(8)} ${f.key.padEnd(12)} score=${String(f.score).padStart(3)} stage=${f.stage.padEnd(11)} shipped/doneUnverified/staged/total=${shipped}/${doneUnverified}/${staged}/${total} gate=${gate}${flag}`,
     );
   }
 

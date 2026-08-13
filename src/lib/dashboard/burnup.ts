@@ -14,7 +14,7 @@ export type BurnUpPoint = {
   pace: number | null;
 };
 
-/** shipped/staged/total over time, plus the target-date pace line.
+/** shipped/doneUnverified/staged/total over time, plus the target-date pace line.
  *  `finalTotal` (the scope the pace line aims at) is the most recent
  *  point's storiesTracked — a single fixed target, so the dashed line is
  *  straight rather than wobbling as scope changes snapshot to snapshot. */

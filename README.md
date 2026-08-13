@@ -231,8 +231,8 @@ pnpm collect
 
 Fetches JIRA + GitHub, writes `data/raw/<date>.json` (full fidelity,
 gitignored) and `data/pending/<date>.json` (trimmed judge input, gitignored),
-and prints a per-feature summary (score, stage, shipped/staged/total,
-release gate) to stdout. **Halt here if this exits non-zero** — a non-zero
+and prints a per-feature summary (score, stage,
+shipped/doneUnverified/staged/total, release gate) to stdout. **Halt here if this exits non-zero** — a non-zero
 exit means every feature failed to collect, not just one; check the printed
 collection errors.
 
@@ -385,8 +385,8 @@ styling. `src/lib/dashboard/` holds the pure, tested data-shaping logic
 (filtering, staleness, since-last-snapshot diffing, the Slack summary
 builder, the burn-up series) kept separate from rendering.
 
-Color is reserved entirely for the six subtask-status hues
-(shipped/staged/in_review/in_progress/blocked/todo, defined in
+Color is reserved entirely for the seven subtask-status hues
+(shipped/done_unverified/staged/in_review/in_progress/blocked/todo, defined in
 `src/styles.css`) — all interface chrome (buttons, links, borders, focus
 rings) is achromatic, so status color never competes with anything else
 on the page. `Stage` pills reuse the same six hues rather than a seventh

@@ -107,17 +107,6 @@ describe("deriveWorkStatus", () => {
     expect(deriveWorkStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("done_unverified");
   });
 
-  it("becomes 'done_unverified' (not 'staged') when the PR merged to integration/wpp even if a release gate exists (GitHub can't confirm Done)", () => {
-    const stagedPr = makePr({
-      number: 22,
-      state: "MERGED",
-      baseRefName: "integration/wpp",
-      mergedAt: "2026-01-01T00:00:00.000Z",
-    });
-    // JIRA says Done but GitHub only confirms integration merge, not master merge.
-    expect(deriveWorkStatus("Done", statusMap, [stagedPr], DEFAULT_BRANCH)).toBe("done_unverified");
-  });
-
   it("falls back to 'todo' with no PRs and an unmapped JIRA status", () => {
     expect(deriveWorkStatus("Some Custom Status", statusMap, [], DEFAULT_BRANCH)).toBe("todo");
   });

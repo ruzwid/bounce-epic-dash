@@ -358,6 +358,18 @@ describe("rollUpStoryStatus", () => {
     expect(rollUpStoryStatus("todo", [{ status: "staged" }])).toBe("in_review");
   });
 
+  it("treats a done_unverified sub-task as at least in_review evidence, same as staged", () => {
+    expect(rollUpStoryStatus("todo", [{ status: "done_unverified" }])).toBe("in_review");
+  });
+
+  it("will not let done_unverified sub-tasks alone declare the whole story shipped", () => {
+    // Only literal "shipped" sub-tasks can roll up to shipped — done_unverified
+    // is progress evidence, not proof the code reached master.
+    expect(rollUpStoryStatus("todo", [{ status: "done_unverified" }, { status: "done_unverified" }])).toBe(
+      "in_review",
+    );
+  });
+
   it("never lowers a status, and never raises past what its own evidence proved", () => {
     expect(rollUpStoryStatus("shipped", [{ status: "todo" }])).toBe("shipped");
     expect(rollUpStoryStatus("staged", [{ status: "in_review" }])).toBe("staged");

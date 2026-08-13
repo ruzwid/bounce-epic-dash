@@ -20,7 +20,9 @@ export function MethodologyFooter({ snapshot }: MethodologyFooterProps) {
           product signed off — but no PR proves the code reached master; it counts toward progress the same as
           shipped, since sign-off happened, but is always shown separately so that gap stays visible.{" "}
           <strong className="text-foreground">Staged</strong> means it merged, but into an integration or release
-          branch — the code exists, but it isn't live. None of the three are ever summed together.
+          branch — the code exists, but it isn't live. That label only applies while the ticket is still open in
+          JIRA; a Done ticket in the same situation reads as "Done, unverified" instead — see above. None of the
+          three are ever summed together.
         </p>
       </div>
       <div>

@@ -133,9 +133,10 @@ const SEGMENTS = [
   { key: "inReviewShare", color: "var(--status-in-review)", label: WORK_STATUS_LABELS.in_review },
 ] as const
 
-/** Three stacked segments on one track — shipped, staged, in review — so
- *  the bar shows the *composition* of progress rather than a single fill
- *  that would hide the shipped-vs-staged distinction entirely. Same
+/** Four stacked segments on one track — shipped, done_unverified, staged,
+ *  in review — so the bar shows the *composition* of progress rather than
+ *  a single fill that would hide the shipped-vs-staged distinction
+ *  entirely. Same
  *  ruler-tick treatment as ScoreBar (0/25/70/100, the real Stage
  *  boundaries) — the epic-level bar and every feature's own bar are
  *  drawn with the one signature device, not two unrelated progress

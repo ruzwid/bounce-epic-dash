@@ -64,6 +64,7 @@ a clear message on any missing field.
   timezone: Europe/Dublin
   scoreWeights:                  # configurable, these are the defaults
     shipped: 1.0
+    done_unverified: 1.0
     staged: 0.5
     in_review: 0.3
     in_progress: 0.15
@@ -133,6 +134,15 @@ This codebase uses stacked PRs on integration branches.
   staged  = state MERGED && baseRefName !== default branch
 
 Never collapse staged into shipped, anywhere, in any count or label.
+
+  done_unverified = JIRA status is already Done && neither shipped nor
+                     staged is proven from GitHub
+
+A JIRA Done status is never assumed to mean shipped on its own — and when
+the story is Done but the evidence only supports staged (or no PR evidence
+at all), it is not collapsed into staged either. It gets its own status,
+done_unverified, so the "Done in JIRA, unconfirmed in GitHub" gap stays
+visible rather than being absorbed into either of the other two.
 
   - Trace stack chains: PR A's baseRefName may equal PR B's headRefName.
     Follow down to the master-based PR at the bottom. Record the chain.
@@ -211,7 +221,9 @@ CORRECTNESS
 TESTS (vitest, fixtures, no network)
 
   merged to default branch          -> shipped
-  merged to integration branch      -> staged
+  merged to integration branch      -> staged (unless JIRA status is
+                                        already Done, see next line)
+  Done in JIRA + merged to integration branch -> done_unverified, not staged
   3-deep stack                      -> traced to master-based PR
   release PR open                   -> staged, not shipped
   release PR missing                -> not_found, never assumed shipped

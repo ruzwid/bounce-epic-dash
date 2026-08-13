@@ -54,7 +54,8 @@ export function StoryStatusMixChart({ features }: StoryStatusMixChartProps) {
         <ChartKey config={chartConfig} keys={SERIES} className="pt-3" />
       </div>
       <p className="m-0 text-xs leading-relaxed text-muted-foreground">
-        Shipped and staged are never summed. A staged segment means review passed but the code is not on master.
+        Shipped and staged are never summed. A staged segment means review passed but the code is not on master. A
+        Done-marked story in the same situation shows up in its own "Done, unverified" segment instead of staged.
       </p>
     </section>
   )

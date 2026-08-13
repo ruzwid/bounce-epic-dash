@@ -371,7 +371,7 @@ code {
 }
 
 /* Status pill / dot colour, computed from one --status-* token via
-   color-mix — one rule for all six statuses, no per-status one-offs. */
+   color-mix — one rule for all seven statuses, no per-status one-offs. */
 [data-status] {
   --status-color: var(--status-todo);
   background: color-mix(in oklch, var(--status-color) 15%, var(--card));

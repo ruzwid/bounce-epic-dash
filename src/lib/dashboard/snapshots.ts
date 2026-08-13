@@ -70,7 +70,8 @@ export type HistoryPoint = {
 
 /** date + kpis + generatedAt for every snapshot, ascending — the burn-up
  *  chart's full history. Deliberately excludes `features` (no need to ship
- *  every historical feature list just to draw shipped/staged-over-time). */
+ *  every historical feature list just to draw
+ *  shipped/doneUnverified/staged-over-time). */
 export async function loadHistory(): Promise<HistoryPoint[]> {
   const dates = listSnapshotDates();
   const points = await Promise.all(
