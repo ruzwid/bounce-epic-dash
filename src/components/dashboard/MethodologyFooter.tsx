@@ -13,12 +13,14 @@ export function MethodologyFooter({ snapshot }: MethodologyFooterProps) {
   return (
     <footer className="flex flex-col gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
       <div>
-        <h2 className="m-0 mb-1 text-sm font-semibold text-foreground">Shipped vs. staged</h2>
+        <h2 className="m-0 mb-1 text-sm font-semibold text-foreground">Shipped vs. done-unverified vs. staged</h2>
         <p className="m-0">
           <strong className="text-foreground">Shipped</strong> means a pull request merged into the repo's default
-          branch. <strong className="text-foreground">Staged</strong> means it merged, but into an integration or
-          release branch — the code exists, but it isn't live. A staged story is never counted as shipped, and the
-          two are never summed together.
+          branch. <strong className="text-foreground">Done, unverified</strong> means JIRA marks the ticket Done —
+          product signed off — but no PR proves the code reached master; it counts toward progress the same as
+          shipped, since sign-off happened, but is always shown separately so that gap stays visible.{" "}
+          <strong className="text-foreground">Staged</strong> means it merged, but into an integration or release
+          branch — the code exists, but it isn't live. None of the three are ever summed together.
         </p>
       </div>
       <div>
