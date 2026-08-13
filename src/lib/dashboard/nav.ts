@@ -416,3 +416,51 @@ export function reviewsByTicket(snapshot: StatusSnapshotT): TicketReviewGroup[] 
   // has no age to sort by.
   return [...groups.values()].sort((a, b) => (b.oldestWaitDays ?? -1) - (a.oldestWaitDays ?? -1));
 }
+
+export type StoryReviewGroup = {
+  feature: FeatureT;
+  story: StoryT;
+  /** One entry per ticket under this story that has open PRs — the story
+   *  itself (if it has direct open PRs) and/or any of its Sub-tasks.
+   *  Almost always just one entry; a stacked chain like BOUN-11497/8/9
+   *  is what puts more than one here. */
+  tickets: TicketReviewGroup[];
+  /** The oldest pending request across every ticket here, for sorting —
+   *  same convention as TicketReviewGroup.oldestWaitDays. */
+  oldestWaitDays: number | null;
+};
+
+/** reviewsByTicket(), re-bucketed by Story — the unit the Reviews page
+ *  actually renders one card per. A Sub-task's PRs are still their own
+ *  reviewable unit (a stacked chain doesn't collapse into one row just
+ *  because it shares a parent), but the parent-story attribution now
+ *  reads as nesting instead of a repeated "under <story>" line on every
+ *  sibling. */
+export function reviewsByStory(snapshot: StatusSnapshotT): StoryReviewGroup[] {
+  const byStory = new Map<string, StoryReviewGroup>();
+  for (const ticketGroup of reviewsByTicket(snapshot)) {
+    const key = ticketGroup.ticket.story.key;
+    const group = byStory.get(key) ?? {
+      feature: ticketGroup.feature,
+      story: ticketGroup.ticket.story,
+      tickets: [],
+      oldestWaitDays: null,
+    };
+    group.tickets.push(ticketGroup);
+    byStory.set(key, group);
+  }
+
+  for (const group of byStory.values()) {
+    // The story's own ticket (if it has one) reads first, then its
+    // Sub-tasks oldest-waiting-first — same thesis as the page overall,
+    // scoped one level down.
+    group.tickets.sort((a, b) => {
+      if (a.ticket.isSubtask !== b.ticket.isSubtask) return a.ticket.isSubtask ? 1 : -1;
+      return (b.oldestWaitDays ?? -1) - (a.oldestWaitDays ?? -1);
+    });
+    const waits = group.tickets.map((t) => t.oldestWaitDays).filter((d): d is number => d !== null);
+    group.oldestWaitDays = waits.length > 0 ? Math.max(...waits) : null;
+  }
+
+  return [...byStory.values()].sort((a, b) => (b.oldestWaitDays ?? -1) - (a.oldestWaitDays ?? -1));
+}

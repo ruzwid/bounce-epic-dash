@@ -5,7 +5,7 @@ import { storyPrs } from "@/lib/stories"
 import { StatusPill } from "./StatusPill"
 import { PrChip } from "./PrChip"
 import { PersonChip } from "./PersonChip"
-import { JiraLink } from "./JiraLink"
+import { IssueTitle, JiraLink } from "./JiraLink"
 
 type StoryT = z.infer<typeof StorySchema>
 type SubtaskT = z.infer<typeof SubtaskSchema>
@@ -37,17 +37,14 @@ export function StoryCard({ story }: { story: StoryT }) {
   return (
     <li className="surface-card flex list-none flex-col gap-2.5 rounded-4xl border border-border bg-card px-5 py-4">
       <div className="flex items-start gap-3">
-        <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1">
-          <JiraLink
-            issueKey={story.key}
-            type="story"
-            tone={story.status}
-            className="font-mono-data gap-1 text-xs text-muted-foreground"
-          >
-            {story.key}
-          </JiraLink>
-          <span className="text-[14.5px] font-medium">{story.summary}</span>
-        </div>
+        <JiraLink
+          issueKey={story.key}
+          type="story"
+          tone={story.status}
+          className="min-w-0 flex-1 gap-1.5 text-[14.5px] font-medium"
+        >
+          <IssueTitle issueKey={story.key} title={story.summary} />
+        </JiraLink>
         <StatusPill status={story.status} className="shrink-0" />
       </div>
 

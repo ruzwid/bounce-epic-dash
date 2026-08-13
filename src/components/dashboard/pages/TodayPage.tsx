@@ -133,7 +133,7 @@ export function TodayPage() {
                         aria-hidden="true"
                         className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90"
                       />
-                      <MilestoneGroupHeading group={group} className="no-underline hover:underline" />
+                      <MilestoneGroupHeading group={group} className="hover-fill no-underline" />
                     </h3>
                     <span className="text-xs text-muted-foreground">
                       {group.features.length} feature{group.features.length === 1 ? "" : "s"}

@@ -84,12 +84,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         const isDone = milestoneProgress(group.features).stage === "done"
         return (
           <details key={group.id} className="group flex flex-col" open={!isDone}>
-            <summary className="eyebrow m-0 flex cursor-pointer list-none items-center gap-1 px-6 pt-3 pb-1.5 font-normal select-none [&::-webkit-details-marker]:hidden">
+            <summary className="m-0 flex cursor-pointer list-none items-center gap-1.5 px-6 pt-3 pb-1.5 text-[11px] font-normal tracking-[0.09em] text-muted-foreground uppercase select-none [&::-webkit-details-marker]:hidden">
+              <MilestoneGroupHeading group={group} className="hover-fill min-w-0 flex-1 truncate no-underline" />
               <ChevronRight
                 aria-hidden="true"
-                className="size-2.5 shrink-0 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90"
+                className="size-3.5 shrink-0 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90"
               />
-              <MilestoneGroupHeading group={group} className="no-underline hover:underline" />
             </summary>
             <ul className="flex list-none flex-col gap-px px-3">
               {group.features.map((feature) => (

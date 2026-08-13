@@ -233,6 +233,28 @@ a:hover {
   text-decoration-color: currentColor;
 }
 
+/* A "highlight" hover for links that read as plain text at rest (ticket
+   titles, milestone headings) — a soft background fill instead of an
+   underline. An underline breaks wherever the link's text isn't one
+   uninterrupted run (an icon, a margin between a subtle key and its
+   title), reading as disconnected segments; a fill has no such seam,
+   so it's the right affordance for a multi-part link and cheap to use
+   everywhere else too. The negative margin cancels the padding's effect
+   on layout, so adding this never nudges surrounding gaps/wrapping —
+   only the hover fill visually extends past the text. */
+.hover-fill {
+  border-radius: var(--radius-md);
+  margin: -0.125rem -0.3rem;
+  padding: 0.125rem 0.3rem;
+  transition: background-color 150ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-fill:hover {
+    background-color: color-mix(in oklch, var(--foreground) 7%, transparent);
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;

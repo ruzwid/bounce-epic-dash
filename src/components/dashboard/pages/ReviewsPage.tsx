@@ -1,5 +1,5 @@
-import type { TicketReviewGroup } from "@/lib/dashboard/nav"
-import { featureSlug, reviewsByTicket } from "@/lib/dashboard/nav"
+import type { StoryReviewGroup, TicketReviewGroup } from "@/lib/dashboard/nav"
+import { featureSlug, reviewsByStory } from "@/lib/dashboard/nav"
 import { storyPrs } from "@/lib/stories"
 import { loginForJiraAssignee } from "@/lib/dashboard/appConfig"
 import { cn } from "@/lib/utils"
@@ -10,23 +10,25 @@ import { StatStrip } from "../StatStrip"
 import { PrChip } from "../PrChip"
 import { PersonChip } from "../PersonChip"
 import { Avatar } from "../Avatar"
-import { JiraLink } from "../JiraLink"
+import { IssueTitle, JiraLink } from "../JiraLink"
 import { EmptyState } from "../EmptyState"
 
 /**
- * One card per ticket, not per pull request: a ticket that opened PRs in
- * three repos used to scatter as three unrelated rows a reader had to
- * notice shared a key. Grouping is the whole redesign — everything else
- * (oldest-wait-first, then "needs a reviewer") is the same priority order
- * the page always used, just applied to tickets instead of rows.
+ * One card per story, not per pull request or even per ticket: a story
+ * whose Sub-tasks each opened their own PRs used to scatter as unrelated
+ * cards a reader had to reassemble via a repeated "under <story>" line.
+ * Grouping by story and nesting tickets inside is the whole redesign —
+ * everything else (oldest-wait-first, then "needs a reviewer") is the
+ * same priority order the page always used, just applied to stories.
  */
 export function ReviewsPage() {
   const { snapshot } = useShell()
 
-  const groups = reviewsByTicket(snapshot)
+  const groups = reviewsByStory(snapshot)
   const waiting = groups.filter((g) => g.oldestWaitDays !== null)
   const needsReviewer = groups.filter((g) => g.oldestWaitDays === null)
-  const openPrCount = groups.reduce((n, g) => n + g.prs.length, 0)
+  const tickets = groups.flatMap((g) => g.tickets)
+  const openPrCount = tickets.reduce((n, t) => n + t.prs.length, 0)
   const oldest = snapshot.reviewQueue.length > 0 ? Math.max(...snapshot.reviewQueue.map((r) => r.ageDays)) : null
 
   // A story JIRA calls "in review" with no open pull request behind it.
@@ -54,7 +56,7 @@ export function ReviewsPage() {
             value: snapshot.reviewQueue.length,
             color: snapshot.reviewQueue.length > 0 ? "var(--status-in-review)" : undefined,
           },
-          { label: "Open pull requests", value: openPrCount, sublabel: `${groups.length} ticket${groups.length === 1 ? "" : "s"}` },
+          { label: "Open pull requests", value: openPrCount, sublabel: `${tickets.length} ticket${tickets.length === 1 ? "" : "s"}` },
           {
             label: "Oldest request",
             value: oldest === null ? "—" : `${oldest}d`,
@@ -74,7 +76,7 @@ export function ReviewsPage() {
             {waiting.length > 0 ? (
               <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {waiting.map((group) => (
-                  <ReviewGroupCard key={group.ticket.key} group={group} />
+                  <ReviewGroupCard key={group.story.key} group={group} />
                 ))}
               </ul>
             ) : null}
@@ -84,7 +86,7 @@ export function ReviewsPage() {
             {needsReviewer.length > 0 ? (
               <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {needsReviewer.map((group) => (
-                  <ReviewGroupCard key={group.ticket.key} group={group} />
+                  <ReviewGroupCard key={group.story.key} group={group} />
                 ))}
               </ul>
             ) : null}
@@ -126,20 +128,80 @@ export function ReviewsPage() {
 }
 
 /**
- * One ticket, one or more PRs. A single-PR ticket (the common case) reads
- * as one flat row, unchanged from before — the ticket key becomes a real
- * Jira link, but nothing gets busier. A multi-PR ticket gets a header
- * naming the ticket once, with its PRs nested under a rule so "these
- * three rows are one piece of work" is a fact of the layout, not
- * something the reader has to infer from matching keys.
+ * One story, one or more tickets. A story with exactly one open ticket of
+ * work — the common case — reads as one flat card, unchanged from before.
+ * A story whose Sub-tasks (or a Sub-task plus the story itself) each have
+ * open PRs gets a story header naming it once, with every ticket nested
+ * underneath: story -> ticket -> PRs, ticket -> PRs, ... — so a stacked
+ * chain like BOUN-11497/8/9 reads as one story's work without repeating
+ * "under <story>" on every sibling.
  */
-function ReviewGroupCard({ group }: { group: TicketReviewGroup }) {
-  const { ticket, prs } = group
-  const isMulti = prs.length > 1
+function ReviewGroupCard({ group }: { group: StoryReviewGroup }) {
+  const { story, tickets } = group
+
+  if (tickets.length === 1 && !tickets[0]!.ticket.isSubtask) {
+    const { ticket, prs } = tickets[0]!
+    return (
+      <li className="surface-card flex flex-col gap-2 rounded-4xl border border-border bg-card px-5 py-3.5">
+        <TicketPrList ticket={ticket} prs={prs} showTicketHeader={prs.length > 1} />
+      </li>
+    )
+  }
 
   return (
     <li className="surface-card flex flex-col gap-2 rounded-4xl border border-border bg-card px-5 py-3.5">
-      {isMulti ? (
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <JiraLink issueKey={story.key} type="story" tone={story.status} className="gap-1.5 text-[14.5px] font-medium">
+          <IssueTitle issueKey={story.key} title={story.summary} />
+        </JiraLink>
+        {story.assignee ? (
+          <Avatar
+            login={loginForJiraAssignee(story.assignee)}
+            name={story.assignee}
+            size={20}
+            className="ml-auto shrink-0"
+          />
+        ) : null}
+      </div>
+      <ul className="m-0 ml-1 flex list-none flex-col gap-3 border-l-2 border-border-soft p-0 pl-4">
+        {tickets.map(({ ticket, prs }) => (
+          <li key={ticket.key} className="flex flex-col gap-2">
+            <TicketPrList
+              ticket={ticket}
+              prs={prs}
+              showTicketHeader={ticket.isSubtask || prs.length > 1}
+              showAssignee={false}
+            />
+          </li>
+        ))}
+      </ul>
+    </li>
+  )
+}
+
+/**
+ * A single ticket's PR rows. A one-PR ticket reads as a flat row with the
+ * ticket key inline; a multi-PR ticket (or one already getting its own
+ * header because it's a Sub-task nested under its story) gets a header
+ * naming the ticket once, with its PRs indented under a rule.
+ */
+function TicketPrList({
+  ticket,
+  prs,
+  showTicketHeader,
+  showAssignee = true,
+}: {
+  ticket: TicketReviewGroup["ticket"]
+  prs: TicketReviewGroup["prs"]
+  showTicketHeader: boolean
+  /** False when this ticket is nested under a story card that already
+   *  shows an assignee avatar of its own — repeating one per sub-task
+   *  would just be noise next to the one that already answers "who". */
+  showAssignee?: boolean
+}) {
+  return (
+    <>
+      {showTicketHeader ? (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <JiraLink
             issueKey={ticket.key}
@@ -147,9 +209,9 @@ function ReviewGroupCard({ group }: { group: TicketReviewGroup }) {
             tone={ticket.status}
             className="gap-1.5 text-[14.5px] font-medium"
           >
-            {ticket.summary}
+            <IssueTitle issueKey={ticket.key} title={ticket.summary} />
           </JiraLink>
-          {ticket.assignee ? (
+          {showAssignee && ticket.assignee ? (
             <Avatar
               login={loginForJiraAssignee(ticket.assignee)}
               name={ticket.assignee}
@@ -157,19 +219,18 @@ function ReviewGroupCard({ group }: { group: TicketReviewGroup }) {
               className="ml-auto shrink-0"
             />
           ) : null}
-          <ParentStoryLine ticket={ticket} />
         </div>
       ) : null}
       <ul
         className={cn(
           "m-0 flex list-none flex-col gap-2 p-0",
-          isMulti && "ml-1 border-l-2 border-border-soft pl-4",
+          showTicketHeader && "ml-1 border-l-2 border-border-soft pl-4",
         )}
       >
         {prs.map(({ pr, waitingOn }) => (
           <li key={`${pr.repo}#${pr.number}`} className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
             <PrChip pr={pr} />
-            {!isMulti ? (
+            {!showTicketHeader ? (
               <JiraLink
                 issueKey={ticket.key}
                 {...(ticket.isSubtask ? { type: "subtask" as const } : { type: "story" as const })}
@@ -180,37 +241,14 @@ function ReviewGroupCard({ group }: { group: TicketReviewGroup }) {
               </JiraLink>
             ) : null}
             <span className="min-w-0 flex-1 truncate text-sm">{pr.title}</span>
-            {!isMulti && ticket.assignee ? (
+            {!showTicketHeader && showAssignee && ticket.assignee ? (
               <Avatar login={loginForJiraAssignee(ticket.assignee)} name={ticket.assignee} size={20} className="shrink-0" />
             ) : null}
             <ReviewWaitStatus waitingOn={waitingOn} />
           </li>
         ))}
       </ul>
-      {!isMulti ? <ParentStoryLine ticket={ticket} /> : null}
-    </li>
-  )
-}
-
-/**
- * "under <story>" — shown only when the reviewed ticket is a Sub-task, so
- * a stacked chain like BOUN-11497/8/9 still reads as one story's work
- * without collapsing three genuinely separate reviews into one row.
- */
-function ParentStoryLine({ ticket }: { ticket: TicketReviewGroup["ticket"] }) {
-  if (!ticket.isSubtask) return null
-  return (
-    <p className="m-0 flex min-w-0 basis-full items-center gap-1.5 text-xs text-muted-foreground">
-      <span className="shrink-0">under</span>
-      <JiraLink
-        issueKey={ticket.story.key}
-        type="story"
-        tone={ticket.story.status}
-        className="min-w-0 gap-1"
-      >
-        {ticket.story.summary}
-      </JiraLink>
-    </p>
+    </>
   )
 }
 

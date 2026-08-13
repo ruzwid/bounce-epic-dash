@@ -22,7 +22,7 @@ export function MilestoneGroupHeading({ group, className }: { group: SidebarGrou
       {group.milestoneIds.map((id, i) => (
         <span key={id}>
           {i > 0 ? " / " : ""}
-          <ShellLink page="milestone" id={id.toLowerCase()} className="no-underline hover:underline">
+          <ShellLink page="milestone" id={id.toLowerCase()} className="hover-fill no-underline">
             {id}
           </ShellLink>
         </span>

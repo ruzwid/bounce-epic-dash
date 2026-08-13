@@ -70,12 +70,26 @@ export function JiraLink({ issueKey, type, tone, children, className, iconClassN
       rel="noreferrer"
       title={`Open ${issueKey} in Jira`}
       className={cn(
-        "group/jira-link inline-flex min-w-0 items-center gap-1.5 no-underline hover:underline",
+        "group/jira-link hover-fill inline-flex min-w-0 items-center gap-1.5 no-underline",
         className,
       )}
     >
       <Icon aria-hidden="true" data-status-icon={tone} className={cn("size-3.5 shrink-0", iconClassName)} />
       {children ? <span className="min-w-0 truncate">{children}</span> : <span className="sr-only">{issueKey}</span>}
     </a>
+  )
+}
+
+/**
+ * A title with its own issue key in front of it — subtle and secondary, so
+ * the key reads as a reference next to the title rather than competing with
+ * it. Meant as the `children` of a `JiraLink`, e.g. an epic/story/ticket
+ * header where the whole key + title should open the same Jira issue.
+ */
+export function IssueTitle({ issueKey, title }: { issueKey: string; title: string }) {
+  return (
+    <>
+      <span className="font-mono-data font-normal text-muted-foreground">{issueKey}</span> {title}
+    </>
   )
 }
