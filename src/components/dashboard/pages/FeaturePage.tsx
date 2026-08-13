@@ -28,11 +28,12 @@ const CONFIDENCE_LABEL: Record<FeatureT["confidence"], string> = {
   low: "Low confidence",
 }
 
-type StoryFilter = "all" | "in_review" | "staged" | "no_pr"
+type StoryFilter = "all" | "in_review" | "done_unverified" | "staged" | "no_pr"
 
 const FILTERS: { id: StoryFilter; label: string; match: (s: StoryT) => boolean }[] = [
   { id: "all", label: "All", match: () => true },
   { id: "in_review", label: "Needs review", match: (s) => s.status === "in_review" },
+  { id: "done_unverified", label: "Done, unverified", match: (s) => s.status === "done_unverified" },
   { id: "staged", label: "Staged", match: (s) => s.status === "staged" },
   { id: "no_pr", label: "No PR", match: (s) => s.prs.length === 0 },
 ]
@@ -252,6 +253,7 @@ function StatusMixLine({ feature }: { feature: FeatureT }) {
   const parts = (
     [
       ["shipped", feature.scoreBasis.shipped],
+      ["done_unverified", feature.scoreBasis.doneUnverified],
       ["staged", feature.scoreBasis.staged],
       ["in_review", feature.scoreBasis.inReview],
       ["in_progress", feature.scoreBasis.inProgress],
