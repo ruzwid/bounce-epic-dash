@@ -286,6 +286,20 @@ export function attentionReasons(feature: FeatureT, now: Date): AttentionReason[
   return reasons;
 }
 
+/** done_unverified stories that only read as fine because their feature
+ *  was signed off by product (see src/lib/score.ts's deriveStage) — a
+ *  feature can only reach stage "done" with a done_unverified story still
+ *  in it via that override; the ordinary "done" path requires every story
+ *  literally shipped. Surfaced separately, collapsed by default, so
+ *  they're checkable without being a per-run distraction. */
+export function signedOffUnverifiedStories(snapshot: StatusSnapshotT): { feature: FeatureT; story: StoryT }[] {
+  return snapshot.features
+    .filter((f) => f.stage === "done")
+    .flatMap((feature) =>
+      feature.stories.filter((story) => story.status === "done_unverified").map((story) => ({ feature, story })),
+    );
+}
+
 export type EpicProgress = {
   /** weighted completion across every tracked story, 0-100 */
   percent: number;
