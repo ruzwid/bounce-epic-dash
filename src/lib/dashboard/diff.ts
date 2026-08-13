@@ -53,26 +53,39 @@ export function computeChanges(current: StatusSnapshotT, previous: StatusSnapsho
       const previousStatus = previousStory?.status;
 
       if (story.status === "shipped" && previousStatus !== "shipped") {
+        // Never suppressed, even on an already-done feature: a story
+        // actually reaching master is real news regardless — often it's
+        // exactly what closes the gap a signed-off feature's remaining
+        // done_unverified stories were flagging.
         const pr = storyPrs(story).find((p) => p.shippedToDefault);
         if (pr) {
           const scoreDelta = previousFeature ? feature.score - previousFeature.score : feature.score;
           changes.push({ kind: "shipped", feature, story, pr, scoreDelta });
         }
-      } else if (story.status === "done_unverified" && previousStatus !== "done_unverified") {
-        changes.push({ kind: "newly_done_unverified", feature, story });
-      } else if (story.status === "staged" && previousStatus !== "staged") {
-        const pr = storyPrs(story).find((p) => p.state === "MERGED" && !p.shippedToDefault);
-        if (pr) {
-          changes.push({ kind: "newly_staged", feature, story, integrationBranch: pr.baseRef });
+      } else if (feature.stage !== "done") {
+        // Every other change kind is noise once the feature already reads
+        // "done" — same principle as needsAttention() (see search.ts): a
+        // milestone/epic can only be "done" once every one of its
+        // features is, so this single feature-level check also covers
+        // "the milestone/epic isn't done" for free.
+        if (story.status === "done_unverified" && previousStatus !== "done_unverified") {
+          changes.push({ kind: "newly_done_unverified", feature, story });
+        } else if (story.status === "staged" && previousStatus !== "staged") {
+          const pr = storyPrs(story).find((p) => p.state === "MERGED" && !p.shippedToDefault);
+          if (pr) {
+            changes.push({ kind: "newly_staged", feature, story, integrationBranch: pr.baseRef });
+          }
+        } else if (story.status === "blocked" && previousStatus !== "blocked") {
+          changes.push({ kind: "newly_blocked", feature, story });
         }
-      } else if (story.status === "blocked" && previousStatus !== "blocked") {
-        changes.push({ kind: "newly_blocked", feature, story });
       }
     }
 
     // Stalled is feature-level, not per-story: fire only the day the
     // feature *crosses* the threshold, not every day it stays stalled.
+    // Suppressed once the feature is done, same as every other kind above.
     if (
+      feature.stage !== "done" &&
       previousFeature &&
       feature.daysSinceLastActivity !== null &&
       feature.daysSinceLastActivity > STALL_DAYS &&

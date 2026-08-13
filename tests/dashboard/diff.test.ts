@@ -57,6 +57,35 @@ describe("computeChanges", () => {
     expect(doneUnverified).toHaveLength(1);
     expect(doneUnverified[0]!.story.key).toBe("SUB-4");
   });
+
+  it("still surfaces 'shipped' for a feature that is already stage done, but suppresses its 'newly_stalled'", () => {
+    // BOUN-100 is the feature behind both the "shipped" (SUB-1) and
+    // "newly_stalled" cases above. A feature already stage "done" (e.g.
+    // signed off) shouldn't keep generating stall noise, but a story
+    // actually shipping is still real, worth-knowing news regardless —
+    // it's the one change kind that's never suppressed by this rule.
+    const doneCurrent = {
+      ...current,
+      features: current.features.map((f) => (f.key === "BOUN-100" ? { ...f, stage: "done" as const } : f)),
+    };
+    const changes = computeChanges(doneCurrent, previous);
+    const shipped = changes.filter((c) => c.kind === "shipped").filter((c) => c.feature.key === "BOUN-100");
+    expect(shipped).toHaveLength(1);
+    expect(shipped[0]!.story.key).toBe("SUB-1");
+    expect(changes.some((c) => c.kind === "newly_stalled" && c.feature.key === "BOUN-100")).toBe(false);
+  });
+
+  it("suppresses 'newly_done_unverified' and 'newly_blocked' for a feature that is already stage done", () => {
+    const doneCurrent = {
+      ...current,
+      features: current.features.map((f) =>
+        f.key === "BOUN-300" || f.key === "BOUN-200" ? { ...f, stage: "done" as const } : f,
+      ),
+    };
+    const changes = computeChanges(doneCurrent, previous);
+    expect(changes.some((c) => c.kind === "newly_done_unverified" && c.feature.key === "BOUN-300")).toBe(false);
+    expect(changes.some((c) => c.kind === "newly_blocked" && c.feature.key === "BOUN-200")).toBe(false);
+  });
 });
 
 describe("formatSinceLabel", () => {
