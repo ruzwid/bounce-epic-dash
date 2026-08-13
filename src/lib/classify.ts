@@ -96,9 +96,14 @@ export function findReleaseGate(
 /** Derives a story's GitHub-aware status. Starts from the JIRA status
  *  mapped through config's statusMap (default "todo" + a warning for
  *  unmapped names — the map should have an entry for every status the
- *  configured JIRA project actually uses), then upgrades to "shipped" or
- *  "staged" if any linked PR proves it, since a stale JIRA status must
- *  never outrank real GitHub activity. */
+ *  configured JIRA project actually uses), then upgrades to "shipped",
+ *  "done_unverified", or "staged" if the linked PRs prove it, since a
+ *  stale JIRA status must never outrank real GitHub activity — in either
+ *  direction. A base of "shipped" (i.e. JIRA already says Done) is never
+ *  returned as-is: it's either confirmed by a PR that actually shipped to
+ *  the default branch, or downgraded to "done_unverified", which covers
+ *  every remaining case GitHub can't confirm — merged into a non-master
+ *  branch, closed without merging, or no linked PR at all. */
 export function deriveWorkStatus(
   jiraStatus: string,
   statusMap: Record<string, WorkStatus>,
@@ -113,6 +118,9 @@ export function deriveWorkStatus(
 
   if (prs.some((pr) => classifyPr(pr, defaultBranch).shippedToDefault)) {
     return "shipped";
+  }
+  if (base === "shipped") {
+    return "done_unverified";
   }
   if (prs.some((pr) => pr.state === "MERGED")) {
     return "staged";

@@ -97,25 +97,25 @@ describe("deriveWorkStatus", () => {
     expect(deriveWorkStatus("In Progress", statusMap, [pr], DEFAULT_BRANCH)).toBe("shipped");
   });
 
-  it("is 'staged', not 'shipped', when the only linked PR merged to an integration branch", () => {
+  it("is 'done_unverified', not 'staged', when the only linked PR merged to an integration branch (GitHub can't confirm Done)", () => {
     const pr = makePr({
       number: 21,
       state: "MERGED",
       baseRefName: "integration/wpp",
       mergedAt: "2026-01-01T00:00:00.000Z",
     });
-    expect(deriveWorkStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("staged");
+    expect(deriveWorkStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("done_unverified");
   });
 
-  it("stays 'staged' (not 'shipped') even if that staged PR's release gate is merely open", () => {
+  it("becomes 'done_unverified' (not 'staged') when the PR merged to integration/wpp even if a release gate exists (GitHub can't confirm Done)", () => {
     const stagedPr = makePr({
       number: 22,
       state: "MERGED",
       baseRefName: "integration/wpp",
       mergedAt: "2026-01-01T00:00:00.000Z",
     });
-    // The release PR being open elsewhere doesn't change this story's own status.
-    expect(deriveWorkStatus("Done", statusMap, [stagedPr], DEFAULT_BRANCH)).toBe("staged");
+    // JIRA says Done but GitHub only confirms integration merge, not master merge.
+    expect(deriveWorkStatus("Done", statusMap, [stagedPr], DEFAULT_BRANCH)).toBe("done_unverified");
   });
 
   it("falls back to 'todo' with no PRs and an unmapped JIRA status", () => {
@@ -124,5 +124,39 @@ describe("deriveWorkStatus", () => {
 
   it("uses the mapped base status when there are no linked PRs", () => {
     expect(deriveWorkStatus("To Do", statusMap, [], DEFAULT_BRANCH)).toBe("todo");
+  });
+
+  it("is 'done_unverified', not 'staged', when JIRA is Done and the only PR merged into a non-master branch", () => {
+    const pr = makePr({
+      number: 30,
+      state: "MERGED",
+      baseRefName: "integration/wpp",
+      mergedAt: "2026-01-01T00:00:00.000Z",
+    });
+    expect(deriveWorkStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("done_unverified");
+  });
+
+  it("is 'done_unverified', not 'shipped', when JIRA is Done and the only PR was closed without merging", () => {
+    const pr = makePr({ number: 31, state: "CLOSED", baseRefName: "master" });
+    expect(deriveWorkStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("done_unverified");
+  });
+
+  it("is 'done_unverified', not 'shipped', when JIRA is Done and there are no linked PRs at all", () => {
+    expect(deriveWorkStatus("Done", statusMap, [], DEFAULT_BRANCH)).toBe("done_unverified");
+  });
+
+  it("is 'shipped' when JIRA is Done and a PR actually shipped to the default branch (real proof always wins)", () => {
+    const pr = makePr({ number: 32, state: "MERGED", baseRefName: "master", mergedAt: "2026-01-01T00:00:00.000Z" });
+    expect(deriveWorkStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("shipped");
+  });
+
+  it("stays 'staged' (not 'done_unverified') when JIRA is NOT Done and a PR merged into a non-master branch", () => {
+    const pr = makePr({
+      number: 33,
+      state: "MERGED",
+      baseRefName: "integration/wpp",
+      mergedAt: "2026-01-01T00:00:00.000Z",
+    });
+    expect(deriveWorkStatus("In Progress", statusMap, [pr], DEFAULT_BRANCH)).toBe("staged");
   });
 });
