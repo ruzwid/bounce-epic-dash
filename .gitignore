@@ -20,3 +20,4 @@ data/raw/
 data/pending/
 data/judgment/
 *.tmp
+.superpowers/
