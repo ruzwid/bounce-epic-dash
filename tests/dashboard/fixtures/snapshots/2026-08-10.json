@@ -3,8 +3,8 @@
   "date": "2026-08-10",
   "generatedAt": "2026-08-10T08:00:00.000Z",
   "epic": { "key": "TEST-1", "title": "Test Epic", "targetDate": "2026-09-15" },
-  "headline": { "featuresWithNothingOnMaster": 1, "totalFeatures": 2, "sentence": "1 of 2 features have nothing shipped to master yet." },
-  "kpis": { "featuresTracked": 2, "lightTierMilestones": 0, "subtasksTracked": 3, "shipped": 0, "staged": 1, "inReview": 0, "blockedOrTodo": 1 },
+  "headline": { "featuresWithNothingOnMaster": 3, "totalFeatures": 3, "sentence": "3 of 3 features have nothing shipped to master yet." },
+  "kpis": { "featuresTracked": 3, "lightTierMilestones": 0, "subtasksTracked": 4, "shipped": 0, "doneUnverified": 0, "staged": 1, "inReview": 0, "blockedOrTodo": 2 },
   "features": [
     {
       "key": "BOUN-100",
@@ -74,6 +74,48 @@
           "status": "in_progress",
           "assignee": "Bob",
           "updatedAt": "2026-08-05T00:00:00.000Z",
+          "prs": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true
+    },
+    {
+      "key": "BOUN-300",
+      "code": "F1.3",
+      "title": "Third feature",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Alice",
+      "repos": ["service-a"],
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "One subtask not started.",
+      "daysSinceLastActivity": 1,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [],
+      "subtasks": [
+        {
+          "key": "SUB-4",
+          "summary": "Sign off on the thing",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Alice",
+          "updatedAt": "2026-08-09T00:00:00.000Z",
           "prs": []
         }
       ],

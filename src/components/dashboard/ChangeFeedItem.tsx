@@ -30,6 +30,20 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
           attribution={`${change.feature.code} · ${change.story.key} · ${change.feature.owner}`}
         />
       )
+    case "newly_done_unverified":
+      return (
+        <Row
+          status="done_unverified"
+          headline="Marked Done, unverified"
+          detail={
+            <>
+              <span className="font-mono-data">{change.story.key}</span> — JIRA says Done, but no PR confirms it
+              reached master.
+            </>
+          }
+          attribution={`${change.feature.code} · ${change.feature.owner}`}
+        />
+      )
     case "newly_staged":
       return (
         <Row

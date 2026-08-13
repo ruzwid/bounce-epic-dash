@@ -16,6 +16,7 @@ const STALL_DAYS = 14;
 
 export type ChangeItem =
   | { kind: "shipped"; feature: FeatureT; story: StoryT; pr: PrRefT; scoreDelta: number }
+  | { kind: "newly_done_unverified"; feature: FeatureT; story: StoryT }
   | { kind: "newly_staged"; feature: FeatureT; story: StoryT; integrationBranch: string }
   | { kind: "newly_blocked"; feature: FeatureT; story: StoryT }
   | { kind: "newly_stalled"; feature: FeatureT; daysSinceLastActivity: number };
@@ -57,6 +58,8 @@ export function computeChanges(current: StatusSnapshotT, previous: StatusSnapsho
           const scoreDelta = previousFeature ? feature.score - previousFeature.score : feature.score;
           changes.push({ kind: "shipped", feature, story, pr, scoreDelta });
         }
+      } else if (story.status === "done_unverified" && previousStatus !== "done_unverified") {
+        changes.push({ kind: "newly_done_unverified", feature, story });
       } else if (story.status === "staged" && previousStatus !== "staged") {
         const pr = storyPrs(story).find((p) => p.state === "MERGED" && !p.shippedToDefault);
         if (pr) {

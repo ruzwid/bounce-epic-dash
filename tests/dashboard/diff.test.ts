@@ -50,6 +50,13 @@ describe("computeChanges", () => {
     const changes = computeChanges(current, previous);
     expect(changes.filter((c) => c.kind === "newly_staged")).toHaveLength(0);
   });
+
+  it("produces a 'newly_done_unverified' item for the story that flipped from todo to done_unverified", () => {
+    const changes = computeChanges(current, previous);
+    const doneUnverified = changes.filter((c) => c.kind === "newly_done_unverified");
+    expect(doneUnverified).toHaveLength(1);
+    expect(doneUnverified[0]!.story.key).toBe("SUB-4");
+  });
 });
 
 describe("formatSinceLabel", () => {
