@@ -88,6 +88,11 @@ export function TodayPage() {
           },
           { label: "Stories tracked", value: snapshot.kpis.storiesTracked },
           { label: "Shipped to master", value: snapshot.kpis.shipped, color: "var(--status-shipped)" },
+          {
+            label: "Done, unverified",
+            value: snapshot.kpis.doneUnverified,
+            color: "var(--status-done-unverified)",
+          },
           { label: "Staged, not shipped", value: snapshot.kpis.staged, color: "var(--status-staged)" },
           { label: "In review", value: snapshot.kpis.inReview, color: "var(--status-in-review)" },
           {
