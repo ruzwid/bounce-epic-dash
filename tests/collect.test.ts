@@ -335,6 +335,45 @@ describe("collectFeature", () => {
       { source: "jira", scope: "TEST-11", message: "Sub-task fetch failed: JIRA is down" },
     ]);
   });
+
+  it("marks the feature signedOff when JIRA's Product Sign Off field is Approved", async () => {
+    const d = deps({
+      getIssue: vi.fn().mockResolvedValue({
+        key: "TEST-10",
+        fields: { description: null, customfield_10698: { value: "Approved" } },
+      }),
+    });
+    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
+    expect(feature.signedOff).toBe(true);
+  });
+
+  it("is not signedOff when Product Sign Off is Pending", async () => {
+    const d = deps({
+      getIssue: vi.fn().mockResolvedValue({
+        key: "TEST-10",
+        fields: { description: null, customfield_10698: { value: "Pending" } },
+      }),
+    });
+    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
+    expect(feature.signedOff).toBe(false);
+  });
+
+  it("is not signedOff when the field is missing entirely", async () => {
+    const { feature } = await collectFeature(target(), CONFIG, NOW, deps(), index([]));
+    expect(feature.signedOff).toBe(false);
+  });
+
+  it("becomes stage 'done' when signedOff, even with an unshipped story", async () => {
+    const d = deps({
+      searchChildren: childrenBy({ "TEST-10": [jiraIssue("TEST-11", "To Do")] }),
+      getIssue: vi.fn().mockResolvedValue({
+        key: "TEST-10",
+        fields: { description: null, customfield_10698: { value: "Approved" } },
+      }),
+    });
+    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
+    expect(feature.stage).toBe("done");
+  });
 });
 
 describe("rollUpStoryStatus", () => {

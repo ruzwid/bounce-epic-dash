@@ -117,6 +117,12 @@ export type RawFeature = {
    *  same payload rather than making a second call. */
   overview: string;
   stories: RawStory[];
+  /** JIRA's "Product Sign Off" field (customfield_10698) is "Approved" —
+   *  a human, out-of-band approval that overrides deriveStage's normal
+   *  score/shipped-based bands (see src/lib/score.ts). Never published to
+   *  the Feature schema; stage === "done" combined with a story that's
+   *  still done_unverified is, by construction, only reachable this way. */
+  signedOff: boolean;
   dataOk: boolean;
 };
 
@@ -339,12 +345,13 @@ function buildRawFeature(params: {
   repos?: string[];
   now: Date;
   dataOk: boolean;
+  signedOff: boolean;
   scoreWeights: Config["scoreWeights"];
 }): RawFeature {
-  const { target, stories, acBullets, overview = "", releaseGate, repos = [], now, dataOk, scoreWeights } = params;
+  const { target, stories, acBullets, overview = "", releaseGate, repos = [], now, dataOk, signedOff, scoreWeights } = params;
   const { score, scoreBasis } = computeScore(stories.map((s) => s.status), scoreWeights);
   const allShippedToDefault = stories.length > 0 && stories.every((s) => s.status === "shipped");
-  const stage = deriveStage(score, allShippedToDefault);
+  const stage = deriveStage(score, allShippedToDefault, signedOff);
 
   // Sub-tasks count as activity too — a story untouched for a month whose
   // sub-task shipped yesterday is not stalled.
@@ -380,6 +387,7 @@ function buildRawFeature(params: {
     acBullets,
     overview,
     stories,
+    signedOff,
     dataOk,
   };
 }
@@ -402,7 +410,7 @@ export async function collectFeature(
   try {
     [storyIssues, parentIssue] = await Promise.all([
       deps.searchChildren(target.key),
-      deps.getIssue(target.key),
+      deps.getIssue(target.key, ["summary", "description", "status", "assignee", "updated", "customfield_10698"]),
     ]);
   } catch (err) {
     errors.push({ source: "jira", scope: target.key, message: errMsg(err) });
@@ -414,6 +422,7 @@ export async function collectFeature(
         releaseGate: null,
         now,
         dataOk: false,
+        signedOff: false,
         scoreWeights: config.scoreWeights,
       }),
       errors,
@@ -423,6 +432,11 @@ export async function collectFeature(
   const description = (parentIssue.fields as Record<string, unknown>).description;
   const acBullets = extractAcBullets(description).map((text, i) => ({ id: `ac-${i + 1}`, text }));
   const overview = extractOverview(description);
+  const productSignOff = (parentIssue.fields as Record<string, unknown>).customfield_10698 as
+    | { value?: string }
+    | null
+    | undefined;
+  const signedOff = productSignOff?.value === "Approved";
 
   // Prefer the live JIRA summary over config's fallback title, so
   // config.yaml doesn't have to duplicate (and go stale on) ticket titles.
@@ -523,6 +537,7 @@ export async function collectFeature(
       repos: [...new Set(allFeaturePrs.map((pr) => pr.repo))].sort(),
       now,
       dataOk: !prIndex.degraded,
+      signedOff,
       scoreWeights: config.scoreWeights,
     }),
     errors,
