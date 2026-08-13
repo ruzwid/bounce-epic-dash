@@ -40,7 +40,7 @@ function makeFeature(overrides: Partial<FeatureT> = {}): FeatureT {
     overview: "",
     stage: "underway",
     score: 50,
-    scoreBasis: { shipped: 1, staged: 1, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 2 },
+    scoreBasis: { shipped: 1, doneUnverified: 0, staged: 1, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 2 },
     scoreOverride: null,
     confidence: "high",
     rationale: "Going fine.",
@@ -62,7 +62,7 @@ describe("needsAttention", () => {
   });
 
   it("is true when scoreBasis.blocked > 0", () => {
-    const feature = makeFeature({ scoreBasis: { shipped: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 1, todo: 0, total: 1 } });
+    const feature = makeFeature({ scoreBasis: { shipped: 0, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 1, todo: 0, total: 1 } });
     expect(needsAttention(feature, NOW)).toBe(true);
   });
 
@@ -158,7 +158,7 @@ describe("matchesFilters", () => {
   });
 
   it("needsAttention:true filters to needsAttention(feature)", () => {
-    const blocked = makeFeature({ scoreBasis: { shipped: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 1, todo: 0, total: 1 } });
+    const blocked = makeFeature({ scoreBasis: { shipped: 0, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 1, todo: 0, total: 1 } });
     const search = { milestone: "all" as const, engineer: null, needsAttention: true, q: "" };
     expect(matchesFilters(blocked, search, NOW)).toBe(true);
     expect(matchesFilters(m1, search, NOW)).toBe(false);

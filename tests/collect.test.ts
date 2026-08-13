@@ -22,7 +22,7 @@ const CONFIG: Config = {
   },
   github: { org: "test-org", excludeRepos: [], includeRepos: [] },
   timezone: "Europe/Dublin",
-  scoreWeights: { shipped: 1, staged: 0.5, in_review: 0.3, in_progress: 0.15, blocked: 0, todo: 0 },
+  scoreWeights: { shipped: 1, done_unverified: 1, staged: 0.5, in_review: 0.3, in_progress: 0.15, blocked: 0, todo: 0 },
   milestones: [],
   people: {},
   jiraAssignees: {},

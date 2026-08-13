@@ -13,7 +13,7 @@ function makeFeature(overrides: Partial<RawFeature> = {}): RawFeature {
     repos: ["service-a"],
     overview: "",
     score: 100,
-    scoreBasis: { shipped: 1, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 1 },
+    scoreBasis: { shipped: 1, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 1 },
     stage: "done",
     daysSinceLastActivity: 1,
     daysInStaged: null,
