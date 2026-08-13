@@ -35,6 +35,11 @@ describe("buildSlackSummary", () => {
     expect(summary).toContain(String(snapshot.kpis.staged));
   });
 
+  it("includes a KPI line with the doneUnverified count", () => {
+    expect(summary).toContain(String(snapshot.kpis.doneUnverified));
+    expect(summary).toContain("Done, unverified");
+  });
+
   it("includes each feature's code, stage, and score", () => {
     for (const feature of snapshot.features) {
       expect(summary).toContain(feature.code);

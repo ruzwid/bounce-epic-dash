@@ -20,6 +20,7 @@ export function buildSlackSummary(snapshot: StatusSnapshotT): string {
   lines.push(`• Features tracked: ${snapshot.kpis.featuresTracked} (+${snapshot.kpis.lightTierMilestones} light-tier)`);
   lines.push(`• Stories tracked: ${snapshot.kpis.storiesTracked}`);
   lines.push(`• Shipped to master: ${snapshot.kpis.shipped}`);
+  lines.push(`• Done, unverified: ${snapshot.kpis.doneUnverified}`);
   lines.push(`• Staged, not shipped: ${snapshot.kpis.staged}`);
   lines.push(`• In review: ${snapshot.kpis.inReview}`);
   lines.push(`• Blocked/to do: ${snapshot.kpis.blockedOrTodo}`);
