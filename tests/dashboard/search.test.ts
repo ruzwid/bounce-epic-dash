@@ -23,6 +23,8 @@ function makePr(overrides: Partial<PrRefT> = {}): PrRefT {
     updatedAt: "2026-08-09T00:00:00.000Z",
     stackChain: [],
     reviewRequests: [],
+    reviews: [],
+    author: null,
     filesTouched: [],
     ...overrides,
   };

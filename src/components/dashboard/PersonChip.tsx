@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { colorForLogin } from "@/lib/dashboard/appConfig"
 import { cn } from "@/lib/utils"
 import { Avatar } from "./Avatar"
@@ -8,6 +9,11 @@ type PersonChipProps = {
   login: string | null
   /** What to show beside the avatar. Falls back to the login. */
   name?: string
+  /** Trailing glyph — e.g. the Reviews page's review-state icon. Colored
+   *  by the caller; this component only places it. */
+  icon?: ReactNode
+  /** Native tooltip for the whole pill, e.g. "who — review state". */
+  title?: string
   className?: string
 }
 
@@ -19,12 +25,13 @@ type PersonChipProps = {
  * key the reader has to learn. Falls back to the flat `bg-muted` any other
  * chip uses when the login has no known colour.
  */
-export function PersonChip({ login, name, className }: PersonChipProps) {
+export function PersonChip({ login, name, icon, title, className }: PersonChipProps) {
   const label = name ?? login ?? "Unknown"
   const color = login ? colorForLogin(login) : null
 
   return (
     <span
+      title={title}
       className={cn(
         "inline-flex max-w-full items-center gap-1.5 rounded-4xl py-1 pr-2.5 pl-1 text-xs",
         !color && "bg-muted",
@@ -34,6 +41,7 @@ export function PersonChip({ login, name, className }: PersonChipProps) {
     >
       <Avatar login={login} name={label} size={19} />
       <span className="truncate">{label}</span>
+      {icon}
     </span>
   )
 }

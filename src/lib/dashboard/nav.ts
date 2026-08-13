@@ -369,13 +369,43 @@ export function openPullRequests(snapshot: StatusSnapshotT) {
     .sort((a, b) => new Date(b.pr.updatedAt).getTime() - new Date(a.pr.updatedAt).getTime());
 }
 
+export type ReviewerState = "requested" | "approved" | "changes_requested" | "commented";
+
+export type ReviewerStatus = {
+  reviewer: string;
+  state: ReviewerState;
+  /** Days since GitHub's request — only meaningful when state is
+   *  "requested"; a submitted review has no tracked age. */
+  ageDays: number | null;
+};
+
 export type PrReviewStatus = {
   pr: PrRefT;
-  /** Reviewers GitHub is still waiting on for this PR, each paired with
-   *  how many days they've been waited on. Empty when the PR is open but
-   *  nobody's been asked yet. */
-  waitingOn: { reviewer: string; ageDays: number }[];
+  /** Everyone with a stake in this PR: anyone still being waited on, plus
+   *  anyone who's already submitted a review, one entry per person. A
+   *  reviewer re-requested after leaving a review shows as "requested" —
+   *  GitHub treats their prior review as stale the moment new commits go
+   *  up, and so does this. Empty when the PR is open but nobody's been
+   *  asked and nobody's reviewed it yet. */
+  reviewers: ReviewerStatus[];
 };
+
+/** Merges a PR's still-pending requests with its submitted reviews into
+ *  one status per person — see PrReviewStatus.reviewers above for why a
+ *  pending re-request wins over a stale prior review. */
+function reviewersForPr(pr: PrRefT, waitingOn: { reviewer: string; ageDays: number }[]): ReviewerStatus[] {
+  const byReviewer = new Map<string, ReviewerStatus>();
+  for (const w of waitingOn) {
+    byReviewer.set(w.reviewer, { reviewer: w.reviewer, state: "requested", ageDays: w.ageDays });
+  }
+  for (const r of pr.reviews) {
+    if (byReviewer.has(r.reviewer)) continue;
+    const state: ReviewerState =
+      r.state === "APPROVED" ? "approved" : r.state === "CHANGES_REQUESTED" ? "changes_requested" : "commented";
+    byReviewer.set(r.reviewer, { reviewer: r.reviewer, state, ageDays: null });
+  }
+  return [...byReviewer.values()];
+}
 
 /** The ticket a group of PRs actually hangs off — a Story, or one of its
  *  Sub-tasks. Grouping by the owning ticket (rather than always by the
@@ -431,12 +461,14 @@ export function reviewsByTicket(snapshot: StatusSnapshotT): TicketReviewGroup[] 
       story,
     };
     const group = groups.get(ticket.key) ?? { feature, ticket, prs: [], oldestWaitDays: null };
-    group.prs.push({ pr, waitingOn: waitingByPr.get(`${pr.repo}#${pr.number}`) ?? [] });
+    group.prs.push({ pr, reviewers: reviewersForPr(pr, waitingByPr.get(`${pr.repo}#${pr.number}`) ?? []) });
     groups.set(ticket.key, group);
   }
 
   for (const group of groups.values()) {
-    const waits = group.prs.flatMap((p) => p.waitingOn.map((w) => w.ageDays));
+    const waits = group.prs.flatMap((p) =>
+      p.reviewers.filter((r) => r.state === "requested" && r.ageDays !== null).map((r) => r.ageDays!),
+    );
     group.oldestWaitDays = waits.length > 0 ? Math.max(...waits) : null;
   }
 

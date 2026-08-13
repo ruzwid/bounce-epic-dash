@@ -128,6 +128,8 @@ function sanitizePrRef(pr: RawPrRecord): PrRefT {
     updatedAt: pr.updatedAt,
     stackChain: pr.stackChain,
     reviewRequests: pr.reviewRequests,
+    reviews: pr.reviews,
+    author: pr.author,
     filesTouched: [],
   };
 }

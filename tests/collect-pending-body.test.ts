@@ -41,6 +41,8 @@ function makePrRecord(overrides: Partial<RawFeature["stories"][number]["prs"][nu
     updatedAt: "2026-01-12T00:00:00.000Z",
     stackChain: [],
     reviewRequests: [],
+    reviews: [],
+    author: null,
     filesTouched: ["src/thing.ts"],
     body: null,
     ...overrides,

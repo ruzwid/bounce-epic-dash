@@ -133,7 +133,9 @@ type PrNode = {
    *  evidence at this org (see src/lib/prbody.ts). null when a PR has no
    *  description at all. */
   body: string | null;
+  author: { login: string } | null;
   reviewRequests: { nodes: Array<{ requestedReviewer: { login?: string } | null }> };
+  latestReviews: { nodes: Array<{ author: { login: string } | null; state: string }> };
   files: { nodes: Array<{ path: string }> };
 };
 
@@ -153,11 +155,18 @@ const PR_PAGE_QUERY = `
           updatedAt
           createdAt
           body
+          author { login }
           reviewRequests(first: 20) {
             nodes {
               requestedReviewer {
                 ... on User { login }
               }
+            }
+          }
+          latestReviews(first: 20) {
+            nodes {
+              author { login }
+              state
             }
           }
           files(first: 100) {
@@ -181,9 +190,16 @@ function toRawPr(repo: string, node: PrNode): RawPr {
     mergedAt: node.mergedAt,
     updatedAt: node.updatedAt,
     body: node.body,
+    author: node.author?.login ?? null,
     reviewRequests: node.reviewRequests.nodes
       .map((r) => r.requestedReviewer?.login)
       .filter((login): login is string => Boolean(login)),
+    reviews: node.latestReviews.nodes
+      .filter(
+        (r): r is { author: { login: string }; state: "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" } =>
+          r.author !== null && (r.state === "APPROVED" || r.state === "CHANGES_REQUESTED" || r.state === "COMMENTED"),
+      )
+      .map((r) => ({ reviewer: r.author.login, state: r.state })),
     filesTouched: node.files.nodes.map((f) => f.path),
   };
 }

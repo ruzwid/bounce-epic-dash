@@ -9,6 +9,15 @@ export const Stage = z.enum([
   "not_started", "early", "underway", "nearly_done", "done",
 ]);
 
+/** A reviewer's most recently *submitted* review on a PR — distinct from
+ *  reviewRequests below, which is who's still being waited on. GitHub
+ *  itself tracks a "dismissed" state too; this dashboard never fetches it
+ *  since a dismissed review no longer counts toward the merge decision. */
+export const PrReview = z.object({
+  reviewer: z.string(),
+  state: z.enum(["APPROVED", "CHANGES_REQUESTED", "COMMENTED"]),
+});
+
 export const PrRef = z.object({
   repo: z.string(),
   number: z.number(),
@@ -25,6 +34,13 @@ export const PrRef = z.object({
   /** stack chain from this PR down to the master-based PR, if traced */
   stackChain: z.array(z.number()).default([]),
   reviewRequests: z.array(z.string()).default([]),
+  /** One entry per reviewer who has submitted a review, their latest
+   *  state only. Defaulted so snapshots written before this field existed
+   *  still parse. */
+  reviews: z.array(PrReview).default([]),
+  /** GitHub login of whoever opened the PR. Nullable for a snapshot
+   *  written before this field existed, or the rare deleted account. */
+  author: z.string().nullable().default(null),
   /** never published: kept in raw.json only */
   filesTouched: z.array(z.string()).default([]),
 });

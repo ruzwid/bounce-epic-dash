@@ -24,6 +24,10 @@ export type RawPr = {
   mergedAt: string | null;
   updatedAt: string;
   reviewRequests: string[];
+  /** One entry per reviewer who's submitted a review, latest state only. */
+  reviews: { reviewer: string; state: "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" }[];
+  /** GitHub login of whoever opened the PR, null for a deleted account. */
+  author: string | null;
   /** never published: kept in raw.json only */
   filesTouched: string[];
   /** raw, uncleaned PR description. Never published as-is — collect.ts

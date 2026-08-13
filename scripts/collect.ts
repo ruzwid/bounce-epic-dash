@@ -64,6 +64,8 @@ export type RawPrRecord = {
   updatedAt: string;
   stackChain: number[];
   reviewRequests: string[];
+  reviews: { reviewer: string; state: "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" }[];
+  author: string | null;
   filesTouched: string[];
   /** Raw, uncleaned PR description — full fidelity, raw.json only. Never
    *  written to pending.json as-is (see toPending's cleanPrBody call) and
@@ -271,6 +273,8 @@ function toPrRecord(pr: RawPr, org: string, defaultBranch: string, allPrsInRepo:
     updatedAt: pr.updatedAt,
     stackChain: traceStackChain(pr, allPrsInRepo, defaultBranch),
     reviewRequests: pr.reviewRequests,
+    reviews: pr.reviews,
+    author: pr.author,
     filesTouched: pr.filesTouched,
     body: pr.body,
   };
