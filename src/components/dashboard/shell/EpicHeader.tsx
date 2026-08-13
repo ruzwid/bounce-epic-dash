@@ -71,6 +71,9 @@ export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
                 <span className="font-mono-data">{snapshot.kpis.shipped}</span> shipped
               </span>
               <span>
+                <span className="font-mono-data">{snapshot.kpis.doneUnverified}</span> done, unverified
+              </span>
+              <span>
                 <span className="font-mono-data">{snapshot.kpis.staged}</span> staged
               </span>
               <span>
@@ -125,6 +128,7 @@ function DeltaLine({ delta }: { delta: number | null }) {
 
 const SEGMENTS = [
   { key: "shippedShare", color: "var(--status-shipped)", label: WORK_STATUS_LABELS.shipped },
+  { key: "doneUnverifiedShare", color: "var(--status-done-unverified)", label: WORK_STATUS_LABELS.done_unverified },
   { key: "stagedShare", color: "var(--status-staged)", label: WORK_STATUS_LABELS.staged },
   { key: "inReviewShare", color: "var(--status-in-review)", label: WORK_STATUS_LABELS.in_review },
 ] as const
