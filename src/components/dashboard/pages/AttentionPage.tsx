@@ -1,7 +1,13 @@
-import { CircleAlert, Clock, GitPullRequestArrow, OctagonX } from "lucide-react"
+import { ChevronRight, CircleAlert, Clock, GitPullRequestArrow, OctagonX } from "lucide-react"
 import type { z } from "zod"
 import type { Feature as FeatureSchema } from "@/lib/schema"
-import { attentionFeatures, attentionReasons, featureSlug, type AttentionReason } from "@/lib/dashboard/nav"
+import {
+  attentionFeatures,
+  attentionReasons,
+  featureSlug,
+  signedOffUnverifiedStories,
+  type AttentionReason,
+} from "@/lib/dashboard/nav"
 import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
 import { SectionHeading } from "../SectionHeading"
@@ -57,7 +63,57 @@ export function AttentionPage() {
           </ul>
         </section>
       )}
+
+      <SignedOffUnverifiedSection snapshot={snapshot} />
     </div>
+  )
+}
+
+/**
+ * done_unverified stories under a feature that's stage "done" only because
+ * product signed off — collapsed by default. These are exactly the stories
+ * a reader would otherwise have to go hunting for on a per-feature basis;
+ * this section exists so "just in case" checking doesn't require opening
+ * every signed-off feature one at a time, without making them a per-run
+ * distraction the way the Flagged section above is.
+ */
+function SignedOffUnverifiedSection({ snapshot }: { snapshot: ReturnType<typeof useShell>["snapshot"] }) {
+  const items = signedOffUnverifiedStories(snapshot)
+  if (items.length === 0) return null
+
+  return (
+    <details className="group flex flex-col gap-3">
+      <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[13px] font-medium text-muted-foreground select-none [&::-webkit-details-marker]:hidden">
+        <ChevronRight
+          aria-hidden="true"
+          className="size-3.5 shrink-0 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90"
+        />
+        {items.length} done-unverified {items.length === 1 ? "story" : "stories"} on signed-off features
+      </summary>
+      <p className="m-0 mt-1 pl-5 text-xs leading-relaxed text-muted-foreground">
+        These features are marked done because product signed off, but GitHub still can't confirm every story
+        reached master. Worth a glance, not a per-run check.
+      </p>
+      <ul className="m-0 mt-2 flex list-none flex-col gap-2 p-0">
+        {items.map(({ feature, story }) => (
+          <li
+            key={story.key}
+            className="surface flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-4xl border border-dashed border-border px-5 py-3.5"
+          >
+            <JiraLink issueKey={story.key} type="story" tone={story.status} className="gap-1.5 text-sm">
+              <span className="min-w-0 truncate">{story.summary}</span>
+            </JiraLink>
+            <ShellLink
+              page="feature"
+              code={featureSlug(feature.code)}
+              className="hover-fill ml-auto font-mono-data shrink-0 text-xs text-muted-foreground no-underline"
+            >
+              {feature.code}
+            </ShellLink>
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }
 
@@ -67,17 +123,30 @@ function AttentionCard({ feature, now }: { feature: FeatureT; now: Date }) {
   return (
     <li className="surface-card flex list-none flex-col gap-3 rounded-4xl border border-border bg-card px-5 py-4">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        {/* feature.title already starts with the code ("F1.1 — ..."), so
-            there's no separate code label here — just the one link. */}
-        <ShellLink page="feature" code={featureSlug(feature.code)} className="text-[14.5px] font-medium">
+        {/* JiraLink wraps the primary title (icon + text, external Jira
+            link) — same pattern as ReviewsPage's ReviewGroupCard header,
+            rather than an internal ShellLink title with a bare icon
+            alongside it. feature.title already starts with the code
+            ("F1.1 — ..."), so there's no separate code label here. */}
+        <JiraLink issueKey={feature.key} type="feature" tone={feature.stage} className="gap-1.5 text-[14.5px] font-medium">
           {feature.title}
-        </ShellLink>
-        {/* Icon-only: the title above is already the internal link to this
-            feature's page, and nesting a second full anchor inside it
-            isn't valid HTML. */}
-        <JiraLink issueKey={feature.key} type="feature" tone={feature.stage} />
+        </JiraLink>
         <StatusPill status={feature.stage} className="shrink-0" />
-        <OwnerLabel name={feature.owner} className="ml-auto text-xs text-muted-foreground" />
+        <div className="ml-auto flex shrink-0 items-center gap-2.5">
+          {/* The internal link to this app's own feature page, shown as
+              the ticket key (not the code, which is already in the title
+              above) — mirrors ReviewsPage's secondary ShellLink and
+              FeatureCard's CardTitleRow, which both show the key
+              separately from an already-coded title. */}
+          <ShellLink
+            page="feature"
+            code={featureSlug(feature.code)}
+            className="hover-fill font-mono-data text-xs text-muted-foreground no-underline"
+          >
+            {feature.key}
+          </ShellLink>
+          <OwnerLabel name={feature.owner} className="text-xs text-muted-foreground" />
+        </div>
       </div>
 
       <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
