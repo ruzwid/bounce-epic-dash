@@ -45,10 +45,17 @@ function daysBetween(earlier: string, later: Date): number {
 
 /** blocked, stalled >7d (and not already done), a PR waiting on review
  *  >2d, or any open callout. Matches the goal's "Needs attention only"
- *  toggle definition exactly. */
+ *  toggle definition exactly. A feature already stage "done" — whether by
+ *  every story shipping or by product sign-off — never qualifies: a
+ *  milestone/epic can only be "done" once every one of its features is,
+ *  so this single check also covers "the milestone/epic isn't done"
+ *  without needing a separate check at either level. Any residual
+ *  drift (e.g. done_unverified stories under a signed-off feature) has
+ *  its own lower-priority home — see signedOffUnverifiedStories. */
 export function needsAttention(feature: FeatureT, now: Date): boolean {
+  if (feature.stage === "done") return false;
   if (feature.scoreBasis.blocked > 0) return true;
-  if (feature.stage !== "done" && feature.daysSinceLastActivity !== null && feature.daysSinceLastActivity > STALL_DAYS) {
+  if (feature.daysSinceLastActivity !== null && feature.daysSinceLastActivity > STALL_DAYS) {
     return true;
   }
   if (feature.callouts.length > 0) return true;

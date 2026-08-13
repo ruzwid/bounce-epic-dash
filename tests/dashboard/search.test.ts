@@ -78,6 +78,22 @@ describe("needsAttention", () => {
     expect(needsAttention(feature, NOW)).toBe(false);
   });
 
+  it("is false when blocked but the feature is done (e.g. signed off with residual blocked work)", () => {
+    const feature = makeFeature({
+      stage: "done",
+      scoreBasis: { shipped: 0, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 1, todo: 0, total: 1 },
+    });
+    expect(needsAttention(feature, NOW)).toBe(false);
+  });
+
+  it("is false when there's an open callout but the feature is done", () => {
+    const feature = makeFeature({
+      stage: "done",
+      callouts: [{ type: "drift", severity: "info", message: "Product signed off despite unverified stories.", refs: [] }],
+    });
+    expect(needsAttention(feature, NOW)).toBe(false);
+  });
+
   it("is true when a PR has been waiting on review for more than 2 days", () => {
     const feature = makeFeature({
       stories: [

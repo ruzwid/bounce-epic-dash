@@ -38,7 +38,7 @@ flowchart TB
     end
 
     subgraph merge["3 · pnpm merge — the trust boundary"]
-        V["scripts/merge.ts<br/>validate judgment against pending →<br/>reject invented refs → apply overrides"]
+        V["scripts/merge.ts<br/>validate judgment against pending →<br/>reject invented refs → apply overrides →<br/>take every number from raw"]
         OVR["overrides.yaml<br/>human notes, auto-expiring"]
         SNAP["data/snapshots/DATE.json<br/>publication-safe · COMMITTED"]
     end
@@ -56,8 +56,9 @@ flowchart TB
     C --> PEND
     PEND --> J
     J --> JUD
-    JUD --> V
-    PEND -.->|"cross-checked against"| V
+    JUD -->|"prose only"| V
+    RAW -->|"every number"| V
+    PEND -.->|"validated against"| V
     OVR --> V
     V --> SNAP
     SNAP -->|"git commit + push"| B
@@ -71,7 +72,7 @@ flowchart TB
 |---|-------|---------|-------|--------|-----------|
 | 1 | Collect | `pnpm collect` | JIRA, GitHub, `config.yaml` | `data/raw/`, `data/pending/` | No |
 | 2 | Judge | `/judge` in Claude Code | `data/pending/` | `data/judgment/` | No |
-| 3 | Merge | `pnpm merge` | `data/pending/`, `data/judgment/`, `overrides.yaml` | `data/snapshots/` | **Yes** |
+| 3 | Merge | `pnpm merge` | `data/raw/`, `data/pending/`, `data/judgment/`, `overrides.yaml` | `data/snapshots/` | **Yes** |
 | 4 | Publish | `pnpm build` (on Vercel) | `data/snapshots/`, `config.yaml` | prerendered HTML | build output |
 
 Stage 4 is triggered by pushing stage 3's output. The deployed site never
@@ -90,11 +91,22 @@ Four directories, one per trust level. Only the last one is committed.
 - **`data/snapshots/`** — the only publication-safe artifact, and the only
   thing the dashboard ever reads.
 
-`scripts/merge.ts` is the gate between the last two. It re-derives every
-number itself and rejects the whole file (non-zero exit, nothing written)
-on anything unparseable, any ticket/PR/AC reference that isn't in that day's
-pending file, or an unreasoned / >20-point `scoreOverride`. The judge can
-*explain* the data; it cannot *invent* it.
+`scripts/merge.ts` is the gate between the last two, and it splits the
+snapshot in half by provenance:
+
+- **Every number comes from `data/raw/`** — score, scoreBasis, PR refs,
+  release gate, staleness. Collect's deterministic output, untouched.
+- **The judgment contributes prose only** — rationale, confidence, AC
+  coverage, callouts — plus one bounded numeric escape hatch: a
+  `scoreOverride` that must carry a reason and land within 20 points of the
+  computed score. Stage is then re-derived by merge from the effective
+  score, so an override moves the pill honestly rather than being pasted on.
+
+Before any of that, the judgment is validated against the day's pending
+file and the whole thing is rejected (non-zero exit, nothing written) on
+anything unparseable, any feature key, AC id, story key, or PR ref that
+isn't in that day's data, or an unreasoned / oversized `scoreOverride`. The
+judge can *explain* the data; it cannot *invent* it.
 
 There is no `ANTHROPIC_API_KEY` and no programmatic model call anywhere in
 this codebase. The judgment step is a Claude Code routine you run, not a
@@ -205,6 +217,11 @@ pnpm merge
 Validates the judgment, applies non-expired `overrides.yaml` entries, and
 writes `data/snapshots/<date>.json`. **Never commit when merge fails** —
 on any rejection it writes nothing and exits non-zero.
+
+`overrides.yaml` is the human channel into a snapshot: a note per ticket,
+optionally suppressing a stall warning, each with a required `expires` date
+so the file prunes itself instead of accumulating stale caveats. Its own
+comments document the shape.
 
 ```bash
 git add data/snapshots && git commit -m "snapshot: <date>" && git push
