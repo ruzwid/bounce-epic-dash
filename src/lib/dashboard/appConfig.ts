@@ -28,6 +28,17 @@ export function jiraIssueUrl(key: string): string | null {
   return jiraBaseUrl ? `${jiraBaseUrl}/browse/${encodeURIComponent(key)}` : null;
 }
 
+/** `https://github.com/<org>/<repo>/pull/<n>` for an AcCoverage.evidence
+ *  entry shaped like `"repo#123"` (see schema.ts) — the other shape that
+ *  array holds is a bare JIRA key, which this returns null for so callers
+ *  fall back to `jiraIssueUrl`. */
+export function githubPrUrl(evidence: string): string | null {
+  const match = /^(.+)#(\d+)$/.exec(evidence);
+  if (!match) return null;
+  const [, repo, number] = match;
+  return `https://github.com/${loadAppConfig().github.org}/${repo}/pull/${number}`;
+}
+
 let parsed: Config | null = null;
 
 /** Validated config. Parsed once and memoised: several components read it

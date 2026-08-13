@@ -89,7 +89,8 @@ export function JiraLink({ issueKey, type, tone, children, className, iconClassN
 export function IssueTitle({ issueKey, title }: { issueKey: string; title: string }) {
   return (
     <>
-      <span className="font-mono-data font-normal text-muted-foreground">{issueKey}</span> {title}
+      <span className="font-mono-data mr-1 font-normal text-muted-foreground">{issueKey}</span>
+      {title}
     </>
   )
 }

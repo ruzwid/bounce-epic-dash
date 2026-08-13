@@ -37,14 +37,16 @@ export function StoryCard({ story }: { story: StoryT }) {
   return (
     <li className="surface-card flex list-none flex-col gap-2.5 rounded-4xl border border-border bg-card px-5 py-4">
       <div className="flex items-start gap-3">
-        <JiraLink
-          issueKey={story.key}
-          type="story"
-          tone={story.status}
-          className="min-w-0 flex-1 gap-1.5 text-[14.5px] font-medium"
-        >
-          <IssueTitle issueKey={story.key} title={story.summary} />
-        </JiraLink>
+        <div className="flex min-w-0 flex-1 items-center">
+          <JiraLink
+            issueKey={story.key}
+            type="story"
+            tone={story.status}
+            className="min-w-0 gap-1.5 text-[14.5px] font-medium"
+          >
+            <IssueTitle issueKey={story.key} title={story.summary} />
+          </JiraLink>
+        </div>
         <StatusPill status={story.status} className="shrink-0" />
       </div>
 
@@ -100,15 +102,16 @@ function SubtaskDisclosure({ subtasks }: { subtasks: SubtaskT[] }) {
       <ul className="m-0 mt-2 ml-1.5 flex list-none flex-col gap-2 border-l-2 border-border-soft p-0 pl-4">
         {subtasks.map((subtask) => (
           <li key={subtask.key} className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <JiraLink
-              issueKey={subtask.key}
-              type="subtask"
-              tone={subtask.status}
-              className="font-mono-data shrink-0 gap-1 text-xs text-muted-foreground"
-            >
-              {subtask.key}
-            </JiraLink>
-            <span className="min-w-0 flex-1 truncate text-[13.5px]">{subtask.summary}</span>
+            <div className="flex min-w-0 flex-1 items-center">
+              <JiraLink
+                issueKey={subtask.key}
+                type="subtask"
+                tone={subtask.status}
+                className="min-w-0 gap-1.5 text-[13.5px]"
+              >
+                <IssueTitle issueKey={subtask.key} title={subtask.summary} />
+              </JiraLink>
+            </div>
             {subtask.prs.map((pr) => (
               <PrChip key={`${pr.repo}#${pr.number}`} pr={pr} />
             ))}

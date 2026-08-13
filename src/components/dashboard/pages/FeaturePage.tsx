@@ -16,6 +16,7 @@ import { EmptyState } from "../EmptyState"
 import { OverrideNote } from "../OverrideNote"
 import { ReleaseGateLine } from "../ReleaseGateLine"
 import { JiraLink } from "../JiraLink"
+import { githubPrUrl, jiraIssueUrl } from "@/lib/dashboard/appConfig"
 
 type FeatureT = z.infer<typeof FeatureSchema>
 type StoryT = z.infer<typeof StorySchema>
@@ -203,12 +204,12 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
           ) : (
             <ul className="m-0 flex list-none flex-col gap-2 p-0">
               {gaps.map((ac) => (
-                <li
-                  key={ac.id}
-                  data-status="in_progress"
-                  className="flex items-start gap-2.5 rounded-4xl px-3.5 py-2.5 text-[13.5px]"
-                >
-                  <span aria-hidden="true" className="mt-0.5 font-medium">
+                <li key={ac.id} className="flex items-start gap-2.5 rounded-4xl px-3.5 py-2.5 text-[13.5px]">
+                  <span
+                    aria-hidden="true"
+                    data-status="in_progress"
+                    className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full font-medium"
+                  >
                     !
                   </span>
                   <span>
@@ -271,15 +272,14 @@ function StatusMixLine({ feature }: { feature: FeatureT }) {
 function AcRow({ ac }: { ac: AcCoverageT }) {
   const isCovered = ac.coverage === "covered"
   const isPartial = ac.coverage === "partial"
+  const tone = isCovered ? "shipped" : isPartial ? "staged" : "todo"
 
   return (
     <li className="flex items-start gap-2.5 text-[13.5px] leading-relaxed">
       <span
         aria-hidden="true"
-        className="mt-0.5 flex size-4 shrink-0 items-center justify-center"
-        style={{
-          color: isCovered ? "var(--status-shipped)" : isPartial ? "var(--status-staged)" : "var(--muted-foreground)",
-        }}
+        data-status={tone}
+        className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full"
       >
         {isCovered ? <Check className="size-3.5" /> : <Minus className="size-3.5" />}
       </span>
@@ -287,7 +287,23 @@ function AcRow({ ac }: { ac: AcCoverageT }) {
         {ac.label}
         {isPartial ? <span className="ml-1.5 text-xs opacity-75">partial</span> : null}
         {ac.evidence.length > 0 ? (
-          <span className="font-mono-data ml-1.5 text-[11px] opacity-60">{ac.evidence.join(", ")}</span>
+          <span className="font-mono-data ml-1.5 text-[11px] opacity-60">
+            {ac.evidence.map((item, i) => {
+              const href = githubPrUrl(item) ?? jiraIssueUrl(item)
+              return (
+                <span key={item}>
+                  {i > 0 ? ", " : null}
+                  {href ? (
+                    <a href={href} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
+                      {item}
+                    </a>
+                  ) : (
+                    item
+                  )}
+                </span>
+              )
+            })}
+          </span>
         ) : null}
       </span>
       <span className="sr-only">
