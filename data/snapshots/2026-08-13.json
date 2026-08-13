@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "date": "2026-08-13",
-  "generatedAt": "2026-08-13T11:24:01.815Z",
+  "generatedAt": "2026-08-13T16:52:42.055Z",
   "epic": {
     "key": "BOUN-11204",
     "title": "WPP at Scale",
@@ -43,19 +43,19 @@
     }
   ],
   "headline": {
-    "featuresWithNothingOnMaster": 13,
+    "featuresWithNothingOnMaster": 12,
     "totalFeatures": 23,
-    "sentence": "13 of 23 feature(s) have nothing shipped to the default branch yet."
+    "sentence": "12 of 23 feature(s) have nothing shipped to the default branch yet."
   },
   "kpis": {
     "featuresTracked": 23,
     "lightTierMilestones": 2,
     "storiesTracked": 74,
-    "shipped": 34,
+    "shipped": 35,
     "doneUnverified": 7,
     "staged": 0,
     "inReview": 12,
-    "blockedOrTodo": 19
+    "blockedOrTodo": 17
   },
   "features": [
     {
@@ -70,7 +70,7 @@
         "dashboard-api"
       ],
       "overview": "Validate the survey template against the demographic questions in the questions Excel before survey creation, to ensure the survey structure will be compatible with downstream coding and data delivery processes. Only demographic questions are validated at this stage, since other questions and options may be populated after creation (e.g., assigned to users later). This prevents launching surveys with mismatched demographic questions, options, or response values that could lead to incorrect data processing later.",
-      "stage": "nearly_done",
+      "stage": "done",
       "score": 100,
       "scoreBasis": {
         "shipped": 2,
@@ -84,7 +84,7 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "The validation script, its tests, and the generation-flow wiring are all merged code but JIRA marks them Done without a PR reaching master, so 3 of 5 stories are done-unverified rather than shipped; the E2E coverage and an unrelated backfill fix are the only two confirmed on master.",
+      "rationale": "Product signed this off as Done, so it reads as complete even though 3 of 5 stories are done-unverified — the validation script, tests, and generation-flow wiring are merged code but GitHub can't confirm any PR reached master (the base PR was closed unmerged); the E2E coverage and an unrelated backfill fix are the two confirmed shipped.",
       "daysSinceLastActivity": 15,
       "daysInStaged": null,
       "releaseGate": null,
@@ -190,22 +190,6 @@
           "updatedAt": "2026-07-29T16:06:41.225Z",
           "prs": [
             {
-              "repo": "dashboard",
-              "number": 3820,
-              "title": "[BOUN-11321] - Validation step E2Es",
-              "url": "https://github.com/bounceinsights/dashboard/pull/3820",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11321",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-29T13:34:28Z",
-              "updatedAt": "2026-07-29T13:34:28Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "dashboard-api",
               "number": 2066,
               "title": "[BOUN-11321] - Validation step E2Es",
@@ -217,6 +201,22 @@
               "shippedToDefault": true,
               "mergedAt": "2026-07-29T13:34:25Z",
               "updatedAt": "2026-07-29T13:34:25Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3820,
+              "title": "[BOUN-11321] - Validation step E2Es",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3820",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11321",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T13:34:28Z",
+              "updatedAt": "2026-07-29T13:34:28Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -254,11 +254,13 @@
       ],
       "callouts": [
         {
-          "type": "release_blocked",
-          "severity": "warn",
-          "message": "The base PR for this chain was closed without merging, so the three JIRA-Done stories stacked on it have no GitHub-confirmed path to master.",
+          "type": "drift",
+          "severity": "info",
+          "message": "Product sign-off marks this Done, but GitHub still can't confirm 3 of 5 stories reached master — the sign-off is trusted here, but the gap is worth knowing about.",
           "refs": [
-            "dashboard-api#2053"
+            "BOUN-11312",
+            "BOUN-11313",
+            "BOUN-11314"
           ]
         }
       ],
@@ -419,22 +421,6 @@
           "updatedAt": "2026-07-31T14:14:40.560Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1130,
-              "title": "[BOUN-11285] - Bulk rename User specific title across selected surveys",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1130",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11285",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T14:14:48Z",
-              "updatedAt": "2026-07-31T14:14:49Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 648,
               "title": "[BOUN-11285] - Bulk rename User specific title across selected surveys",
@@ -446,6 +432,22 @@
               "shippedToDefault": true,
               "mergedAt": "2026-07-31T14:14:51Z",
               "updatedAt": "2026-07-31T14:14:51Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1130,
+              "title": "[BOUN-11285] - Bulk rename User specific title across selected surveys",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1130",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11285",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T14:14:48Z",
+              "updatedAt": "2026-07-31T14:14:49Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -462,22 +464,6 @@
           "updatedAt": "2026-07-31T14:35:38.775Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1132,
-              "title": "[BOUN-11286]: Bulk enable disable Research defender",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1132",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11286",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T12:29:41Z",
-              "updatedAt": "2026-07-31T12:29:41Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 650,
               "title": "[BOUN-11286]: Bulk enable disable Research defender",
@@ -489,6 +475,22 @@
               "shippedToDefault": true,
               "mergedAt": "2026-07-31T12:28:57Z",
               "updatedAt": "2026-07-31T12:28:57Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1132,
+              "title": "[BOUN-11286]: Bulk enable disable Research defender",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1132",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11286",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T12:29:41Z",
+              "updatedAt": "2026-07-31T12:29:41Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -505,22 +507,6 @@
           "updatedAt": "2026-07-31T15:23:22.217Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1137,
-              "title": "[BOUN-11287]: Bulk enable/disable Survey Resume",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1137",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11287",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T15:23:11Z",
-              "updatedAt": "2026-07-31T15:23:11Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 656,
               "title": "[BOUN-11287]: Bulk enable/disable Survey Resume",
@@ -532,6 +518,22 @@
               "shippedToDefault": true,
               "mergedAt": "2026-07-31T15:23:00Z",
               "updatedAt": "2026-07-31T15:23:00Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1137,
+              "title": "[BOUN-11287]: Bulk enable/disable Survey Resume",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1137",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11287",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T15:23:11Z",
+              "updatedAt": "2026-07-31T15:23:11Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -575,22 +577,6 @@
           "updatedAt": "2026-08-05T11:22:59.908Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1139,
-              "title": "[BOUN-11289] - Bulk reset available targeting buckets",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1139",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11289",
-              "shippedToDefault": true,
-              "mergedAt": "2026-08-05T11:02:15Z",
-              "updatedAt": "2026-08-05T11:02:15Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 657,
               "title": "[BOUN-11289] - Bulk reset available targeting buckets",
@@ -602,6 +588,22 @@
               "shippedToDefault": true,
               "mergedAt": "2026-08-05T11:02:17Z",
               "updatedAt": "2026-08-05T11:02:18Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1139,
+              "title": "[BOUN-11289] - Bulk reset available targeting buckets",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1139",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11289",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-05T11:02:15Z",
+              "updatedAt": "2026-08-05T11:02:15Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -1039,7 +1041,7 @@
         "ts-types"
       ],
       "overview": "Keep the twice-daily field monitoring reporting as the primary tool for this recurring operational need, automate the day-on-day completes report (currently built manually by a researcher), and close specific gaps in the quota reporting. Broader, customer-facing, or ad-hoc reporting needs are handled separately by the new dashboard initiative.",
-      "stage": "nearly_done",
+      "stage": "done",
       "score": 100,
       "scoreBasis": {
         "shipped": 1,
@@ -1053,9 +1055,9 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "The four-PR stack that builds quota/day-on-day reporting (BOUN-11251/11273/11295/11303) is merged code, but its base PR was closed without ever merging to master, so JIRA's Done status is unconfirmed by GitHub on all four; only the separate reports-at-scale story (BOUN-11317) is shipped.",
+      "rationale": "Product signed this off as Done, so it reads as complete despite 4 of 5 stories being done-unverified — the quota/day-on-day reporting stack (F1.5.1-4) is merged code, but its base PR was closed without ever merging to master, so GitHub can't confirm any of the four reached master; the separate reports-at-scale story is shipped.",
       "daysSinceLastActivity": 9,
-      "daysInStaged": null,
+      "daysInStaged": 21,
       "releaseGate": {
         "integrationBranch": "BOUN-11251",
         "pr": {
@@ -1237,22 +1239,6 @@
           "updatedAt": "2026-08-04T09:35:47.228Z",
           "prs": [
             {
-              "repo": "cron-api",
-              "number": 677,
-              "title": "[BOUN-11317] - F1.5.5 - WPP Reports (Metrics, Quotas, and Day-to-Day ) at Scale",
-              "url": "https://github.com/bounceinsights/cron-api/pull/677",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11317",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T14:22:19Z",
-              "updatedAt": "2026-07-31T14:22:19Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "ts-types",
               "number": 628,
               "title": "[BOUN-11317] - F1.5.5 - WPP Reports (Metrics, Quotas, and Day-to-Day ) at Scale",
@@ -1264,6 +1250,22 @@
               "shippedToDefault": true,
               "mergedAt": "2026-07-31T14:21:02Z",
               "updatedAt": "2026-07-31T14:21:02Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "cron-api",
+              "number": 677,
+              "title": "[BOUN-11317] - F1.5.5 - WPP Reports (Metrics, Quotas, and Day-to-Day ) at Scale",
+              "url": "https://github.com/bounceinsights/cron-api/pull/677",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11317",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T14:22:19Z",
+              "updatedAt": "2026-07-31T14:22:19Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -1292,11 +1294,14 @@
       ],
       "callouts": [
         {
-          "type": "release_blocked",
-          "severity": "risk",
-          "message": "The base PR for the whole F1.5.1-4 stack (dashboard-api#2044) was closed without merging, so none of the four Done-marked stories built on it are GitHub-confirmed to have reached master.",
+          "type": "drift",
+          "severity": "info",
+          "message": "Product sign-off marks this Done, but the base PR for the whole four-story chain was closed without merging, so none of them are GitHub-confirmed to have reached master.",
           "refs": [
-            "dashboard-api#2044"
+            "BOUN-11251",
+            "BOUN-11273",
+            "BOUN-11295",
+            "BOUN-11303"
           ]
         }
       ],
@@ -1311,26 +1316,37 @@
       "tier": "full",
       "owner": "Vivek",
       "repos": [
+        "admin-api",
+        "ai-server",
+        "api",
         "api-core",
+        "cron-api",
+        "dashboard",
         "dashboard-api",
+        "exports-api",
+        "firestore-functions",
+        "orchestrator",
+        "py-types",
+        "retrieval-engine-v2",
+        "survey-ingestion-engine",
         "ts-types"
       ],
       "overview": "One survey per project, scripted once by the research team, holding all of the languages required. Respondents are shown their local language, while the responses are automatically mapped back to English at the point of capture, so there is no need to build or maintain separate English/French/Arabic versions of the same survey.",
       "stage": "early",
-      "score": 5,
+      "score": 10,
       "scoreBasis": {
         "shipped": 0,
         "doneUnverified": 0,
         "staged": 0,
-        "inReview": 1,
-        "inProgress": 0,
+        "inReview": 2,
+        "inProgress": 1,
         "blocked": 0,
-        "todo": 9,
+        "todo": 7,
         "total": 10
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "One story (WPP Excel import for multilingual displayName) is in review across three repos with real, in-flight PRs; the other nine stories covering the translation-mapping/rules/results-filter work are still todo.",
+      "rationale": "One story (WPP Excel import for multilingual displayName) is in review across three repos with real, in-flight PRs; the rest of the ten stories covering translation mapping/rules/results-filtering are still todo.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
@@ -1430,45 +1446,25 @@
             {
               "key": "BOUN-11497",
               "summary": "Localized displayName foundation",
-              "jiraStatus": "Code Review",
-              "status": "in_review",
+              "jiraStatus": "To Be Released",
+              "status": "shipped",
               "assignee": "Tomer Gelbhart",
-              "updatedAt": "2026-08-10T13:08:18.653Z",
+              "updatedAt": "2026-08-13T16:38:43.856Z",
               "prs": [
-                {
-                  "repo": "api-core",
-                  "number": 1018,
-                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
-                  "url": "https://github.com/bounceinsights/api-core/pull/1018",
-                  "state": "OPEN",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": false,
-                  "mergedAt": null,
-                  "updatedAt": "2026-08-12T09:03:22Z",
-                  "stackChain": [],
-                  "reviewRequests": [
-                    "ruzwid"
-                  ],
-                  "filesTouched": []
-                },
                 {
                   "repo": "ts-types",
                   "number": 644,
                   "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
                   "url": "https://github.com/bounceinsights/ts-types/pull/644",
-                  "state": "OPEN",
+                  "state": "MERGED",
                   "isDraft": false,
                   "baseRef": "master",
                   "headRef": "BOUN-11497",
-                  "shippedToDefault": false,
-                  "mergedAt": null,
-                  "updatedAt": "2026-08-12T09:04:41Z",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:31:23Z",
+                  "updatedAt": "2026-08-13T16:31:23Z",
                   "stackChain": [],
-                  "reviewRequests": [
-                    "ruzwid"
-                  ],
+                  "reviewRequests": [],
                   "filesTouched": []
                 },
                 {
@@ -1488,21 +1484,211 @@
                   "filesTouched": []
                 },
                 {
+                  "repo": "api-core",
+                  "number": 1018,
+                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
+                  "url": "https://github.com/bounceinsights/api-core/pull/1018",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:33:08Z",
+                  "updatedAt": "2026-08-13T16:33:08Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "exports-api",
+                  "number": 355,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/exports-api/pull/355",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:39:00Z",
+                  "updatedAt": "2026-08-13T16:39:01Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "orchestrator",
+                  "number": 185,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/orchestrator/pull/185",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:55Z",
+                  "updatedAt": "2026-08-13T16:38:55Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "firestore-functions",
+                  "number": 714,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/firestore-functions/pull/714",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:34Z",
+                  "updatedAt": "2026-08-13T16:38:34Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "cron-api",
+                  "number": 692,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/cron-api/pull/692",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:42Z",
+                  "updatedAt": "2026-08-13T16:38:42Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "retrieval-engine-v2",
+                  "number": 498,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/retrieval-engine-v2/pull/498",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:39:04Z",
+                  "updatedAt": "2026-08-13T16:39:04Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "py-types",
+                  "number": 47,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/py-types/pull/47",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:33:14Z",
+                  "updatedAt": "2026-08-13T16:33:14Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "admin-api",
+                  "number": 1151,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/admin-api/pull/1151",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:46Z",
+                  "updatedAt": "2026-08-13T16:38:46Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "survey-ingestion-engine",
+                  "number": 253,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/survey-ingestion-engine/pull/253",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:48Z",
+                  "updatedAt": "2026-08-13T16:38:49Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "ai-server",
+                  "number": 808,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/ai-server/pull/808",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:52Z",
+                  "updatedAt": "2026-08-13T16:38:52Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "api",
+                  "number": 1539,
+                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
+                  "url": "https://github.com/bounceinsights/api/pull/1539",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:37:44Z",
+                  "updatedAt": "2026-08-13T16:37:45Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
                   "repo": "dashboard-api",
                   "number": 2088,
                   "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
                   "url": "https://github.com/bounceinsights/dashboard-api/pull/2088",
-                  "state": "OPEN",
+                  "state": "MERGED",
                   "isDraft": false,
                   "baseRef": "master",
                   "headRef": "BOUN-11497",
-                  "shippedToDefault": false,
-                  "mergedAt": null,
-                  "updatedAt": "2026-08-12T09:03:38Z",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:37:42Z",
+                  "updatedAt": "2026-08-13T16:37:42Z",
                   "stackChain": [],
-                  "reviewRequests": [
-                    "ruzwid"
-                  ],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                },
+                {
+                  "repo": "dashboard",
+                  "number": 3849,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/dashboard/pull/3849",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:58Z",
+                  "updatedAt": "2026-08-13T16:38:58Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
                   "filesTouched": []
                 }
               ]
@@ -1541,10 +1727,10 @@
             {
               "key": "BOUN-11499",
               "summary": "Harden multilingual displayName",
-              "jiraStatus": "In Progress",
+              "jiraStatus": "Code Review",
               "status": "in_review",
               "assignee": "Tomer Gelbhart",
-              "updatedAt": "2026-08-12T15:27:12.690Z",
+              "updatedAt": "2026-08-13T15:15:05.182Z",
               "prs": [
                 {
                   "repo": "dashboard-api",
@@ -1652,10 +1838,10 @@
         {
           "key": "BOUN-11511",
           "summary": "WPP: Given the locale, update all rules with correct option formatting",
-          "jiraStatus": "To Do",
-          "status": "todo",
+          "jiraStatus": "In Progress",
+          "status": "in_progress",
           "assignee": null,
-          "updatedAt": "2026-08-10T16:28:15.170Z",
+          "updatedAt": "2026-08-13T13:25:04.006Z",
           "prs": [],
           "subtasks": []
         },
@@ -1682,10 +1868,10 @@
         {
           "key": "BOUN-11534",
           "summary": "List field in survey & questions that need translation in a survey",
-          "jiraStatus": "To Do",
-          "status": "todo",
+          "jiraStatus": "Code Review",
+          "status": "in_review",
           "assignee": "Tomer Gelbhart",
-          "updatedAt": "2026-08-13T09:52:09.005Z",
+          "updatedAt": "2026-08-13T14:48:43.153Z",
           "prs": [],
           "subtasks": []
         }
@@ -1768,22 +1954,6 @@
           "updatedAt": "2026-08-07T08:17:32.595Z",
           "prs": [
             {
-              "repo": "api-core",
-              "number": 1015,
-              "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
-              "url": "https://github.com/bounceinsights/api-core/pull/1015",
-              "state": "OPEN",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11430",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-11T15:00:17Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
               "repo": "ts-types",
               "number": 641,
               "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
@@ -1800,6 +1970,22 @@
               "filesTouched": []
             },
             {
+              "repo": "api-core",
+              "number": 1015,
+              "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+              "url": "https://github.com/bounceinsights/api-core/pull/1015",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11430",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-11T15:00:17Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
               "repo": "dashboard",
               "number": 3839,
               "title": "[BOUN-11430]: F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
@@ -1810,11 +1996,9 @@
               "headRef": "BOUN-11430",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-11T10:57:17Z",
+              "updatedAt": "2026-08-13T14:01:56Z",
               "stackChain": [],
-              "reviewRequests": [
-                "VivekMurarkaIndIre"
-              ],
+              "reviewRequests": [],
               "filesTouched": []
             }
           ],
@@ -1828,6 +2012,22 @@
           "assignee": "Ruzzell Widjaja",
           "updatedAt": "2026-08-10T08:14:56.263Z",
           "prs": [
+            {
+              "repo": "dashboard-api",
+              "number": 2091,
+              "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
+              "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11431",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-13T11:32:34Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
             {
               "repo": "dashboard",
               "number": 3843,
@@ -1844,24 +2044,6 @@
                 3839
               ],
               "reviewRequests": [],
-              "filesTouched": []
-            },
-            {
-              "repo": "dashboard-api",
-              "number": 2091,
-              "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
-              "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
-              "state": "OPEN",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11431",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-11T13:17:49Z",
-              "stackChain": [],
-              "reviewRequests": [
-                "VivekMurarkaIndIre"
-              ],
               "filesTouched": []
             }
           ],
@@ -1945,7 +2127,7 @@
         {
           "type": "stalled",
           "severity": "warn",
-          "message": "No activity for 34 days and no PR has been opened yet.",
+          "message": "No activity for over a month and no PR has been opened yet.",
           "refs": [
             "BOUN-11214"
           ]
@@ -2345,7 +2527,7 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "No PR or subtask evidence yet; the single story has had no activity for three weeks.",
+      "rationale": "No PR or subtask evidence yet; the single story has had no recent activity.",
       "daysSinceLastActivity": 21,
       "daysInStaged": null,
       "releaseGate": null,
@@ -2381,16 +2563,7 @@
           "subtasks": []
         }
       ],
-      "callouts": [
-        {
-          "type": "stalled",
-          "severity": "warn",
-          "message": "No activity for 21 days and no PR has been opened yet.",
-          "refs": [
-            "BOUN-11341"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
       "dataOk": true
     },
@@ -2406,21 +2579,21 @@
         "admin-v2"
       ],
       "overview": "Extend the filter created as part of F1.3 to allow the selection of both Active and Completed Buckets.",
-      "stage": "underway",
-      "score": 30,
+      "stage": "done",
+      "score": 100,
       "scoreBasis": {
-        "shipped": 0,
+        "shipped": 1,
         "doneUnverified": 0,
         "staged": 0,
-        "inReview": 1,
+        "inReview": 0,
         "inProgress": 0,
         "blocked": 0,
         "todo": 0,
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "medium",
-      "rationale": "The single story has two open PRs generalizing the F1.3 bucket-filter helpers to also cover completed buckets; not yet merged.",
+      "confidence": "high",
+      "rationale": "The single story is shipped: the F1.3 bucket-filter helpers now also cover completed buckets, not just available ones.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
@@ -2460,7 +2633,7 @@
         {
           "id": "ac-6",
           "label": "Extends the filter to Completed targeting buckets specifically",
-          "coverage": "partial",
+          "coverage": "covered",
           "evidence": [
             "admin-v2#665"
           ]
@@ -2471,38 +2644,38 @@
           "key": "BOUN-11423",
           "summary": "F2.7 - Extend Filtering to Complete Notification Buckets",
           "jiraStatus": "To Be Released",
-          "status": "in_review",
+          "status": "shipped",
           "assignee": "Tomer Gelbhart",
-          "updatedAt": "2026-08-13T10:56:59.591Z",
+          "updatedAt": "2026-08-13T14:02:53.425Z",
           "prs": [
-            {
-              "repo": "admin-api",
-              "number": 1145,
-              "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1145",
-              "state": "OPEN",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11423",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-13T10:57:09Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "filesTouched": []
-            },
             {
               "repo": "admin-v2",
               "number": 665,
               "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
               "url": "https://github.com/bounceinsights/admin-v2/pull/665",
-              "state": "OPEN",
+              "state": "MERGED",
               "isDraft": false,
               "baseRef": "master",
               "headRef": "BOUN-11423",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-13T10:57:50Z",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T15:08:45Z",
+              "updatedAt": "2026-08-13T15:08:45Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1145,
+              "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1145",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11423",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T15:08:47Z",
+              "updatedAt": "2026-08-13T15:08:48Z",
               "stackChain": [],
               "reviewRequests": [],
               "filesTouched": []
@@ -2662,27 +2835,8 @@
           "jiraStatus": "Code Review",
           "status": "in_review",
           "assignee": "Tomer Gelbhart",
-          "updatedAt": "2026-08-12T14:05:51.374Z",
+          "updatedAt": "2026-08-13T16:32:08.633Z",
           "prs": [
-            {
-              "repo": "api-core",
-              "number": 1020,
-              "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-              "url": "https://github.com/bounceinsights/api-core/pull/1020",
-              "state": "OPEN",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11514",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-13T11:12:20Z",
-              "stackChain": [],
-              "reviewRequests": [
-                "ruzwid",
-                "Madjda"
-              ],
-              "filesTouched": []
-            },
             {
               "repo": "ts-types",
               "number": 646,
@@ -2694,29 +2848,25 @@
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-13T10:41:27Z",
+              "updatedAt": "2026-08-13T16:47:59Z",
               "stackChain": [],
-              "reviewRequests": [
-                "ruzwid"
-              ],
+              "reviewRequests": [],
               "filesTouched": []
             },
             {
-              "repo": "dashboard",
-              "number": 3845,
+              "repo": "api-core",
+              "number": 1020,
               "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-              "url": "https://github.com/bounceinsights/dashboard/pull/3845",
+              "url": "https://github.com/bounceinsights/api-core/pull/1020",
               "state": "OPEN",
               "isDraft": false,
               "baseRef": "master",
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-13T10:27:40Z",
+              "updatedAt": "2026-08-13T16:48:05Z",
               "stackChain": [],
-              "reviewRequests": [
-                "ruzwid"
-              ],
+              "reviewRequests": [],
               "filesTouched": []
             },
             {
@@ -2730,10 +2880,27 @@
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-13T10:55:57Z",
+              "updatedAt": "2026-08-13T16:48:08Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3845,
+              "title": "[BOUN-11514] - Allow grid columns for targeting question options",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3845",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11514",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-13T16:48:12Z",
               "stackChain": [],
               "reviewRequests": [
-                "ruzwid"
+                "ruzwid",
+                "Madjda"
               ],
               "filesTouched": []
             }
@@ -2909,7 +3076,7 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Most of the fieldwork-processing platform (domain core, metrics aggregation, QC contracts, export/infra plumbing, repositories, handlers, discover task, metrics compute, S3 auth) is shipped; the QC-runner port is still in review with one done-unverified subtask and three todo subtasks, and export builders plus the Step Functions schedule remain todo.",
+      "rationale": "Most of the fieldwork-processing platform (domain core, metrics aggregation, QC contracts, export/infra plumbing, repositories, handlers, discover task, metrics compute, S3 auth) is shipped; the QC-runner port is still in review, and export builders plus the Step Functions schedule remain todo.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
@@ -3197,7 +3364,7 @@
                   "headRef": "BOUN-11456",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-13T11:16:45Z",
+                  "updatedAt": "2026-08-13T11:46:50Z",
                   "stackChain": [],
                   "reviewRequests": [
                     "EmadNazzal"
@@ -3225,7 +3392,7 @@
                   "headRef": "BOUN-11457",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-13T11:16:47Z",
+                  "updatedAt": "2026-08-13T14:53:27Z",
                   "stackChain": [
                     24
                   ],
@@ -3236,12 +3403,35 @@
             },
             {
               "key": "BOUN-11458",
-              "summary": "Port the QC workbook builder and wire artifact upload",
-              "jiraStatus": "To Do",
-              "status": "todo",
+              "summary": "Port the QC workbook shaping and the xlsx renderer",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
               "assignee": "Tony Casey",
-              "updatedAt": "2026-08-06T13:46:38.477Z",
-              "prs": []
+              "updatedAt": "2026-08-13T13:28:13.401Z",
+              "prs": [
+                {
+                  "repo": "fieldwork-processing",
+                  "number": 27,
+                  "title": "[BOUN-11458] - Port the QC workbook shaping and the xlsx renderer",
+                  "url": "https://github.com/bounceinsights/fieldwork-processing/pull/27",
+                  "state": "OPEN",
+                  "isDraft": false,
+                  "baseRef": "BOUN-11457",
+                  "headRef": "BOUN-11458",
+                  "shippedToDefault": false,
+                  "mergedAt": null,
+                  "updatedAt": "2026-08-13T15:33:28Z",
+                  "stackChain": [
+                    26,
+                    24
+                  ],
+                  "reviewRequests": [
+                    "Madjda",
+                    "EmadNazzal"
+                  ],
+                  "filesTouched": []
+                }
+              ]
             },
             {
               "key": "BOUN-11459",
@@ -3249,7 +3439,7 @@
               "jiraStatus": "To Do",
               "status": "todo",
               "assignee": "Tony Casey",
-              "updatedAt": "2026-08-05T16:09:59.541Z",
+              "updatedAt": "2026-08-13T16:03:45.001Z",
               "prs": []
             },
             {
@@ -3269,6 +3459,36 @@
               "assignee": "Tony Casey",
               "updatedAt": "2026-08-06T14:07:14.782Z",
               "prs": []
+            },
+            {
+              "key": "BOUN-11536",
+              "summary": "Compose and upload the QC artifacts from the worker",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
+              "assignee": "Tony Casey",
+              "updatedAt": "2026-08-13T16:04:17.764Z",
+              "prs": [
+                {
+                  "repo": "fieldwork-processing",
+                  "number": 28,
+                  "title": "[BOUN-11536] - Compose and upload the QC artifacts from the worker",
+                  "url": "https://github.com/bounceinsights/fieldwork-processing/pull/28",
+                  "state": "OPEN",
+                  "isDraft": false,
+                  "baseRef": "BOUN-11458",
+                  "headRef": "BOUN-11536",
+                  "shippedToDefault": false,
+                  "mergedAt": null,
+                  "updatedAt": "2026-08-13T16:18:38Z",
+                  "stackChain": [
+                    27,
+                    26,
+                    24
+                  ],
+                  "reviewRequests": [],
+                  "filesTouched": []
+                }
+              ]
             }
           ]
         },
@@ -3742,78 +3962,6 @@
   "reviewQueue": [
     {
       "pr": {
-        "repo": "api-core",
-        "number": 1018,
-        "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
-        "url": "https://github.com/bounceinsights/api-core/pull/1018",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11497",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-12T09:03:22Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "ruzwid"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-12T09:03:22Z",
-      "ageDays": 1
-    },
-    {
-      "pr": {
-        "repo": "ts-types",
-        "number": 644,
-        "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
-        "url": "https://github.com/bounceinsights/ts-types/pull/644",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11497",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-12T09:04:41Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "ruzwid"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-12T09:04:41Z",
-      "ageDays": 1
-    },
-    {
-      "pr": {
-        "repo": "dashboard-api",
-        "number": 2088,
-        "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
-        "url": "https://github.com/bounceinsights/dashboard-api/pull/2088",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11497",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-12T09:03:38Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "ruzwid"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-12T09:03:38Z",
-      "ageDays": 1
-    },
-    {
-      "pr": {
         "repo": "dashboard-api",
         "number": 2089,
         "title": "[BOUN-11498] - WPP Excel import wire multilingual parse upload upsert",
@@ -3895,54 +4043,6 @@
     },
     {
       "pr": {
-        "repo": "dashboard",
-        "number": 3839,
-        "title": "[BOUN-11430]: F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
-        "url": "https://github.com/bounceinsights/dashboard/pull/3839",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11430",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-11T10:57:17Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "VivekMurarkaIndIre"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11213",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-11T10:57:17Z",
-      "ageDays": 2
-    },
-    {
-      "pr": {
-        "repo": "dashboard-api",
-        "number": 2091,
-        "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
-        "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11431",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-11T13:17:49Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "VivekMurarkaIndIre"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11213",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-11T13:17:49Z",
-      "ageDays": 2
-    },
-    {
-      "pr": {
         "repo": "dashboard-api",
         "number": 2092,
         "title": "[BOUN-11518] - F2.5.6 - WPP QC: drop per-response answersHash — detect duplicates by respid, classify via on-demand batched re-read",
@@ -4001,80 +4101,6 @@
       "featureKey": "BOUN-11340",
       "reviewer": "VivekMurarkaIndIre",
       "requestedAt": "2026-08-13T09:06:11Z",
-      "ageDays": 0
-    },
-    {
-      "pr": {
-        "repo": "api-core",
-        "number": 1020,
-        "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-        "url": "https://github.com/bounceinsights/api-core/pull/1020",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11514",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-13T11:12:20Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "ruzwid",
-          "Madjda"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11514",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-13T11:12:20Z",
-      "ageDays": 0
-    },
-    {
-      "pr": {
-        "repo": "api-core",
-        "number": 1020,
-        "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-        "url": "https://github.com/bounceinsights/api-core/pull/1020",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11514",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-13T11:12:20Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "ruzwid",
-          "Madjda"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11514",
-      "reviewer": "Madjda",
-      "requestedAt": "2026-08-13T11:12:20Z",
-      "ageDays": 0
-    },
-    {
-      "pr": {
-        "repo": "ts-types",
-        "number": 646,
-        "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-        "url": "https://github.com/bounceinsights/ts-types/pull/646",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "master",
-        "headRef": "BOUN-11514",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-13T10:41:27Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "ruzwid"
-        ],
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11514",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-13T10:41:27Z",
       "ageDays": 0
     },
     {
@@ -4089,40 +4115,42 @@
         "headRef": "BOUN-11514",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T10:27:40Z",
+        "updatedAt": "2026-08-13T16:48:12Z",
         "stackChain": [],
         "reviewRequests": [
-          "ruzwid"
+          "ruzwid",
+          "Madjda"
         ],
         "filesTouched": []
       },
       "featureKey": "BOUN-11514",
       "reviewer": "ruzwid",
-      "requestedAt": "2026-08-13T10:27:40Z",
+      "requestedAt": "2026-08-13T16:48:12Z",
       "ageDays": 0
     },
     {
       "pr": {
-        "repo": "api",
-        "number": 1533,
+        "repo": "dashboard",
+        "number": 3845,
         "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-        "url": "https://github.com/bounceinsights/api/pull/1533",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3845",
         "state": "OPEN",
         "isDraft": false,
         "baseRef": "master",
         "headRef": "BOUN-11514",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T10:55:57Z",
+        "updatedAt": "2026-08-13T16:48:12Z",
         "stackChain": [],
         "reviewRequests": [
-          "ruzwid"
+          "ruzwid",
+          "Madjda"
         ],
         "filesTouched": []
       },
       "featureKey": "BOUN-11514",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-13T10:55:57Z",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-13T16:48:12Z",
       "ageDays": 0
     },
     {
@@ -4137,7 +4165,7 @@
         "headRef": "BOUN-11456",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T11:16:45Z",
+        "updatedAt": "2026-08-13T11:46:50Z",
         "stackChain": [],
         "reviewRequests": [
           "EmadNazzal"
@@ -4146,7 +4174,63 @@
       },
       "featureKey": "BOUN-11293",
       "reviewer": "EmadNazzal",
-      "requestedAt": "2026-08-13T11:16:45Z",
+      "requestedAt": "2026-08-13T11:46:50Z",
+      "ageDays": 0
+    },
+    {
+      "pr": {
+        "repo": "fieldwork-processing",
+        "number": 27,
+        "title": "[BOUN-11458] - Port the QC workbook shaping and the xlsx renderer",
+        "url": "https://github.com/bounceinsights/fieldwork-processing/pull/27",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11457",
+        "headRef": "BOUN-11458",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-13T15:33:28Z",
+        "stackChain": [
+          26,
+          24
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "EmadNazzal"
+        ],
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11293",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-13T15:33:28Z",
+      "ageDays": 0
+    },
+    {
+      "pr": {
+        "repo": "fieldwork-processing",
+        "number": 27,
+        "title": "[BOUN-11458] - Port the QC workbook shaping and the xlsx renderer",
+        "url": "https://github.com/bounceinsights/fieldwork-processing/pull/27",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11457",
+        "headRef": "BOUN-11458",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-13T15:33:28Z",
+        "stackChain": [
+          26,
+          24
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "EmadNazzal"
+        ],
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11293",
+      "reviewer": "EmadNazzal",
+      "requestedAt": "2026-08-13T15:33:28Z",
       "ageDays": 0
     }
   ],
