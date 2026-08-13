@@ -16,13 +16,23 @@ export function MethodologyFooter({ snapshot }: MethodologyFooterProps) {
         <h2 className="m-0 mb-1 text-sm font-semibold text-foreground">Shipped vs. done-unverified vs. staged</h2>
         <p className="m-0">
           <strong className="text-foreground">Shipped</strong> means a pull request merged into the repo's default
-          branch. <strong className="text-foreground">Done, unverified</strong> means JIRA marks the ticket Done —
-          product signed off — but no PR proves the code reached master; it counts toward progress the same as
-          shipped, since sign-off happened, but is always shown separately so that gap stays visible.{" "}
+          branch. <strong className="text-foreground">Done, unverified</strong> means the ticket was moved to Done in
+          JIRA, but no PR proves the code reached master; it counts toward progress the same as shipped, since the
+          ticket is Done, but is always shown separately so that gap stays visible.{" "}
           <strong className="text-foreground">Staged</strong> means it merged, but into an integration or release
           branch — the code exists, but it isn't live. That label only applies while the ticket is still open in
           JIRA; a Done ticket in the same situation reads as "Done, unverified" instead — see above. None of the
           three are ever summed together.
+        </p>
+      </div>
+      <div>
+        <h2 className="m-0 mb-1 text-sm font-semibold text-foreground">Product Sign Off</h2>
+        <p className="m-0">
+          A feature's stage can also read <strong className="text-foreground">Done</strong> because product
+          explicitly approved it via JIRA's Product Sign Off field — a separate, feature-level override from the
+          done-unverified case above. That approval outranks story status entirely, so a signed-off feature can show
+          Done while some of its stories are still todo, staged, or done-unverified; those cases are called out
+          separately on the Needs attention page rather than hidden.
         </p>
       </div>
       <div>

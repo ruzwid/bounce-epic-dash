@@ -127,6 +127,14 @@ exit and no snapshot written — if you violate any rule below.
    marks these Done, but GitHub hasn't confirmed any of them reached
    master" is correct; "already shipped" would not be, if
    `scoreBasis.doneUnverified > 0` and `shipped` isn't the whole total).
+   When a feature's pending entry has `signedOff: true`, product explicitly
+   approved the feature as Done regardless of story status — that feature's
+   stage will read "Done" in the dashboard even while `scoreBasis` shows
+   real todo/staged/done-unverified work outstanding. Say so plainly rather
+   than writing a rationale that reads as contradicting the Done badge
+   (e.g. "Product signed this off as Done, even though 2 stories are still
+   staged" is correct; a rationale that only reports the outstanding work
+   without naming the sign-off would read as an unexplained contradiction).
 
 5. **Confidence guardrails.** A tidy subtask breakdown combined with weeks
    of no activity (`daysSinceLastActivity` large) is `medium` or `low` and

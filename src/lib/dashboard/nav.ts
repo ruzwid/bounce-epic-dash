@@ -217,7 +217,13 @@ export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
 
   return {
     score,
-    stage: deriveStage(score, allDone),
+    // allDone is passed as both the shipped-check and the signed-off
+    // override: an ordinary all-done milestone already scores 100 (so the
+    // 2-arg call already returned "done"), but a milestone whose lone
+    // feature reached "done" via product sign-off (score < 100) needs the
+    // override arg too, or deriveStage falls back to the score bands and
+    // refuses to report the milestone itself as done.
+    stage: deriveStage(score, allDone, allDone),
     shipped: totals.shipped,
     doneUnverified: totals.doneUnverified,
     staged: totals.staged,
@@ -337,7 +343,11 @@ export function epicProgress(kpis: StatusSnapshotT["kpis"]): EpicProgress {
 export function epicStage(snapshot: StatusSnapshotT): StageT {
   const { percent } = epicProgress(snapshot.kpis);
   const allDone = snapshot.features.length > 0 && snapshot.features.every((f) => f.stage === "done");
-  return deriveStage(percent, allDone);
+  // Same reasoning as milestoneProgress() above: allDone doubles as the
+  // signed-off override so a signed-off feature's "done" status can carry
+  // all the way up to the epic even when the epic's weighted percent is
+  // still below 100.
+  return deriveStage(percent, allDone, allDone);
 }
 
 /** Every open PR across the snapshot, newest activity first — every PR

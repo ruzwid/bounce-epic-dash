@@ -89,6 +89,18 @@ describe("deriveStage", () => {
   it("defaults signedOff to false, unaffected when the 3rd argument is omitted", () => {
     expect(deriveStage(100, false)).toBe("nearly_done");
   });
+
+  it("is NOT 'done' at score 100 with allStoriesShippedToDefault false and signedOff false", () => {
+    // Pins an invariant src/lib/dashboard/nav.ts's signedOffUnverifiedStories
+    // depends on for correctness: the *ordinary* (non-signed-off) "done"
+    // path requires every story literally shipped, never done_unverified.
+    // signedOffUnverifiedStories assumes a done_unverified story can only
+    // coexist with stage "done" via the signedOff override — if this ever
+    // stopped being true (e.g. deriveStage's score-band path loosened to
+    // allow "done" without every story shipped), that selector would start
+    // missing real signed-off-with-unverified-work cases silently.
+    expect(deriveStage(100, false, false)).not.toBe("done");
+  });
 });
 
 describe("computeScore + deriveStage integration: staged never masquerades as done", () => {

@@ -30,7 +30,13 @@ export function buildSlackSummary(snapshot: StatusSnapshotT): string {
   const now = new Date(snapshot.generatedAt);
   for (const feature of snapshot.features) {
     const flag = needsAttention(feature, now) ? " — needs attention" : "";
-    lines.push(`• ${feature.code} (${feature.owner}): ${feature.stage.replace("_", " ")}, ${feature.score}%${flag}`);
+    // stage "done" at a score below 100 is only reachable via product
+    // sign-off (see deriveStage in src/lib/score.ts) — called out here so
+    // "done, 40%" doesn't read as a self-contradiction with zero context.
+    const signedOffNote = feature.stage === "done" && feature.score !== 100 ? " (signed off)" : "";
+    lines.push(
+      `• ${feature.code} (${feature.owner}): ${feature.stage.replace("_", " ")}, ${feature.score}%${signedOffNote}${flag}`,
+    );
   }
 
   if (snapshot.collectionErrors.length > 0) {

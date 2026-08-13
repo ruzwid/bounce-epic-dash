@@ -55,4 +55,26 @@ describe("buildSlackSummary", () => {
     const lines = summary.split("\n").filter((l) => l.includes(blockedFeature!.code));
     expect(lines.some((l) => /attention|blocked/i.test(l))).toBe(true);
   });
+
+  it("marks a feature's line '(signed off)' when stage is done but score isn't 100", () => {
+    const signedOffSnapshot = {
+      ...snapshot,
+      features: [{ ...snapshot.features[0]!, stage: "done" as const, score: 40 }],
+    };
+    const line = buildSlackSummary(signedOffSnapshot)
+      .split("\n")
+      .find((l) => l.includes(snapshot.features[0]!.code))!;
+    expect(line).toContain("(signed off)");
+  });
+
+  it("does not add '(signed off)' for an ordinary done feature (score 100)", () => {
+    const ordinaryDoneSnapshot = {
+      ...snapshot,
+      features: [{ ...snapshot.features[0]!, stage: "done" as const, score: 100 }],
+    };
+    const line = buildSlackSummary(ordinaryDoneSnapshot)
+      .split("\n")
+      .find((l) => l.includes(snapshot.features[0]!.code))!;
+    expect(line).not.toContain("(signed off)");
+  });
 });

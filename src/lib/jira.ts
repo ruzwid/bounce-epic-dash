@@ -76,11 +76,17 @@ export async function searchChildren(
   return issues;
 }
 
+/** getIssue's default field list — exported so callers that need to extend
+ *  it (scripts/collect.ts appends customfield_10698) build on top of this
+ *  constant instead of hand-copying the literal array, which would silently
+ *  diverge if this list ever changed. */
+export const DEFAULT_ISSUE_FIELDS = ["summary", "description", "status", "assignee", "updated"];
+
 /** Fetches a single issue by key (used for parent/feature tickets, to read
  *  their description for AC extraction via src/lib/adf.ts). */
 export async function getIssue(
   key: string,
-  fields: string[] = ["summary", "description", "status", "assignee", "updated"],
+  fields: string[] = DEFAULT_ISSUE_FIELDS,
 ): Promise<RawJiraIssue> {
   const res = await jiraFetch(`/rest/api/3/issue/${encodeURIComponent(key)}?fields=${fields.join(",")}`);
   return (await res.json()) as RawJiraIssue;

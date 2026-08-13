@@ -40,6 +40,7 @@ const REASON_STATUS: Record<AttentionReason["kind"], string> = {
 export function AttentionPage() {
   const { snapshot, now } = useShell()
   const features = attentionFeatures(snapshot, now)
+  const signedOffItems = signedOffUnverifiedStories(snapshot)
 
   return (
     <div className="flex flex-col gap-6">
@@ -51,9 +52,9 @@ export function AttentionPage() {
         </p>
       </header>
 
-      {features.length === 0 ? (
+      {features.length === 0 && signedOffItems.length === 0 ? (
         <EmptyState message="Nothing needs attention in this snapshot." />
-      ) : (
+      ) : features.length === 0 ? null : (
         <section className="flex flex-col gap-3">
           <SectionHeading note={`${features.length} of ${snapshot.features.length} features`}>Flagged</SectionHeading>
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
@@ -64,7 +65,7 @@ export function AttentionPage() {
         </section>
       )}
 
-      <SignedOffUnverifiedSection snapshot={snapshot} />
+      <SignedOffUnverifiedSection items={signedOffItems} />
     </div>
   )
 }
@@ -77,8 +78,7 @@ export function AttentionPage() {
  * every signed-off feature one at a time, without making them a per-run
  * distraction the way the Flagged section above is.
  */
-function SignedOffUnverifiedSection({ snapshot }: { snapshot: ReturnType<typeof useShell>["snapshot"] }) {
-  const items = signedOffUnverifiedStories(snapshot)
+function SignedOffUnverifiedSection({ items }: { items: ReturnType<typeof signedOffUnverifiedStories> }) {
   if (items.length === 0) return null
 
   return (
@@ -100,8 +100,10 @@ function SignedOffUnverifiedSection({ snapshot }: { snapshot: ReturnType<typeof 
             key={story.key}
             className="surface flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-4xl border border-dashed border-border px-5 py-3.5"
           >
-            <JiraLink issueKey={story.key} type="story" tone={story.status} className="gap-1.5 text-sm">
-              <span className="min-w-0 truncate">{story.summary}</span>
+            {/* JiraLink already wraps children in a min-w-0/truncate span and
+                applies gap-1.5 itself — no need to redo either here. */}
+            <JiraLink issueKey={story.key} type="story" tone={story.status} className="text-sm">
+              {story.summary}
             </JiraLink>
             <ShellLink
               page="feature"

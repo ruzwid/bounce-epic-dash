@@ -117,3 +117,10 @@ describe("toPending PR body wiring", () => {
     expect(pr?.bodySignal).toBe("template_only");
   });
 });
+
+describe("toPending signedOff wiring", () => {
+  it("passes RawFeature.signedOff through to the pending feature unchanged", () => {
+    expect(toPending(makeFeature({ signedOff: true })).signedOff).toBe(true);
+    expect(toPending(makeFeature({ signedOff: false })).signedOff).toBe(false);
+  });
+});

@@ -337,14 +337,18 @@ describe("collectFeature", () => {
   });
 
   it("marks the feature signedOff when JIRA's Product Sign Off field is Approved", async () => {
-    const d = deps({
-      getIssue: vi.fn().mockResolvedValue({
-        key: "TEST-10",
-        fields: { description: null, customfield_10698: { value: "Approved" } },
-      }),
+    const getIssue = vi.fn().mockResolvedValue({
+      key: "TEST-10",
+      fields: { description: null, customfield_10698: { value: "Approved" } },
     });
+    const d = deps({ getIssue });
     const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
     expect(feature.signedOff).toBe(true);
+    // Guards against the field-list argument being trimmed or reverted —
+    // without customfield_10698 in the request, JIRA simply stops sending
+    // the field and every test here would still pass against a mock that
+    // returns canned data regardless of what was actually requested.
+    expect(getIssue).toHaveBeenCalledWith("TEST-10", expect.arrayContaining(["customfield_10698"]));
   });
 
   it("is not signedOff when Product Sign Off is Pending", async () => {

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { signedOffUnverifiedStories } from "../../src/lib/dashboard/nav.ts";
+import { milestoneProgress, signedOffUnverifiedStories } from "../../src/lib/dashboard/nav.ts";
 import { StatusSnapshot } from "../../src/lib/schema.ts";
 
 const FIXTURES = new URL("./fixtures/snapshots/", import.meta.url);
@@ -10,8 +10,30 @@ function loadFixture(name: string) {
 }
 
 describe("signedOffUnverifiedStories", () => {
-  it("returns [] when no feature is stage done_unverified-and-done", () => {
+  it("returns [] when no feature is stage done", () => {
+    // 2026-08-10.json has no "done"-stage features and no done_unverified
+    // stories at all, so this alone doesn't prove the stage gate works —
+    // see the next case, which pairs a "done" feature with all-shipped
+    // stories to isolate that half of the filter.
     const snapshot = loadFixture("2026-08-10.json");
+    expect(signedOffUnverifiedStories(snapshot)).toEqual([]);
+  });
+
+  it("returns [] for a stage-done feature whose stories are all shipped (no done_unverified to surface)", () => {
+    // Isolates the status gate: a feature genuinely done the ordinary way
+    // (stage "done", nothing done_unverified) must not appear here, even
+    // though it clears the stage filter this selector applies.
+    const base = loadFixture("2026-08-11.json");
+    const snapshot = {
+      ...base,
+      features: [
+        {
+          ...base.features[0]!,
+          stage: "done" as const,
+          stories: [{ ...base.features[0]!.stories[0]!, key: "SHIPPED-1", status: "shipped" as const }],
+        },
+      ],
+    };
     expect(signedOffUnverifiedStories(snapshot)).toEqual([]);
   });
 
@@ -46,5 +68,27 @@ describe("signedOffUnverifiedStories", () => {
     expect(result).toHaveLength(1);
     expect(result[0]?.story.key).toBe("SIGNED-1");
     expect(result[0]?.feature.key).toBe(base.features[0]!.key);
+  });
+});
+
+describe("milestoneProgress", () => {
+  it("reports the milestone itself as 'done' when its lone feature is signed-off done at a score below 100", () => {
+    // Regression: a milestone/epic's own stage is only ever "done" when
+    // deriveStage's signedOff override fires for the aggregate too, not
+    // just for the individual feature. Before this fix, passing `allDone`
+    // only as the 2nd arg (allStoriesShippedToDefault) did nothing when the
+    // milestone's weighted score was below 100 — a real possibility once
+    // sign-off is allowed to apply to a feature with genuine todo/blocked
+    // stories dragging its own score down.
+    const base = loadFixture("2026-08-11.json");
+    const feature = {
+      ...base.features[0]!,
+      stage: "done" as const,
+      // shipped:1, todo:1 -> weighted score 50, well under 100.
+      scoreBasis: { shipped: 1, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 1, total: 2 },
+    };
+    const progress = milestoneProgress([feature]);
+    expect(progress.score).toBeLessThan(100);
+    expect(progress.stage).toBe("done");
   });
 });

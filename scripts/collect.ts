@@ -21,7 +21,7 @@ import type { Config, MilestoneFeature } from "../src/lib/config-schema.ts";
 import { getDefaultBranch, getRepoPrs, listOrgRepos } from "../src/lib/github.ts";
 import { writeJsonAtomic } from "../src/lib/io.ts";
 import { cleanPrBody } from "../src/lib/prbody.ts";
-import { getIssue, searchChildren, type RawJiraIssue } from "../src/lib/jira.ts";
+import { DEFAULT_ISSUE_FIELDS, getIssue, searchChildren, type RawJiraIssue } from "../src/lib/jira.ts";
 import { computeScore, deriveStage, type ScoreBasis } from "../src/lib/score.ts";
 import { featurePrs, storyPrs } from "../src/lib/stories.ts";
 import type { z } from "zod";
@@ -410,7 +410,7 @@ export async function collectFeature(
   try {
     [storyIssues, parentIssue] = await Promise.all([
       deps.searchChildren(target.key),
-      deps.getIssue(target.key, ["summary", "description", "status", "assignee", "updated", "customfield_10698"]),
+      deps.getIssue(target.key, [...DEFAULT_ISSUE_FIELDS, "customfield_10698"]),
     ]);
   } catch (err) {
     errors.push({ source: "jira", scope: target.key, message: errMsg(err) });
@@ -607,6 +607,10 @@ export type PendingFeature = {
     status: WorkStatus;
     subtasks: { key: string; summary: string; status: WorkStatus }[];
   }[];
+  /** JIRA's "Product Sign Off" field is Approved — see RawFeature.signedOff.
+   *  The judge needs this to explain a feature whose stage reads "Done" for
+   *  reasons other than the normal shipped-story path (see judge SKILL.md). */
+  signedOff: boolean;
   prs: {
     ref: string;
     title: string;
@@ -707,6 +711,7 @@ export function toPending(feature: RawFeature): PendingFeature {
     releaseGateStatus: feature.releaseGate?.status ?? null,
     acBullets: feature.acBullets,
     overview: feature.overview,
+    signedOff: feature.signedOff,
     stories: feature.stories.map((s) => ({
       key: s.key,
       summary: s.summary,
