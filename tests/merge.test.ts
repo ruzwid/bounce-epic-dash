@@ -158,6 +158,7 @@ function makeRawFeature(overrides: Partial<RawFeature> = {}): RawFeature {
       },
     ],
     dataOk: true,
+    signedOff: false,
     ...overrides,
   };
 }
@@ -243,6 +244,40 @@ describe("buildSnapshot", () => {
       people: { alice: "Alice" },
     });
     expect(snapshot.features[0]?.owner).toBe("Alice");
+  });
+
+  it("reports stage 'done' when the raw feature is signedOff, even with an unshipped story", () => {
+    const rawFeatures = [
+      makeRawFeature({
+        signedOff: true,
+        score: 50,
+        stage: "underway",
+        stories: [
+          {
+            key: "TEST-11",
+            summary: "Sub A",
+            jiraStatus: "To Do",
+            status: "todo",
+            assignee: "Alice",
+            updatedAt: "2026-01-13T00:00:00.000Z",
+            prs: [],
+            subtasks: [],
+          },
+        ],
+      }),
+    ];
+    const snapshot = buildSnapshot({
+      date: "2026-01-15",
+      epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
+      rawFeatures,
+      judgment: judgment.value,
+      overrides: {},
+      now: new Date("2026-01-15T12:00:00.000Z"),
+      timezone: "Europe/Dublin",
+      collectionErrors: [],
+      people: { alice: "Alice" },
+    });
+    expect(snapshot.features[0]?.stage).toBe("done");
   });
 });
 

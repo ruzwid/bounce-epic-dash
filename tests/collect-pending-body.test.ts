@@ -21,6 +21,7 @@ function makeFeature(overrides: Partial<RawFeature> = {}): RawFeature {
     acBullets: [],
     stories: [],
     dataOk: true,
+    signedOff: false,
     ...overrides,
   };
 }

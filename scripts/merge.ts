@@ -170,7 +170,7 @@ export function buildSnapshot(params: {
     const scoreOverride = jf?.scoreOverride ?? null;
     const effectiveScore = scoreOverride ? scoreOverride.value : raw.score;
     const allShippedToDefault = raw.stories.length > 0 && raw.stories.every((s) => s.status === "shipped");
-    const stage = deriveStage(effectiveScore, allShippedToDefault);
+    const stage = deriveStage(effectiveScore, allShippedToDefault, raw.signedOff);
 
     return {
       key: raw.key,
