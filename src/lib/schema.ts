@@ -2,7 +2,7 @@
 import { z } from "zod";
 
 export const WorkStatus = z.enum([
-  "shipped", "staged", "in_review", "in_progress", "blocked", "todo",
+  "shipped", "done_unverified", "staged", "in_review", "in_progress", "blocked", "todo",
 ]);
 
 export const Stage = z.enum([
@@ -127,7 +127,7 @@ export const Feature = z.preprocess(renameLegacy("subtasks", "stories"), z.objec
   /** deterministic weighted score, rounded to 5 */
   score: z.number().int().min(0).max(100),
   scoreBasis: z.object({
-    shipped: z.number(), staged: z.number(), inReview: z.number(),
+    shipped: z.number(), doneUnverified: z.number().default(0), staged: z.number(), inReview: z.number(),
     inProgress: z.number(), blocked: z.number(), todo: z.number(),
     total: z.number(),
   }),
@@ -206,6 +206,10 @@ export const StatusSnapshot = z.object({
      *  and are deliberately not counted here (see Subtask in this file). */
     storiesTracked: z.number(),
     shipped: z.number(),
+    /** JIRA Done, but no PR proves the code reached master — see
+     *  src/lib/classify.ts's deriveWorkStatus. Defaulted to 0 so snapshots
+     *  written before this field existed still parse. */
+    doneUnverified: z.number().default(0),
     staged: z.number(),
     inReview: z.number(),
     blockedOrTodo: z.number(),

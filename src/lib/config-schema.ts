@@ -25,6 +25,7 @@ export const Milestone = z.object({
 
 export const ScoreWeights = z.object({
   shipped: z.number(),
+  done_unverified: z.number(),
   staged: z.number(),
   in_review: z.number(),
   in_progress: z.number(),

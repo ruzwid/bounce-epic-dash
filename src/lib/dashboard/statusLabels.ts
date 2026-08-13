@@ -11,6 +11,7 @@ export type PillStatus = WorkStatusValue | StageValue;
 
 export const WORK_STATUS_LABELS: Record<WorkStatusValue, string> = {
   shipped: "Shipped",
+  done_unverified: "Done, unverified",
   staged: "Staged",
   in_review: "In review",
   in_progress: "In progress",

@@ -47,6 +47,11 @@ timezone: Europe/Dublin
 
 scoreWeights:
   shipped: 1.0
+  # JIRA Done + product sign-off, but no PR proves the code reached
+  # master. Weighted the same as shipped: sign-off counts toward
+  # progress, but see the (separately tracked) doneUnverified count and
+  # statusLabels.ts for why it's never displayed as plain "shipped".
+  done_unverified: 1.0
   staged: 0.5
   in_review: 0.3
   in_progress: 0.15
