@@ -1,227 +1,181 @@
-Welcome to your new TanStack Start app!
+# Epic Status Dashboard
 
-# Getting Started
+A daily engineering status page for **one epic**. It pulls JIRA and GitHub,
+derives a deterministic score from what actually shipped, adds a written
+judgment layer, and publishes a fully static site from committed snapshots.
 
-To run this application:
+Everything project-specific — the epic, milestones, features, owners, repos,
+people — lives in `config.yaml`, never in source. Point it at a different
+epic and nothing in `src/` changes.
 
-```bash
-npm install
-npm run dev
-```
-
-# Building For Production
-
-To build this application for production:
-
-```bash
-npm run build
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+The rule the whole thing exists to enforce: **a PR merged into an
+integration branch is `staged`, not `shipped`.** Only a merge into the
+repo's default branch is `shipped`, and JIRA saying "Done" without a PR to
+prove it is `done_unverified` — never silently upgraded.
 
 ---
 
-# Data Collection Pipeline
+## Pipeline at a glance
 
-Pulls JIRA + GitHub data for the epic configured in `config.yaml`, derives a
-deterministic status snapshot, applies a judgment layer, and writes
-publication-safe JSON to `data/snapshots/`. Data layer only — no UI yet.
-Everything project-specific (epic, milestones, features, owners, repos)
-lives in `config.yaml`, never in source.
+```mermaid
+flowchart TB
+    subgraph sources["Sources — read-only, your credentials"]
+        JIRA["JIRA REST<br/>epic → milestones → stories → sub-tasks"]
+        GH["GitHub GraphQL<br/>PRs, reviews, default branches"]
+    end
+
+    CFG["config.yaml<br/>epic · milestones · repos · people · weights"]
+
+    subgraph collect["1 · pnpm collect — your machine"]
+        C["scripts/collect.ts<br/>fetch → match PRs to tickets →<br/>classify → score → derive stage"]
+        RAW["data/raw/DATE.json<br/>full fidelity · gitignored"]
+        PEND["data/pending/DATE.json<br/>trimmed judge input · gitignored"]
+    end
+
+    subgraph judge["2 · /judge — Claude Code skill"]
+        J["reads pending, writes rationale,<br/>confidence, AC coverage, callouts"]
+        JUD["data/judgment/DATE.json<br/>untrusted · gitignored"]
+    end
+
+    subgraph merge["3 · pnpm merge — the trust boundary"]
+        V["scripts/merge.ts<br/>validate judgment against pending →<br/>reject invented refs → apply overrides"]
+        OVR["overrides.yaml<br/>human notes, auto-expiring"]
+        SNAP["data/snapshots/DATE.json<br/>publication-safe · COMMITTED"]
+    end
+
+    subgraph publish["4 · pnpm build — Vercel"]
+        B["Vite + TanStack Start<br/>import.meta.glob at build time"]
+        HTML["prerendered HTML<br/>one page set per snapshot date"]
+        CDN["Vercel CDN<br/>static first, function only for 404s"]
+    end
+
+    JIRA --> C
+    GH --> C
+    CFG --> C
+    C --> RAW
+    C --> PEND
+    PEND --> J
+    J --> JUD
+    JUD --> V
+    PEND -.->|"cross-checked against"| V
+    OVR --> V
+    V --> SNAP
+    SNAP -->|"git commit + push"| B
+    CFG --> B
+    B --> HTML --> CDN
+```
+
+### The four stages
+
+| # | Stage | Command | Reads | Writes | Committed? |
+|---|-------|---------|-------|--------|-----------|
+| 1 | Collect | `pnpm collect` | JIRA, GitHub, `config.yaml` | `data/raw/`, `data/pending/` | No |
+| 2 | Judge | `/judge` in Claude Code | `data/pending/` | `data/judgment/` | No |
+| 3 | Merge | `pnpm merge` | `data/pending/`, `data/judgment/`, `overrides.yaml` | `data/snapshots/` | **Yes** |
+| 4 | Publish | `pnpm build` (on Vercel) | `data/snapshots/`, `config.yaml` | prerendered HTML | build output |
+
+Stage 4 is triggered by pushing stage 3's output. The deployed site never
+talks to JIRA or GitHub — see [Deploying](#deploying-to-vercel).
+
+### Why the data directories are split
+
+Four directories, one per trust level. Only the last one is committed.
+
+- **`data/raw/`** — everything fetched, uncleaned: full PR bodies, complete
+  file lists. Debugging fidelity, never published.
+- **`data/pending/`** — the judge's *only* input. PR bodies cleaned by
+  `src/lib/prbody.ts` and capped at 1500 chars, file paths kept for scope
+  corroboration. Trimmed so the judgment step sees evidence, not raw dumps.
+- **`data/judgment/`** — model output, treated as **untrusted input**.
+- **`data/snapshots/`** — the only publication-safe artifact, and the only
+  thing the dashboard ever reads.
+
+`scripts/merge.ts` is the gate between the last two. It re-derives every
+number itself and rejects the whole file (non-zero exit, nothing written)
+on anything unparseable, any ticket/PR/AC reference that isn't in that day's
+pending file, or an unreasoned / >20-point `scoreOverride`. The judge can
+*explain* the data; it cannot *invent* it.
+
+There is no `ANTHROPIC_API_KEY` and no programmatic model call anywhere in
+this codebase. The judgment step is a Claude Code routine you run, not a
+script.
+
+---
+
+## How a status is derived
+
+Deterministic, pure, and tested — `src/lib/classify.ts` and
+`src/lib/score.ts` do this with no network and no judgment.
+
+**Per story**, JIRA's status is mapped through `config.yaml`'s `statusMap`
+to get a base, then GitHub evidence upgrades it (a stale JIRA status must
+never outrank real PR state):
+
+```
+any PR merged into the default branch  →  shipped
+base was "Done" but nothing proves it  →  done_unverified
+any PR merged elsewhere                →  staged
+any PR open                            →  in_review
+otherwise                              →  the mapped JIRA status
+```
+
+Sub-task evidence only ever *raises* a story: all sub-tasks shipped lifts it
+to at least `shipped`; any sub-task with live PR activity lifts it to at
+least `in_review`. It never unions PRs flatly — one merged sub-task out of
+five must not declare the whole story shipped.
+
+**Per feature**, the score is the weighted mean of its story statuses
+(weights from `config.yaml`), rounded to the nearest 5. `scoreBasis` keeps
+the raw unweighted counts for display, never back-derived from the score.
+
+**Stage** bands the score, with two escape hatches in opposite directions:
+
+```
+0 → not_started   <25 → early   <70 → underway   <100 → nearly_done   100 → done
+```
+
+`done` additionally requires *every* story shipped to the default branch —
+a feature that hits 100 on weight alone while stories sit staged stays
+`nearly_done`. Overriding all of it: JIRA's **Product Sign Off = Approved**
+field forces `done`, because a human's out-of-band approval outranks both
+the score and the GitHub check.
+
+---
 
 ## Setup
 
-1. `pnpm install` (also installs a gitleaks pre-commit hook — see below).
-2. Copy `.env.example` to `.env.local` and fill in the four variables:
+1. **Install.** Also installs a gitleaks pre-commit hook — see
+   [Secret scanning](#secret-scanning).
+
+   ```bash
+   pnpm install
+   ```
+
+2. **Credentials.** Copy `.env.example` to `.env.local` and fill in four
+   variables:
 
    ```bash
    cp .env.example .env.local
    ```
 
    - `JIRA_BASE_URL` — your Atlassian site, e.g. `https://your-company.atlassian.net/`
-   - `JIRA_EMAIL` — the email address tied to your JIRA API token
+   - `JIRA_EMAIL` — the email tied to your JIRA API token
    - `JIRA_API_TOKEN` — create one at
-     [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens) →
-     "Create API token". Basic-auth'd as `email:token`, base64-encoded — this
-     script never logs it.
+     [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens).
+     Basic-auth'd as `email:token`, base64-encoded; never logged.
    - `GITHUB_TOKEN` — a **classic** personal access token
      ([github.com/settings/tokens](https://github.com/settings/tokens)) with
      the `repo` scope. If your org enforces SSO, authorize the token for
-     that org after creating it (the token page will prompt you). A
-     fine-grained token can work too, but must be explicitly granted access
-     to every repo referenced in `config.yaml` — classic + SSO is simpler.
+     that org after creating it. A fine-grained token works too, but must be
+     granted access to every repo in `config.yaml` — classic + SSO is
+     simpler.
 
-3. Copy `config.example.yaml` to `config.yaml` (or edit the real one already
-   checked in) — see the comments in that file for the shape. Nothing in
-   `config.yaml` is secret; it's fine to commit (ticket keys, repo names,
-   GitHub logins).
+3. **Config.** Copy `config.example.yaml` to `config.yaml` and fill in your
+   epic; the comments in that file document every field. Nothing in it is
+   secret (ticket keys, repo names, GitHub logins), so it's committed on
+   purpose — the dashboard's Config page renders it verbatim.
+
+---
 
 ## Daily routine
 
@@ -229,41 +183,149 @@ lives in `config.yaml`, never in source.
 pnpm collect
 ```
 
-Fetches JIRA + GitHub, writes `data/raw/<date>.json` (full fidelity,
-gitignored) and `data/pending/<date>.json` (trimmed judge input, gitignored),
-and prints a per-feature summary (score, stage,
-shipped/doneUnverified/staged/total, release gate) to stdout. **Halt here if this exits non-zero** — a non-zero
-exit means every feature failed to collect, not just one; check the printed
-collection errors.
+Prints a per-feature summary (score, stage, shipped/doneUnverified/staged/
+total, release gate). **Halt if it exits non-zero** — that means *every*
+feature failed to collect, not just one; check the printed collection
+errors.
 
-Then, in Claude Code, run the **judge** skill (`.claude/skills/judge/SKILL.md`)
-against today's `data/pending/<date>.json`. It writes
-`data/judgment/<date>.json`. This step is a Claude Code routine, not a
-script — there is no `ANTHROPIC_API_KEY` and no programmatic model call
-anywhere in this codebase.
+Then, in Claude Code, run the **judge** skill against today's pending file:
+
+```
+/judge
+```
+
+It reads `data/pending/<date>.json` and writes `data/judgment/<date>.json`
+(rationale, confidence, AC coverage, callouts). The skill's full evidence
+hierarchy lives in `.claude/skills/judge/SKILL.md`.
 
 ```bash
 pnpm merge
 ```
 
-Validates `data/judgment/<date>.json` as **untrusted input** against that
-day's `data/pending/<date>.json` — rejects (non-zero exit, no file written)
-anything unparseable, any invented ticket/PR/AC reference, or an
-unreasoned/>20-point `scoreOverride`. On success, merges in any non-expired
-`overrides.yaml` entries and writes `data/snapshots/<date>.json`.
-
-**Halt the whole routine on any non-zero exit, and never commit when merge
-fails** — `data/snapshots/` is the only directory in this pipeline that gets
-committed:
+Validates the judgment, applies non-expired `overrides.yaml` entries, and
+writes `data/snapshots/<date>.json`. **Never commit when merge fails** —
+on any rejection it writes nothing and exits non-zero.
 
 ```bash
 git add data/snapshots && git commit -m "snapshot: <date>" && git push
 ```
 
-Reruns for the same logical date overwrite in place (atomic write via a
-`.tmp` file + rename) — never append or duplicate. All dates are computed in
-`config.timezone` (see `logicalDate()` in `src/lib/config.ts`), not UTC, so a
-run just after local midnight writes the correct calendar day.
+Vercel rebuilds on push and prerenders the new date automatically.
+
+**Reruns are safe.** Every write in the pipeline is atomic (`.tmp` file +
+rename, `src/lib/io.ts`) and same-day reruns overwrite in place — never
+append, never duplicate, never a corrupt half-file after a crash. Dates are
+computed in `config.timezone` via `logicalDate()` (`src/lib/config.ts`), not
+UTC, so a run just after local midnight still writes the correct calendar
+day.
+
+---
+
+## Dashboard UI
+
+The public status page. Fully static: it reads `data/snapshots/*.json` at
+**build time** via `import.meta.glob` — no server function, no runtime
+fetch. Each snapshot is its own code-split chunk, so a growing history never
+bloats the shared bundle.
+
+### Routes
+
+| Route | Page |
+|-------|------|
+| `/` | Today — the latest snapshot |
+| `/attention` | What's stalled, blocked, or needs a human |
+| `/reviews` | The review queue across all tracked repos |
+| `/m/:id` | One milestone |
+| `/f/:code` | One feature (slug: `F1.1` → `f1-1`) |
+| `/config` | The live `config.yaml`, rendered |
+
+Every route also exists under `/<date>` (e.g. `/2026-08-13/reviews`) for a
+specific snapshot. Unknown dates 404 with a link back to the latest, and
+feature anchors (`#f1-1`, `#m3-m4`) are linkable and scroll into view on
+load.
+
+### Commands
+
+```bash
+pnpm dev
+```
+
+```bash
+pnpm build && pnpm preview
+```
+
+`pnpm build` runs the Vite client + SSR build, then prerenders `/` and one
+page set per snapshot in `data/snapshots/`. `vite.config.ts` computes that
+page list with a synchronous `readdirSync` at config-eval time, so a new
+snapshot date is picked up automatically on the next build. It also resolves
+`config.yaml` to a virtual module at build time — the client ships data, not
+a YAML parser.
+
+### Deploying to Vercel
+
+Nothing to configure: no `vercel.json`, no output directory setting. Import
+the repo and it works, because:
+
+- **Nitro picks its own target.** No `preset` is set in `vite.config.ts` on
+  purpose — Nitro reads the environment, so the same `pnpm build` produces a
+  Node server in `.output/` locally and Build Output API v3 in
+  `.vercel/output/` on Vercel.
+- **Every real page is static.** Prerendered pages land in
+  `.vercel/output/static/`, and the generated route config puts
+  `handle: filesystem` *before* the server function — normal traffic is
+  served from the CDN and never wakes the function. Hashed assets get a
+  one-year immutable cache header.
+- **The function is only a fallback.** It handles URLs that were never
+  prerendered (a snapshot date that doesn't exist, a renamed feature slug)
+  so those render the app's own not-found page — `/2099-01-01` returns a
+  real 404, not a bare platform error.
+
+**No environment variables are needed for the deployment.** `JIRA_*` and
+`GITHUB_TOKEN` are read only by `scripts/collect.ts`, which runs on your
+machine or in CI — never in the browser or in the deployed function. The
+site is built entirely from what's committed.
+
+The consequence worth knowing: **the deployed dashboard only updates when
+you commit a new snapshot and push.**
+
+### Design system
+
+`src/components/dashboard/` is a small, consistently-used component library
+(status pill, progress bar, KPI stat, feature card, callout, empty state, …)
+— every page section is built from these, no one-off styling.
+`src/lib/dashboard/` holds the pure, tested data-shaping logic (filtering,
+staleness, since-last-snapshot diffing, the Slack summary builder, the
+burn-up series), kept separate from rendering.
+
+Color is reserved entirely for the seven work-status hues — shipped,
+done_unverified, staged, in_review, in_progress, blocked, todo — defined as
+`[data-status]` rules in `src/styles.css`. All interface chrome (buttons,
+links, borders, focus rings) is achromatic, so status color never competes
+with anything else on the page. The five `Stage` values reuse those same
+hues rather than introducing a second palette, and status is always carried
+by text too (`src/lib/dashboard/statusLabels.ts`), never by color alone.
+
+---
+
+## Repo map
+
+```
+config.yaml            epic, milestones, features, repos, people, weights
+overrides.yaml         human notes per ticket, auto-expiring
+scripts/
+  collect.ts           stage 1 — fetch, match, classify, score
+  merge.ts             stage 3 — validate judgment, apply overrides, publish
+.claude/skills/judge/  stage 2 — the judgment routine
+src/lib/               pipeline core: jira, github, classify, score, schema, prbody
+src/lib/dashboard/     pure UI data-shaping: nav, diff, burnup, staleness, search
+src/components/        the dashboard component library
+src/routes/            file-based routes (latest + /$date variants)
+data/                  raw → pending → judgment → snapshots (only the last is committed)
+tests/                 vitest, fixtures only
+docs/SPEC.md           the original spec
+```
+
+---
 
 ## Testing
 
@@ -271,123 +333,37 @@ run just after local midnight writes the correct calendar day.
 pnpm test
 ```
 
-Runs the vitest suite (`tests/`) against fixtures only — no network calls,
-safe to run without `.env.local` configured.
+Runs the vitest suite against fixtures only — no network calls, safe to run
+without `.env.local` configured.
 
 ## Secret scanning
 
 `pnpm install` runs `scripts/install-hooks.mjs`, which installs a
 `.git/hooks/pre-commit` hook that runs
 [gitleaks](https://github.com/gitleaks/gitleaks) (`.gitleaks.toml`) against
-staged changes, if gitleaks is on your `PATH`. If it isn't, the hook warns
-and lets the commit through — install gitleaks locally to actually enforce
-the check: `brew install gitleaks` (macOS) or see the gitleaks README for
-other platforms.
+staged changes — if gitleaks is on your `PATH`. If it isn't, the hook warns
+and lets the commit through, so install it to actually enforce the check:
 
-## Known limitations
-
-- GitHub's GraphQL API doesn't expose a review-request timestamp directly;
-  `reviewQueue[].requestedAt` uses the PR's `updatedAt` as the closest
-  available proxy, not the exact moment a reviewer was requested.
-- `config.yaml`'s M1/M4 feature `repos` and M3's repo are flagged
-  provisional in that file's comments — a feature spanning more than the
-  one listed repo will simply miss PRs in the unlisted repo, not error.
-  Expand the `repos` list for a feature as you notice this.
-- PR descriptions are the judge's primary AC-coverage evidence (see
-  `src/lib/prbody.ts` and `.claude/skills/judge/SKILL.md`), cleaned down to
-  the substantive sections (Context/What changed/Summary/Description) and
-  capped at 1500 characters. The cleaner is tuned to this org's review-tool
-  PR template; a repo using a very different template may see more of its
-  body pass through uncleaned (harmless — it's still gitignored, judge-only
-  input) or, in an unlikely worst case, get flagged `template_only` when it
-  actually had content. Worth spot-checking `data/pending/<date>.json` if a
-  repo's PRs consistently show `bodySignal: "template_only"`.
+```bash
+brew install gitleaks
+```
 
 ---
 
-# Dashboard UI
+## Known limitations
 
-The public status page. Fully static — reads `data/snapshots/*.json` at
-**build time** via `import.meta.glob` (no server function, no runtime
-fetch), so the whole site is prerendered HTML.
-
-## Routes
-
-- `/` — the latest snapshot.
-- `/<date>` (e.g. `/2026-08-11`) — a specific snapshot, same layout.
-  Unknown dates 404 with a link back to the latest.
-- Feature anchors (`#f1-1`, `#m3-m4`, …) are linkable and scroll into view
-  on load.
-
-## Local development
-
-```bash
-pnpm dev
-```
-
-## Production build
-
-```bash
-pnpm build
-```
-
-Runs the Vite client + SSR build, then prerenders `/` and one page per
-snapshot in `data/snapshots/`. `vite.config.ts` computes that page list
-with a synchronous `fs.readdirSync` at config-eval time (not a runtime
-read) — if you add a new snapshot date, it's picked up automatically on
-the next build.
-
-Nitro wraps that build into a deployable server. Locally you get a plain
-Node server:
-
-```bash
-pnpm build && pnpm preview
-```
-
-## Deploying to Vercel
-
-Nothing to configure — no `vercel.json`, no output directory setting.
-Import the repo on Vercel and it works, because:
-
-- **Nitro picks its own target.** No `preset` is set in `vite.config.ts`
-  on purpose: Nitro reads the environment, so the same `pnpm build`
-  produces a Node server in `.output/` locally and Vercel's Build Output
-  API v3 in `.vercel/output/` on Vercel. Vercel detects that directory
-  itself and ignores any framework/output-directory guess.
-- **Every real page is static.** All 72 prerendered pages land in
-  `.vercel/output/static/`, and the generated route config puts
-  `handle: filesystem` *before* the server function — so normal traffic is
-  served from the CDN and never wakes the function. Hashed assets get a
-  one-year immutable cache header.
-- **The function is only a fallback.** It handles URLs that were never
-  prerendered — a snapshot date that doesn't exist, a renamed feature slug
-  — so those render the app's own not-found page (`/2099-01-01` returns a
-  real 404) instead of a bare platform error page.
-
-**No environment variables are needed for the deployment.** `JIRA_*` and
-`GITHUB_TOKEN` are only read by `scripts/collect.ts`, which runs on your
-machine (or CI), never in the browser or in the deployed function. The
-site is built entirely from what's committed: `data/snapshots/*.json` and
-`config.yaml`. Deploying does not talk to JIRA or GitHub at all.
-
-The consequence worth knowing: **the deployed dashboard only updates when
-you commit a new snapshot and redeploy.** Run the daily routine
-(`pnpm collect` → `/judge` → `pnpm merge`), commit the new
-`data/snapshots/<date>.json`, and push — Vercel rebuilds and the new date
-is prerendered automatically.
-
-## Design system
-
-`src/components/dashboard/` is a small, consistently-used component
-library (status pill, progress bar, KPI stat, feature card, callout,
-empty state, …) — every page section is built from these, no one-off
-styling. `src/lib/dashboard/` holds the pure, tested data-shaping logic
-(filtering, staleness, since-last-snapshot diffing, the Slack summary
-builder, the burn-up series) kept separate from rendering.
-
-Color is reserved entirely for the seven subtask-status hues
-(shipped/done_unverified/staged/in_review/in_progress/blocked/todo, defined in
-`src/styles.css`) — all interface chrome (buttons, links, borders, focus
-rings) is achromatic, so status color never competes with anything else
-on the page. `Stage` pills reuse the same six hues rather than a seventh
-palette (see the mapping comment in `src/lib/dashboard/statusLabels.ts`).
+- **Review-request timestamps are approximate.** GitHub's GraphQL API
+  doesn't expose a review-request timestamp, so `reviewQueue[].requestedAt`
+  uses the PR's `updatedAt` as the closest available proxy.
+- **A feature only sees the repos it lists.** `config.yaml`'s feature
+  `repos` lists are provisional in places (flagged in that file's comments).
+  A feature spanning an unlisted repo will silently miss those PRs rather
+  than error — expand the `repos` list as you notice it.
+- **PR-body cleaning is tuned to one template.** PR descriptions are the
+  judge's primary AC-coverage evidence (`src/lib/prbody.ts`), cleaned down
+  to the substantive sections and capped at 1500 characters. A repo using a
+  very different template may pass more of its body through uncleaned
+  (harmless — still gitignored, judge-only input) or, in an unlikely worst
+  case, get flagged `template_only` when it actually had content. Worth
+  spot-checking `data/pending/<date>.json` if a repo's PRs consistently show
+  `bodySignal: "template_only"`.

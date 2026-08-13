@@ -3,6 +3,7 @@ import {
   classifyPr,
   deriveWorkStatus,
   findReleaseGate,
+  isAutomatedReleasePr,
   traceStackChain,
 } from "../src/lib/classify.ts";
 import { makePr } from "./fixtures/prs.ts";
@@ -28,6 +29,17 @@ describe("classifyPr", () => {
   it("an open PR against the default branch is not shipped", () => {
     const pr = makePr({ number: 3, state: "OPEN", baseRefName: "master" });
     expect(classifyPr(pr, DEFAULT_BRANCH)).toEqual({ shippedToDefault: false });
+  });
+});
+
+describe("isAutomatedReleasePr", () => {
+  it("matches the empty automated-release title, regardless of which ticket it names", () => {
+    expect(isAutomatedReleasePr("BOUN-11497 - Empty Pull Request For Automated Release")).toBe(true);
+    expect(isAutomatedReleasePr("empty pull request for automated release")).toBe(true);
+  });
+
+  it("does not match a normal feature PR title", () => {
+    expect(isAutomatedReleasePr("BOUN-11474 WPP Excel import")).toBe(false);
   });
 });
 

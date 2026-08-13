@@ -566,3 +566,7 @@ code {
     color: var(--muted-foreground);
   }
 }
+
+@view-transition {
+  navigation: auto;
+}

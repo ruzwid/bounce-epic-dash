@@ -13,6 +13,7 @@ import {
   classifyPr,
   deriveWorkStatus,
   findReleaseGate,
+  isAutomatedReleasePr,
   traceStackChain,
   type RawPr,
 } from "../src/lib/classify.ts";
@@ -203,7 +204,12 @@ export async function buildPrIndex(
         // An explicitly included repo may not have come from discovery, so
         // its default branch isn't known yet.
         defaultBranchByRepo[repo] ??= await deps.getDefaultBranch(org, repo);
-        prsByRepo[repo] = await deps.getRepoPrs(org, repo, config.epic.startDate);
+        // Empty automated-release PRs (see isAutomatedReleasePr) are dropped
+        // here, before anything can match them to a ticket — the earliest
+        // point in the pipeline that touches every repo's PRs.
+        prsByRepo[repo] = (await deps.getRepoPrs(org, repo, config.epic.startDate)).filter(
+          (pr) => !isAutomatedReleasePr(pr.title),
+        );
       } catch (err) {
         // One unreachable repo must not cost us the other twenty-four.
         errors.push({ source: "github", scope: `${org}/${repo}`, message: errMsg(err) });
@@ -452,6 +458,12 @@ export async function collectFeature(
 
   const fieldsOf = (issue: RawJiraIssue) => issue.fields as Record<string, unknown>;
 
+  // The automated-release housekeeping ticket itself (JIRA summary "...
+  // Empty Pull Request For Automated Release", e.g. BOUN-11497) is not
+  // real work — dropped here so it never becomes a Story/Sub-task, on top
+  // of buildPrIndex already dropping the empty PRs it's the namesake of.
+  const isRealWorkItem = (issue: RawJiraIssue) => !isAutomatedReleasePr(String(fieldsOf(issue).summary ?? ""));
+
   // Searched across every repo in the org — a ticket's work is wherever its
   // key says it is. When the index is empty (GitHub unreachable this run,
   // recorded by buildPrIndex), this degrades to the JIRA status alone
@@ -487,7 +499,7 @@ export async function collectFeature(
       // same containment rule the feature-level fetch already follows.
       errors.push({ source: "jira", scope: issue.key, message: `Sub-task fetch failed: ${errMsg(err)}` });
     }
-    const subtasks: RawSubtask[] = subtaskIssues.map(toWorkItem);
+    const subtasks: RawSubtask[] = subtaskIssues.filter(isRealWorkItem).map(toWorkItem);
     return { ...own, status: rollUpStoryStatus(own.status, subtasks), subtasks };
   };
 
@@ -496,8 +508,9 @@ export async function collectFeature(
   // stories would silently read as not_started. Treat the parent ticket
   // as a single story-equivalent data point in that case, matching PRs
   // against the feature's own key the same way a real story would be.
+  const realStoryIssues = storyIssues.filter(isRealWorkItem);
   const stories: RawStory[] = await Promise.all(
-    (storyIssues.length > 0 ? storyIssues : [parentIssue]).map(toRawStory),
+    (realStoryIssues.length > 0 ? realStoryIssues : [parentIssue]).map(toRawStory),
   );
 
   // Release gate: the integration branch most of THIS feature's own staged

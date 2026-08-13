@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { Copy, ChevronDown, Clock, CircleCheck, CircleX, MessageSquare } from "lucide-react"
-import type { ReviewerState, ReviewerStatus, StoryReviewGroup, TicketReviewGroup } from "@/lib/dashboard/nav"
+import { Copy, ChevronDown } from "lucide-react"
+import type { ReviewerStatus, StoryReviewGroup, TicketReviewGroup } from "@/lib/dashboard/nav"
 import { featureSlug, reviewsByStory } from "@/lib/dashboard/nav"
 import { storyPrs } from "@/lib/stories"
 import { loginForJiraAssignee } from "@/lib/dashboard/appConfig"
@@ -21,6 +21,7 @@ import { ShellLink } from "../shell/ShellLink"
 import { SectionHeading } from "../SectionHeading"
 import { PrChip } from "../PrChip"
 import { PersonChip } from "../PersonChip"
+import { ReviewerChip } from "../ReviewerChip"
 import { Avatar } from "../Avatar"
 import { IssueTitle, JiraLink } from "../JiraLink"
 import { EmptyState } from "../EmptyState"
@@ -422,48 +423,6 @@ function TicketPrList({
         ))}
       </ul>
     </>
-  )
-}
-
-/** requested: still being waited on. approved / changes_requested /
- *  commented: a review has already been submitted — GitHub's own three
- *  outcomes, minus "dismissed" (a stale review this dashboard never
- *  fetches; see PrReview in schema.ts). */
-const REVIEWER_STATE_ICON: Record<ReviewerState, typeof Clock> = {
-  requested: Clock,
-  approved: CircleCheck,
-  changes_requested: CircleX,
-  commented: MessageSquare,
-}
-
-const REVIEWER_STATE_COLOR: Record<ReviewerState, string> = {
-  requested: "var(--status-in-review)",
-  approved: "var(--status-shipped)",
-  changes_requested: "var(--status-blocked)",
-  commented: "var(--status-in-progress)",
-}
-
-const REVIEWER_STATE_LABEL: Record<ReviewerState, string> = {
-  requested: "review requested",
-  approved: "approved",
-  changes_requested: "changes requested",
-  commented: "commented",
-}
-
-function ReviewerChip({ status }: { status: ReviewerStatus }) {
-  const Icon = REVIEWER_STATE_ICON[status.state]
-  return (
-    <PersonChip
-      login={status.reviewer}
-      title={`${status.reviewer} — ${REVIEWER_STATE_LABEL[status.state]}`}
-      icon={
-        <Icon
-          aria-hidden="true"
-          className="size-3.5 shrink-0"
-          style={{ color: REVIEWER_STATE_COLOR[status.state] }}
-        />
-      }
-    />
   )
 }
 

@@ -392,11 +392,29 @@ export type PrReviewStatus = {
 
 /** Merges a PR's still-pending requests with its submitted reviews into
  *  one status per person — see PrReviewStatus.reviewers above for why a
- *  pending re-request wins over a stale prior review. */
-function reviewersForPr(pr: PrRefT, waitingOn: { reviewer: string; ageDays: number }[]): ReviewerStatus[] {
+ *  pending re-request wins over a stale prior review.
+ *
+ *  `waitingOn` is optional: the Reviews page passes it from
+ *  snapshot.reviewQueue, whose ageDays is frozen at snapshot-generation
+ *  time (see merge.ts) rather than drifting with however long it's been
+ *  since the page was loaded. A caller with only a bare PrRef (no
+ *  snapshot in scope, e.g. StoryCard) omits it and gets the same pending
+ *  reviewers straight off pr.reviewRequests, just without an age — every
+ *  card on this dashboard already treats "no age" as "don't show one"
+ *  rather than inventing a number. */
+export function reviewersForPr(
+  pr: PrRefT,
+  waitingOn?: { reviewer: string; ageDays: number }[],
+): ReviewerStatus[] {
   const byReviewer = new Map<string, ReviewerStatus>();
-  for (const w of waitingOn) {
-    byReviewer.set(w.reviewer, { reviewer: w.reviewer, state: "requested", ageDays: w.ageDays });
+  if (waitingOn) {
+    for (const w of waitingOn) {
+      byReviewer.set(w.reviewer, { reviewer: w.reviewer, state: "requested", ageDays: w.ageDays });
+    }
+  } else {
+    for (const login of pr.reviewRequests) {
+      byReviewer.set(login, { reviewer: login, state: "requested", ageDays: null });
+    }
   }
   for (const r of pr.reviews) {
     if (byReviewer.has(r.reviewer)) continue;

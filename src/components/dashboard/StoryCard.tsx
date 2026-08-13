@@ -2,19 +2,30 @@ import { ChevronRight } from "lucide-react"
 import type { z } from "zod"
 import type { Story as StorySchema, Subtask as SubtaskSchema } from "@/lib/schema"
 import { storyPrs } from "@/lib/stories"
+import { reviewersForPr, type ReviewerStatus } from "@/lib/dashboard/nav"
 import { StatusPill } from "./StatusPill"
 import { PrChip } from "./PrChip"
-import { PersonChip } from "./PersonChip"
+import { ReviewerChip } from "./ReviewerChip"
 import { IssueTitle, JiraLink } from "./JiraLink"
 
 type StoryT = z.infer<typeof StorySchema>
 type SubtaskT = z.infer<typeof SubtaskSchema>
 
-/** Reviewers GitHub is still waiting on, across every open PR under this
- *  story — its own and its sub-tasks'. Deduplicated: the same person
- *  requested on three PRs of one story is one person waiting, not three. */
-function pendingReviewers(story: StoryT): string[] {
-  return [...new Set(storyPrs(story).filter((pr) => pr.state === "OPEN").flatMap((pr) => pr.reviewRequests))]
+/** Everyone with a stake in this story's open PRs — its own and its
+ *  sub-tasks' — pending request or already-submitted review alike.
+ *  Deduplicated: the same person on three PRs of one story is one chip,
+ *  not three; a pending request wins over a stale earlier review, same
+ *  rule as the Reviews page (see reviewersForPr in nav.ts). */
+function storyReviewers(story: StoryT): ReviewerStatus[] {
+  const byReviewer = new Map<string, ReviewerStatus>()
+  for (const pr of storyPrs(story).filter((pr) => pr.state === "OPEN")) {
+    for (const status of reviewersForPr(pr)) {
+      if (status.state === "requested" || byReviewer.get(status.reviewer)?.state !== "requested") {
+        byReviewer.set(status.reviewer, status)
+      }
+    }
+  }
+  return [...byReviewer.values()]
 }
 
 /**
@@ -31,7 +42,7 @@ function pendingReviewers(story: StoryT): string[] {
  * good deal of this epic's review activity actually lives.
  */
 export function StoryCard({ story }: { story: StoryT }) {
-  const reviewers = pendingReviewers(story)
+  const reviewers = storyReviewers(story)
   const needsReviewer = story.status === "in_review" && reviewers.length === 0
 
   return (
@@ -67,9 +78,9 @@ export function StoryCard({ story }: { story: StoryT }) {
 
         {reviewers.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            Waiting on
-            {reviewers.map((reviewer) => (
-              <PersonChip key={reviewer} login={reviewer} />
+            Reviewers
+            {reviewers.map((status) => (
+              <ReviewerChip key={status.reviewer} status={status} />
             ))}
           </div>
         ) : needsReviewer ? (

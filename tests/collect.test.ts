@@ -53,10 +53,10 @@ function index(prs: RawPr[], defaultBranch = "master"): PrIndex {
   return { allPrs: prs, prsByRepo, defaultBranchByRepo, degraded: false };
 }
 
-function jiraIssue(key: string, statusName: string) {
+function jiraIssue(key: string, statusName: string, summary = `Summary for ${key}`) {
   return {
     key,
-    fields: { summary: `Summary for ${key}`, status: { name: statusName }, updated: "2026-01-10T00:00:00.000+0000" },
+    fields: { summary, status: { name: statusName }, updated: "2026-01-10T00:00:00.000+0000" },
   };
 }
 
@@ -164,6 +164,19 @@ describe("buildPrIndex", () => {
 
     const crawled = getRepoPrs.mock.calls.map((call) => call[1]).sort();
     expect(crawled).toEqual(["dormant-repo", "service-a"]);
+  });
+
+  it("drops empty automated-release PRs before they can be attributed to any ticket", async () => {
+    const d = deps({
+      getRepoPrs: vi.fn().mockResolvedValue([
+        makePr({ number: 1, repo: "service-a", title: "BOUN-11497 - Empty Pull Request For Automated Release" }),
+        makePr({ number: 2, repo: "service-a", title: "TEST-11 real work" }),
+      ]),
+    });
+
+    const { index: built } = await buildPrIndex(CONFIG, d);
+
+    expect(built.allPrs.map((pr) => pr.number)).toEqual([2]);
   });
 });
 
@@ -305,6 +318,28 @@ describe("collectFeature", () => {
     expect(story.prs).toEqual([]);
     // ...but the feature's repo list is still derived from it.
     expect(feature.repos).toEqual(["service-a"]);
+  });
+
+  it("drops an automated-release housekeeping sub-task entirely, not just its PRs", async () => {
+    // BOUN-11474 in the real epic: a sub-task like BOUN-11497 whose own
+    // JIRA summary is "... Empty Pull Request For Automated Release" picks
+    // up an empty release PR in every downstream repo. It isn't real work,
+    // so it must not appear as a sub-task at all.
+    const realPr = makePr({ number: 1, headRefName: "TEST-112-work", repo: "service-a", state: "OPEN" });
+    const d = deps({
+      searchChildren: childrenBy({
+        "TEST-10": [jiraIssue("TEST-11", "Code Review")],
+        "TEST-11": [
+          jiraIssue("TEST-111", "Done", "TEST-111 - Empty Pull Request For Automated Release"),
+          jiraIssue("TEST-112", "Code Review"),
+        ],
+      }),
+    });
+
+    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([realPr]));
+
+    const story = feature.stories[0]!;
+    expect(story.subtasks.map((s) => s.key)).toEqual(["TEST-112"]);
   });
 
   it("a story with no PRs of its own still reads as in review when a sub-task has an open one", async () => {

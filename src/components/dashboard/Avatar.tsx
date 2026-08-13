@@ -1,4 +1,7 @@
 import { useState } from "react"
+import type { IconType } from "react-icons"
+import { SiGithubcopilot } from "react-icons/si"
+import { BsOpenai } from "react-icons/bs";
 import { cn } from "@/lib/utils"
 
 type AvatarProps = {
@@ -40,6 +43,15 @@ function swatchFor(name: string): string {
   return SWATCHES[hash % SWATCHES.length]!
 }
 
+/** GitHub's own review-bot accounts render a recognizable brand mark
+ *  instead of the usual photo/initials — their `github.com/<login>.png`
+ *  avatars are generic app icons that don't read as "who reviewed this"
+ *  at a glance the way a person's face does. */
+export const BOT_ICONS: Record<string, IconType> = {
+  "copilot-pull-request-reviewer": SiGithubcopilot,
+  "chatgpt-codex-connector": BsOpenai,
+}
+
 /**
  * A person's GitHub profile picture, falling back to initials.
  *
@@ -55,7 +67,8 @@ function swatchFor(name: string): string {
  */
 export function Avatar({ login, name, size = 20, className }: AvatarProps) {
   const [failed, setFailed] = useState(false)
-  const showImage = login !== null && !failed
+  const BotIcon = login ? BOT_ICONS[login] : undefined
+  const showImage = login !== null && !failed && !BotIcon
 
   return (
     // Decorative throughout: every caller renders the person's name as text
@@ -66,12 +79,21 @@ export function Avatar({ login, name, size = 20, className }: AvatarProps) {
       className={cn("relative inline-flex shrink-0 overflow-hidden rounded-full", className)}
       style={{ width: size, height: size }}
     >
-      <span
-        className="flex size-full items-center justify-center font-medium text-white"
-        style={{ background: swatchFor(name), fontSize: Math.max(8, Math.round(size * 0.42)) }}
-      >
-        {initials(name)}
-      </span>
+      {BotIcon ? (
+        <span
+          className="flex size-full items-center justify-center text-white"
+          style={{ background: swatchFor(name) }}
+        >
+          <BotIcon size={Math.round(size * 0.6)} />
+        </span>
+      ) : (
+        <span
+          className="flex size-full items-center justify-center font-medium text-white"
+          style={{ background: swatchFor(name), fontSize: Math.max(8, Math.round(size * 0.42)) }}
+        >
+          {initials(name)}
+        </span>
+      )}
       {showImage ? (
         <img
           // Ask GitHub for a 2x asset so the avatar stays sharp on retina

@@ -50,7 +50,7 @@ export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
         <div className="flex min-w-0 items-center gap-3">
           <span className="font-display font-mono-data text-[38px] leading-none">
             {progress.percent}
-            <span className="text-xl text-muted-foreground">%</span>
+            <span className="pl-1 text-xl text-muted-foreground">%</span>
           </span>
           <div className="flex flex-col gap-1">
             <span className="flex h-5 items-center text-[13px] font-medium whitespace-nowrap">Epic complete</span>
@@ -121,7 +121,7 @@ function DeltaLine({ delta }: { delta: number | null }) {
       className="flex h-4 items-center text-[11.5px] leading-4 whitespace-nowrap"
       style={{ color: delta > 0 ? "var(--status-shipped)" : "var(--status-blocked)" }}
     >
-      {delta > 0 ? "▲" : "▼"} <span className="font-mono-data">{Math.abs(delta)}</span> pts since last snapshot
+      {delta > 0 ? "▲" : "▼"} <span className="ml-1 font-mono-data">{Math.abs(delta)}</span> pts since last snapshot
     </span>
   )
 }

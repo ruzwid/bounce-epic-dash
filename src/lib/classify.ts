@@ -49,6 +49,16 @@ export function classifyPr(pr: RawPr, defaultBranch: string): { shippedToDefault
   return { shippedToDefault: pr.state === "MERGED" && pr.baseRefName === defaultBranch };
 }
 
+/** Auto-generated when a package like api-core or ts-types cuts a release:
+ *  an empty PR per downstream repo just to bump the installed version, e.g.
+ *  "BOUN-11497 - Empty Pull Request For Automated Release". It carries no
+ *  actual work, but its title still names a ticket, so left unfiltered it
+ *  would get attributed to that ticket's feature as if real work landed —
+ *  see BOUN-11474 (WPP Excel import), which picked one up this way. */
+export function isAutomatedReleasePr(title: string): boolean {
+  return /Empty Pull Request For Automated Release/i.test(title);
+}
+
 /** Walks the stack down from `pr` to the master-based PR at the bottom,
  *  following `baseRefName === otherPr.headRefName` links. Returns the PR
  *  numbers along that path (excluding `pr` itself), ending with the PR
