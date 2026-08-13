@@ -68,8 +68,11 @@ export function computeScore(
  *  100 done — and "done" additionally requires every story shipped to
  *  the default branch, not merely staged. A feature that hits 100 by
  *  weight alone (e.g. a config where staged scores fully) without every
- *  story actually shipped is "nearly_done", never "done". */
-export function deriveStage(score: number, allStoriesShippedToDefault: boolean): Stage {
+ *  story actually shipped is "nearly_done", never "done". Product sign-off
+ *  (signedOff) overrides every band unconditionally — a human, out-of-band
+ *  approval outranks both the score and the GitHub-verified-shipped requirement. */
+export function deriveStage(score: number, allStoriesShippedToDefault: boolean, signedOff = false): Stage {
+  if (signedOff) return "done";
   if (score === 0) return "not_started";
   if (score < 25) return "early";
   if (score < 70) return "underway";

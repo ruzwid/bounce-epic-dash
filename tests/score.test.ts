@@ -77,6 +77,18 @@ describe("deriveStage", () => {
     // branch. That must never render as "done".
     expect(deriveStage(100, false)).toBe("nearly_done");
   });
+
+  it("is 'done' when signedOff is true, even at score 0", () => {
+    expect(deriveStage(0, false, true)).toBe("done");
+  });
+
+  it("is 'done' when signedOff is true, even with stories not all shipped", () => {
+    expect(deriveStage(60, false, true)).toBe("done");
+  });
+
+  it("defaults signedOff to false, unaffected when the 3rd argument is omitted", () => {
+    expect(deriveStage(100, false)).toBe("nearly_done");
+  });
 });
 
 describe("computeScore + deriveStage integration: staged never masquerades as done", () => {
