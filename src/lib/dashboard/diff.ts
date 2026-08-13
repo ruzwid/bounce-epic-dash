@@ -4,23 +4,24 @@
 // when there's no real prior snapshot (computeChanges(current, null) is
 // always []).
 import type { z } from "zod";
-import type { Feature as FeatureSchema, PrRef as PrRefSchema, StatusSnapshot as StatusSnapshotSchema, Subtask as SubtaskSchema } from "../schema.ts";
+import type { Feature as FeatureSchema, PrRef as PrRefSchema, StatusSnapshot as StatusSnapshotSchema, Story as StorySchema } from "../schema.ts";
+import { storyPrs } from "../stories.ts";
 
 type FeatureT = z.infer<typeof FeatureSchema>;
-type SubtaskT = z.infer<typeof SubtaskSchema>;
+type StoryT = z.infer<typeof StorySchema>;
 type PrRefT = z.infer<typeof PrRefSchema>;
 type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>;
 
 const STALL_DAYS = 14;
 
 export type ChangeItem =
-  | { kind: "shipped"; feature: FeatureT; subtask: SubtaskT; pr: PrRefT; scoreDelta: number }
-  | { kind: "newly_staged"; feature: FeatureT; subtask: SubtaskT; integrationBranch: string }
-  | { kind: "newly_blocked"; feature: FeatureT; subtask: SubtaskT }
+  | { kind: "shipped"; feature: FeatureT; story: StoryT; pr: PrRefT; scoreDelta: number }
+  | { kind: "newly_staged"; feature: FeatureT; story: StoryT; integrationBranch: string }
+  | { kind: "newly_blocked"; feature: FeatureT; story: StoryT }
   | { kind: "newly_stalled"; feature: FeatureT; daysSinceLastActivity: number };
 
-function findSubtask(feature: FeatureT | undefined, key: string): SubtaskT | undefined {
-  return feature?.subtasks.find((s) => s.key === key);
+function findStory(feature: FeatureT | undefined, key: string): StoryT | undefined {
+  return feature?.stories.find((s) => s.key === key);
 }
 
 /** "since yesterday" / "since Friday" / "since 2026-07-28" — names the
@@ -46,27 +47,27 @@ export function computeChanges(current: StatusSnapshotT, previous: StatusSnapsho
   for (const feature of current.features) {
     const previousFeature = previousFeatureByKey.get(feature.key);
 
-    for (const subtask of feature.subtasks) {
-      const previousSubtask = findSubtask(previousFeature, subtask.key);
-      const previousStatus = previousSubtask?.status;
+    for (const story of feature.stories) {
+      const previousStory = findStory(previousFeature, story.key);
+      const previousStatus = previousStory?.status;
 
-      if (subtask.status === "shipped" && previousStatus !== "shipped") {
-        const pr = subtask.prs.find((p) => p.shippedToDefault);
+      if (story.status === "shipped" && previousStatus !== "shipped") {
+        const pr = storyPrs(story).find((p) => p.shippedToDefault);
         if (pr) {
           const scoreDelta = previousFeature ? feature.score - previousFeature.score : feature.score;
-          changes.push({ kind: "shipped", feature, subtask, pr, scoreDelta });
+          changes.push({ kind: "shipped", feature, story, pr, scoreDelta });
         }
-      } else if (subtask.status === "staged" && previousStatus !== "staged") {
-        const pr = subtask.prs.find((p) => p.state === "MERGED" && !p.shippedToDefault);
+      } else if (story.status === "staged" && previousStatus !== "staged") {
+        const pr = storyPrs(story).find((p) => p.state === "MERGED" && !p.shippedToDefault);
         if (pr) {
-          changes.push({ kind: "newly_staged", feature, subtask, integrationBranch: pr.baseRef });
+          changes.push({ kind: "newly_staged", feature, story, integrationBranch: pr.baseRef });
         }
-      } else if (subtask.status === "blocked" && previousStatus !== "blocked") {
-        changes.push({ kind: "newly_blocked", feature, subtask });
+      } else if (story.status === "blocked" && previousStatus !== "blocked") {
+        changes.push({ kind: "newly_blocked", feature, story });
       }
     }
 
-    // Stalled is feature-level, not per-subtask: fire only the day the
+    // Stalled is feature-level, not per-story: fire only the day the
     // feature *crosses* the threshold, not every day it stays stalled.
     if (
       previousFeature &&

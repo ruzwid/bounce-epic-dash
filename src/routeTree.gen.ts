@@ -20,7 +20,9 @@ import { Route as ShellAttentionRouteImport } from './routes/_shell.attention'
 import { Route as ShellConfigRouteImport } from './routes/_shell.config'
 import { Route as ShellReviewsRouteImport } from './routes/_shell.reviews'
 import { Route as DateFCodeRouteImport } from './routes/$date.f.$code'
+import { Route as DateMIdRouteImport } from './routes/$date.m.$id'
 import { Route as ShellFCodeRouteImport } from './routes/_shell.f.$code'
+import { Route as ShellMIdRouteImport } from './routes/_shell.m.$id'
 
 const DateRoute = DateRouteImport.update({
   id: '/$date',
@@ -76,9 +78,19 @@ const DateFCodeRoute = DateFCodeRouteImport.update({
   path: '/f/$code',
   getParentRoute: () => DateRoute,
 } as any)
+const DateMIdRoute = DateMIdRouteImport.update({
+  id: '/m/$id',
+  path: '/m/$id',
+  getParentRoute: () => DateRoute,
+} as any)
 const ShellFCodeRoute = ShellFCodeRouteImport.update({
   id: '/f/$code',
   path: '/f/$code',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellMIdRoute = ShellMIdRouteImport.update({
+  id: '/m/$id',
+  path: '/m/$id',
   getParentRoute: () => ShellRoute,
 } as any)
 
@@ -93,7 +105,9 @@ export interface FileRoutesByFullPath {
   '/reviews': typeof ShellReviewsRoute
   '/$date/': typeof DateIndexRoute
   '/$date/f/$code': typeof DateFCodeRoute
+  '/$date/m/$id': typeof DateMIdRoute
   '/f/$code': typeof ShellFCodeRoute
+  '/m/$id': typeof ShellMIdRoute
 }
 export interface FileRoutesByTo {
   '/$date/attention': typeof DateAttentionRoute
@@ -105,7 +119,9 @@ export interface FileRoutesByTo {
   '/$date': typeof DateIndexRoute
   '/': typeof ShellIndexRoute
   '/$date/f/$code': typeof DateFCodeRoute
+  '/$date/m/$id': typeof DateMIdRoute
   '/f/$code': typeof ShellFCodeRoute
+  '/m/$id': typeof ShellMIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -120,7 +136,9 @@ export interface FileRoutesById {
   '/$date/': typeof DateIndexRoute
   '/_shell/': typeof ShellIndexRoute
   '/$date/f/$code': typeof DateFCodeRoute
+  '/$date/m/$id': typeof DateMIdRoute
   '/_shell/f/$code': typeof ShellFCodeRoute
+  '/_shell/m/$id': typeof ShellMIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,7 +153,9 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/$date/'
     | '/$date/f/$code'
+    | '/$date/m/$id'
     | '/f/$code'
+    | '/m/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$date/attention'
@@ -147,7 +167,9 @@ export interface FileRouteTypes {
     | '/$date'
     | '/'
     | '/$date/f/$code'
+    | '/$date/m/$id'
     | '/f/$code'
+    | '/m/$id'
   id:
     | '__root__'
     | '/$date'
@@ -161,7 +183,9 @@ export interface FileRouteTypes {
     | '/$date/'
     | '/_shell/'
     | '/$date/f/$code'
+    | '/$date/m/$id'
     | '/_shell/f/$code'
+    | '/_shell/m/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -248,11 +272,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DateFCodeRouteImport
       parentRoute: typeof DateRoute
     }
+    '/$date/m/$id': {
+      id: '/$date/m/$id'
+      path: '/m/$id'
+      fullPath: '/$date/m/$id'
+      preLoaderRoute: typeof DateMIdRouteImport
+      parentRoute: typeof DateRoute
+    }
     '/_shell/f/$code': {
       id: '/_shell/f/$code'
       path: '/f/$code'
       fullPath: '/f/$code'
       preLoaderRoute: typeof ShellFCodeRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/m/$id': {
+      id: '/_shell/m/$id'
+      path: '/m/$id'
+      fullPath: '/m/$id'
+      preLoaderRoute: typeof ShellMIdRouteImport
       parentRoute: typeof ShellRoute
     }
   }
@@ -264,6 +302,7 @@ interface DateRouteChildren {
   DateReviewsRoute: typeof DateReviewsRoute
   DateIndexRoute: typeof DateIndexRoute
   DateFCodeRoute: typeof DateFCodeRoute
+  DateMIdRoute: typeof DateMIdRoute
 }
 
 const DateRouteChildren: DateRouteChildren = {
@@ -272,6 +311,7 @@ const DateRouteChildren: DateRouteChildren = {
   DateReviewsRoute: DateReviewsRoute,
   DateIndexRoute: DateIndexRoute,
   DateFCodeRoute: DateFCodeRoute,
+  DateMIdRoute: DateMIdRoute,
 }
 
 const DateRouteWithChildren = DateRoute._addFileChildren(DateRouteChildren)
@@ -282,6 +322,7 @@ interface ShellRouteChildren {
   ShellReviewsRoute: typeof ShellReviewsRoute
   ShellIndexRoute: typeof ShellIndexRoute
   ShellFCodeRoute: typeof ShellFCodeRoute
+  ShellMIdRoute: typeof ShellMIdRoute
 }
 
 const ShellRouteChildren: ShellRouteChildren = {
@@ -290,6 +331,7 @@ const ShellRouteChildren: ShellRouteChildren = {
   ShellReviewsRoute: ShellReviewsRoute,
   ShellIndexRoute: ShellIndexRoute,
   ShellFCodeRoute: ShellFCodeRoute,
+  ShellMIdRoute: ShellMIdRoute,
 }
 
 const ShellRouteWithChildren = ShellRoute._addFileChildren(ShellRouteChildren)

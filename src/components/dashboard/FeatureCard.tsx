@@ -8,8 +8,9 @@ import { Callout } from "./Callout"
 import { EmptyState } from "./EmptyState"
 import { AcCoverageSummary } from "./AcCoverageSummary"
 import { ReleaseGateLine } from "./ReleaseGateLine"
-import { SubtaskTable } from "./SubtaskTable"
+import { StoryTable } from "./StoryTable"
 import { OverrideNote } from "./OverrideNote"
+import { JiraLink } from "./JiraLink"
 
 type FeatureT = z.infer<typeof FeatureSchema>
 
@@ -30,20 +31,20 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
 
   if (!feature.dataOk) {
     return (
-      <div className={cn("surface-card rounded-xl border border-border bg-card p-4", isCondensed ? "sm:p-3" : "sm:p-5")}>
+      <div className={cn("surface-card rounded-4xl border border-border bg-card p-4", isCondensed ? "sm:p-3" : "sm:p-5")}>
         <CardTitleRow feature={feature} />
         <EmptyState message="Data unavailable for this feature — a collection error affected it. See the notice above." className="mt-3" />
       </div>
     )
   }
 
-  const allShippedToDefault = feature.subtasks.length > 0 && feature.subtasks.every((s) => s.status === "shipped")
+  const allShippedToDefault = feature.stories.length > 0 && feature.stories.every((s) => s.status === "shipped")
   const scoreDelta = previousFeature ? feature.score - previousFeature.score : null
 
   return (
     <div
       className={cn(
-        "surface-card flex flex-col gap-3 rounded-xl border border-border bg-card p-4",
+        "surface-card flex flex-col gap-3 rounded-4xl border border-border bg-card p-4",
         isCondensed ? "sm:p-3" : "sm:p-5",
       )}
     >
@@ -60,7 +61,7 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
       </div>
 
       <p className="m-0 text-sm">
-        <span className="mr-1.5 rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+        <span className="mr-1.5 rounded-4xl bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
           {CONFIDENCE_LABEL[feature.confidence]}
         </span>
         {feature.rationale}
@@ -94,12 +95,12 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
       {feature.override ? <OverrideNote override={feature.override} /> : null}
 
       <details className="group text-sm">
-        <summary className="inline-flex list-none cursor-pointer items-center gap-1 rounded-lg text-muted-foreground select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
+        <summary className="inline-flex list-none cursor-pointer items-center gap-1 rounded-4xl text-muted-foreground select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
           <ChevronRight className="size-3.5 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90" />
-          {feature.subtasks.length} subtask{feature.subtasks.length === 1 ? "" : "s"}
+          {feature.stories.length} {feature.stories.length === 1 ? "story" : "stories"}
         </summary>
         <div className="mt-2">
-          <SubtaskTable subtasks={feature.subtasks} />
+          <StoryTable stories={feature.stories} />
         </div>
       </details>
     </div>
@@ -109,17 +110,21 @@ export function FeatureCard({ feature, previousFeature, tier }: FeatureCardProps
 function CardTitleRow({ feature }: { feature: FeatureT }) {
   // feature.title is the live JIRA summary, which by this org's convention
   // already starts with the code ("F1.1 — Excel Template..."). Render it
-  // as-is rather than re-prepending feature.code, which would duplicate
-  // it — feature.code still appears on its own next to the ticket key.
+  // as-is — the code has no reason to appear a second time, so only the
+  // ticket key (new information the title doesn't carry) shows below.
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <h3 className="m-0 text-base font-semibold">{feature.title}</h3>
+      <h3 className="m-0 text-base font-semibold">
+        <JiraLink issueKey={feature.key} type="feature" tone={feature.stage}>
+          {feature.title}
+        </JiraLink>
+      </h3>
       <StatusPill status={feature.stage} />
       {feature.scoreBasis.blocked > 0 ? (
         <StatusPill status="blocked" label={`${feature.scoreBasis.blocked} blocked`} />
       ) : null}
       <span className="font-mono-data ml-auto text-xs text-muted-foreground">
-        {feature.code} · {feature.key}
+        {feature.key}
       </span>
       <span className="text-xs text-muted-foreground">{feature.owner}</span>
     </div>

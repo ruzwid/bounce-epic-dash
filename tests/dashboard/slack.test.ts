@@ -42,7 +42,7 @@ describe("buildSlackSummary", () => {
     }
   });
 
-  it("flags a feature with a blocked subtask as needing attention", () => {
+  it("flags a feature with a blocked story as needing attention", () => {
     const blockedFeature = snapshot.features.find((f) => f.scoreBasis.blocked > 0);
     expect(blockedFeature).toBeDefined();
     // Its line should be distinguishable from a healthy feature's line —

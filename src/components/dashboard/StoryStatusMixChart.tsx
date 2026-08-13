@@ -1,14 +1,14 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import type { z } from "zod"
 import type { Feature as FeatureSchema } from "@/lib/schema"
-import { SUBTASK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
+import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { SectionHeading } from "./SectionHeading"
 import { ChartKey } from "./ChartKey"
 
 type FeatureT = z.infer<typeof FeatureSchema>
 
-type SubtaskStatusMixChartProps = {
+type StoryStatusMixChartProps = {
   features: FeatureT[]
 }
 
@@ -17,12 +17,12 @@ type SubtaskStatusMixChartProps = {
 // tokens the pills use, which are theme-aware — so light and dark need no
 // separate chart palette.
 const chartConfig = {
-  shipped: { label: SUBTASK_STATUS_LABELS.shipped, color: "var(--status-shipped)" },
-  staged: { label: SUBTASK_STATUS_LABELS.staged, color: "var(--status-staged)" },
-  inReview: { label: SUBTASK_STATUS_LABELS.in_review, color: "var(--status-in-review)" },
-  inProgress: { label: SUBTASK_STATUS_LABELS.in_progress, color: "var(--status-in-progress)" },
-  blocked: { label: SUBTASK_STATUS_LABELS.blocked, color: "var(--status-blocked)" },
-  todo: { label: SUBTASK_STATUS_LABELS.todo, color: "var(--status-todo)" },
+  shipped: { label: WORK_STATUS_LABELS.shipped, color: "var(--status-shipped)" },
+  staged: { label: WORK_STATUS_LABELS.staged, color: "var(--status-staged)" },
+  inReview: { label: WORK_STATUS_LABELS.in_review, color: "var(--status-in-review)" },
+  inProgress: { label: WORK_STATUS_LABELS.in_progress, color: "var(--status-in-progress)" },
+  blocked: { label: WORK_STATUS_LABELS.blocked, color: "var(--status-blocked)" },
+  todo: { label: WORK_STATUS_LABELS.todo, color: "var(--status-todo)" },
 } satisfies ChartConfig
 
 const SERIES = Object.keys(chartConfig) as (keyof typeof chartConfig)[]
@@ -32,13 +32,13 @@ const SERIES = Object.keys(chartConfig) as (keyof typeof chartConfig)[]
  * stack segments — never pre-summed before charting, which is the whole
  * point of this dashboard.
  */
-export function SubtaskStatusMixChart({ features }: SubtaskStatusMixChartProps) {
+export function StoryStatusMixChart({ features }: StoryStatusMixChartProps) {
   const data = features.map((f) => ({ code: f.code, ...f.scoreBasis }))
 
   return (
     <section className="flex flex-col gap-3">
-      <SectionHeading note="one bar per feature">Subtask status mix</SectionHeading>
-      <div className="surface rounded-xl border border-border bg-card p-4">
+      <SectionHeading note="one bar per feature">Story status mix</SectionHeading>
+      <div className="surface rounded-4xl border border-border bg-card p-4">
         <ChartContainer config={chartConfig} className="aspect-auto h-72 w-full">
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />

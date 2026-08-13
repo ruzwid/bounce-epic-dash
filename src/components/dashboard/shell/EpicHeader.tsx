@@ -2,7 +2,7 @@ import { useState } from "react"
 import { PanelLeft } from "lucide-react"
 import { epicProgress } from "@/lib/dashboard/nav"
 import { buildSlackSummary } from "@/lib/dashboard/slack"
-import { SUBTASK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
+import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
 import { Button } from "@/components/ui/button"
 import { useShell } from "./ShellContext"
 
@@ -29,51 +29,66 @@ export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
-      <div className="page-wrap flex flex-wrap items-center gap-x-7 gap-y-4 py-3.5">
+      <div className="page-wrap flex flex-wrap items-center gap-x-7 gap-y-3 py-4">
         <button
           type="button"
           onClick={onOpenSidebar}
           aria-label="Open navigation"
-          className="nav-item -ml-1 rounded-lg p-2 lg:hidden"
+          className="nav-item -ml-1 rounded-4xl p-2 lg:hidden"
         >
           <PanelLeft aria-hidden="true" className="size-[18px]" />
         </button>
 
-        <div className="flex min-w-0 items-baseline gap-3">
+        {/*
+          Three columns, one shared rhythm: every column below is either a
+          "big element" (the percent figure, the button) self-centered
+          against its neighbour, or a two-line stack — and every stack uses
+          the exact same row heights (h-5 headline / h-4 detail) and gap, so
+          the headline line and the detail line land on the same baseline
+          in every column instead of each block just centering on its own.
+        */}
+        <div className="flex min-w-0 items-center gap-3">
           <span className="font-display font-mono-data text-[38px] leading-none">
             {progress.percent}
             <span className="text-xl text-muted-foreground">%</span>
           </span>
-          <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-medium whitespace-nowrap">Epic complete</span>
+          <div className="flex flex-col gap-1">
+            <span className="flex h-5 items-center text-[13px] font-medium whitespace-nowrap">Epic complete</span>
             <DeltaLine delta={delta} />
-          </span>
-        </div>
-
-        <div className="flex min-w-60 flex-1 flex-col gap-1.5">
-          <SegmentedProgress progress={progress} />
-          <div className="flex flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-muted-foreground">
-            <span>
-              <span className="font-mono-data">{snapshot.kpis.shipped}</span> shipped
-            </span>
-            <span>
-              <span className="font-mono-data">{snapshot.kpis.staged}</span> staged
-            </span>
-            <span>
-              <span className="font-mono-data">{snapshot.kpis.inReview}</span> in review
-            </span>
-            <span className="sm:ml-auto">
-              {snapshot.epic.targetDate ? `target ${snapshot.epic.targetDate}` : "no target date set"}
-            </span>
           </div>
         </div>
 
-        <div className="flex flex-none items-center gap-2.5">
-          <span className="hidden text-right text-[11px] leading-tight text-muted-foreground sm:block">
-            Generated
-            <br />
-            <span className="font-mono-data">{formatGeneratedAt(snapshot.generatedAt)}</span>
-          </span>
+        {/* Divider rules borrowed from StatStrip — the same "related
+            figures, ruled apart" language, so the header reads as one
+            family with the KPI row below it rather than a bespoke strip. */}
+        <div className="min-w-60 max-w-md flex-1 border-l border-border-soft pl-7">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex h-5 items-center">
+              <SegmentedProgress progress={progress} />
+            </div>
+            <div className="flex h-4 flex-wrap items-center gap-x-3.5 text-[11.5px] leading-4 text-muted-foreground">
+              <span>
+                <span className="font-mono-data">{snapshot.kpis.shipped}</span> shipped
+              </span>
+              <span>
+                <span className="font-mono-data">{snapshot.kpis.staged}</span> staged
+              </span>
+              <span>
+                <span className="font-mono-data">{snapshot.kpis.inReview}</span> in review
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="ml-auto flex flex-none items-center gap-4 border-l border-border-soft pl-7">
+          <div className="hidden flex-col gap-1 text-right text-[11.5px] text-muted-foreground sm:flex">
+            <span className="flex h-5 items-center justify-end whitespace-nowrap">
+              {snapshot.epic.targetDate ? `Target ${snapshot.epic.targetDate}` : "No target date set"}
+            </span>
+            <span className="font-mono-data flex h-4 items-center justify-end leading-4 whitespace-nowrap">
+              Generated {formatGeneratedAt(snapshot.generatedAt)}
+            </span>
+          </div>
           <Button variant="secondary" size="sm" onClick={copySlackSummary}>
             {copied ? "Copied" : "Copy Slack summary"}
           </Button>
@@ -85,14 +100,22 @@ export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
 
 function DeltaLine({ delta }: { delta: number | null }) {
   if (delta === null) {
-    return <span className="text-[11.5px] whitespace-nowrap text-muted-foreground">First snapshot on record</span>
+    return (
+      <span className="flex h-4 items-center text-[11.5px] leading-4 whitespace-nowrap text-muted-foreground">
+        First snapshot on record
+      </span>
+    )
   }
   if (delta === 0) {
-    return <span className="text-[11.5px] whitespace-nowrap text-muted-foreground">No change since last snapshot</span>
+    return (
+      <span className="flex h-4 items-center text-[11.5px] leading-4 whitespace-nowrap text-muted-foreground">
+        No change since last snapshot
+      </span>
+    )
   }
   return (
     <span
-      className="text-[11.5px] whitespace-nowrap"
+      className="flex h-4 items-center text-[11.5px] leading-4 whitespace-nowrap"
       style={{ color: delta > 0 ? "var(--status-shipped)" : "var(--status-blocked)" }}
     >
       {delta > 0 ? "▲" : "▼"} <span className="font-mono-data">{Math.abs(delta)}</span> pts since last snapshot
@@ -101,18 +124,22 @@ function DeltaLine({ delta }: { delta: number | null }) {
 }
 
 const SEGMENTS = [
-  { key: "shippedShare", color: "var(--status-shipped)", label: SUBTASK_STATUS_LABELS.shipped },
-  { key: "stagedShare", color: "var(--status-staged)", label: SUBTASK_STATUS_LABELS.staged },
-  { key: "inReviewShare", color: "var(--status-in-review)", label: SUBTASK_STATUS_LABELS.in_review },
+  { key: "shippedShare", color: "var(--status-shipped)", label: WORK_STATUS_LABELS.shipped },
+  { key: "stagedShare", color: "var(--status-staged)", label: WORK_STATUS_LABELS.staged },
+  { key: "inReviewShare", color: "var(--status-in-review)", label: WORK_STATUS_LABELS.in_review },
 ] as const
 
 /** Three stacked segments on one track — shipped, staged, in review — so
  *  the bar shows the *composition* of progress rather than a single fill
- *  that would hide the shipped-vs-staged distinction entirely. */
+ *  that would hide the shipped-vs-staged distinction entirely. Same
+ *  ruler-tick treatment as ScoreBar (0/25/70/100, the real Stage
+ *  boundaries) — the epic-level bar and every feature's own bar are
+ *  drawn with the one signature device, not two unrelated progress
+ *  widgets that happen to sit on the same page. */
 function SegmentedProgress({ progress }: { progress: ReturnType<typeof epicProgress> }) {
   return (
     <div
-      className="flex h-[7px] overflow-hidden rounded-full bg-muted"
+      className="tick-marks relative flex h-2.5 w-full overflow-hidden rounded-[3px] bg-muted"
       role="img"
       aria-label={`${progress.percent}% complete: ${SEGMENTS.map(
         (s) => `${Math.round(progress[s.key])}% ${s.label.toLowerCase()}`,

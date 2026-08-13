@@ -14,7 +14,7 @@ type OverrideNoteProps = {
  */
 export function OverrideNote({ override }: OverrideNoteProps) {
   return (
-    <div className="rounded-lg border-l-2 border-dashed border-foreground/30 bg-muted/60 px-3 py-2 text-sm">
+    <div className="rounded-4xl border-l-2 border-dashed border-foreground/30 bg-muted/60 px-3 py-2 text-sm">
       <p className="m-0 italic">&ldquo;{override.note}&rdquo;</p>
       <p className="m-0 mt-1 text-xs text-muted-foreground">
         — {override.author}, note expires {override.expires}

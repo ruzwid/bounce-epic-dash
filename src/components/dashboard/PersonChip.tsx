@@ -16,7 +16,7 @@ export function PersonChip({ login, name, className }: PersonChipProps) {
   return (
     <span
       className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded-lg bg-muted py-1 pr-2.5 pl-1 text-xs",
+        "inline-flex max-w-full items-center gap-1.5 rounded-4xl bg-muted py-1 pr-2.5 pl-1 text-xs",
         className,
       )}
     >

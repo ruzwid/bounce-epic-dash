@@ -10,20 +10,53 @@
       "owner": "alice",
       "milestone": "M1",
       "score": 80,
-      "scoreBasis": { "shipped": 3, "staged": 1, "inReview": 0, "inProgress": 0, "blocked": 0, "todo": 0, "total": 4 },
+      "scoreBasis": {
+        "shipped": 3,
+        "staged": 1,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 4
+      },
       "daysSinceLastActivity": 2,
       "daysInStaged": 5,
       "releaseGateStatus": "open",
       "acBullets": [
-        { "id": "ac-1", "text": "Users can do X" },
-        { "id": "ac-2", "text": "Users can do Y" }
+        {
+          "id": "ac-1",
+          "text": "Users can do X"
+        },
+        {
+          "id": "ac-2",
+          "text": "Users can do Y"
+        }
       ],
-      "subtasks": [
-        { "key": "TEST-11", "summary": "Sub A", "status": "shipped" },
-        { "key": "TEST-12", "summary": "Sub B", "status": "staged" }
+      "prs": [
+        {
+          "ref": "service-a#1",
+          "title": "[TEST-11] add thing",
+          "state": "MERGED",
+          "filesTouched": [
+            "a.ts"
+          ]
+        }
       ],
-      "prs": [{ "ref": "service-a#1", "title": "[TEST-11] add thing", "state": "MERGED", "filesTouched": ["a.ts"] }],
-      "dataOk": true
+      "dataOk": true,
+      "stories": [
+        {
+          "key": "TEST-11",
+          "summary": "Sub A",
+          "status": "shipped",
+          "subtasks": []
+        },
+        {
+          "key": "TEST-12",
+          "summary": "Sub B",
+          "status": "staged",
+          "subtasks": []
+        }
+      ]
     },
     {
       "key": "TEST-20",
@@ -32,14 +65,29 @@
       "owner": "bob",
       "milestone": "M1",
       "score": 0,
-      "scoreBasis": { "shipped": 0, "staged": 0, "inReview": 0, "inProgress": 0, "blocked": 0, "todo": 1, "total": 1 },
+      "scoreBasis": {
+        "shipped": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
       "daysSinceLastActivity": null,
       "daysInStaged": null,
       "releaseGateStatus": null,
       "acBullets": [],
-      "subtasks": [{ "key": "TEST-21", "summary": "Sub C", "status": "todo" }],
       "prs": [],
-      "dataOk": true
+      "dataOk": true,
+      "stories": [
+        {
+          "key": "TEST-21",
+          "summary": "Sub C",
+          "status": "todo",
+          "subtasks": []
+        }
+      ]
     }
   ]
 }

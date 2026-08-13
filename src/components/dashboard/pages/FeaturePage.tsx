@@ -1,22 +1,24 @@
 import { useState } from "react"
 import { Check, Minus } from "lucide-react"
 import type { z } from "zod"
-import type { AcCoverage as AcCoverageSchema, Feature as FeatureSchema, Subtask as SubtaskSchema } from "@/lib/schema"
-import { SUBTASK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
+import type { AcCoverage as AcCoverageSchema, Feature as FeatureSchema, Story as StorySchema } from "@/lib/schema"
+import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
+import { featurePrs } from "@/lib/stories"
 import { cn } from "@/lib/utils"
 import { useShell } from "../shell/ShellContext"
 import { SectionHeading } from "../SectionHeading"
 import { StatStrip } from "../StatStrip"
-import { SubtaskCard } from "../SubtaskCard"
+import { StoryCard } from "../StoryCard"
 import { StatusPill } from "../StatusPill"
 import { OwnerLabel } from "../OwnerLabel"
 import { Callout } from "../Callout"
 import { EmptyState } from "../EmptyState"
 import { OverrideNote } from "../OverrideNote"
 import { ReleaseGateLine } from "../ReleaseGateLine"
+import { JiraLink } from "../JiraLink"
 
 type FeatureT = z.infer<typeof FeatureSchema>
-type SubtaskT = z.infer<typeof SubtaskSchema>
+type StoryT = z.infer<typeof StorySchema>
 type AcCoverageT = z.infer<typeof AcCoverageSchema>
 
 const CONFIDENCE_LABEL: Record<FeatureT["confidence"], string> = {
@@ -25,9 +27,9 @@ const CONFIDENCE_LABEL: Record<FeatureT["confidence"], string> = {
   low: "Low confidence",
 }
 
-type SubtaskFilter = "all" | "in_review" | "staged" | "no_pr"
+type StoryFilter = "all" | "in_review" | "staged" | "no_pr"
 
-const FILTERS: { id: SubtaskFilter; label: string; match: (s: SubtaskT) => boolean }[] = [
+const FILTERS: { id: StoryFilter; label: string; match: (s: StoryT) => boolean }[] = [
   { id: "all", label: "All", match: () => true },
   { id: "in_review", label: "Needs review", match: (s) => s.status === "in_review" },
   { id: "staged", label: "Staged", match: (s) => s.status === "staged" },
@@ -36,16 +38,16 @@ const FILTERS: { id: SubtaskFilter; label: string; match: (s: SubtaskT) => boole
 
 export function FeaturePage({ feature }: { feature: FeatureT }) {
   const { previous } = useShell()
-  const [filter, setFilter] = useState<SubtaskFilter>("all")
+  const [filter, setFilter] = useState<StoryFilter>("all")
 
   const previousFeature = previous?.features.find((f) => f.key === feature.key) ?? null
   const scoreDelta = previousFeature ? feature.score - previousFeature.score : null
-  const openPrCount = feature.subtasks.flatMap((s) => s.prs).filter((pr) => pr.state === "OPEN").length
+  const openPrCount = featurePrs(feature).filter((pr) => pr.state === "OPEN").length
   const acCovered = feature.acCoverage.filter((ac) => ac.coverage === "covered").length
   const gaps = feature.acCoverage.filter((ac) => ac.coverage === "no_signal")
 
   const activeFilter = FILTERS.find((f) => f.id === filter) ?? FILTERS[0]!
-  const visibleSubtasks = feature.subtasks.filter(activeFilter.match)
+  const visibleStories = feature.stories.filter(activeFilter.match)
 
   return (
     <article className="flex flex-col gap-8">
@@ -60,10 +62,14 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
             <span aria-hidden="true">·</span>
             <span className="font-mono-data">{feature.repos.join(", ") || "no repo mapped"}</span>
           </div>
-          <h1 className="font-display m-0 text-[28px] leading-tight">{feature.title}</h1>
+          <h1 className="font-display m-0 text-[28px] leading-tight">
+            <JiraLink issueKey={feature.key} type="feature" tone={feature.stage} className="gap-2" iconClassName="size-5">
+              {feature.title}
+            </JiraLink>
+          </h1>
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <StatusPill status={feature.stage} />
-            <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+            <span className="rounded-4xl bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
               {CONFIDENCE_LABEL[feature.confidence]}
             </span>
           </div>
@@ -73,9 +79,9 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
               them into one paragraph would let a generated sentence pass
               as spec. */}
           {feature.overview ? (
-            <p className="m-0 mt-3 max-w-[62ch] text-sm leading-relaxed">{feature.overview}</p>
+            <p className="m-0 mt-3 text-sm leading-relaxed">{feature.overview}</p>
           ) : null}
-          <p className="m-0 mt-2.5 max-w-[62ch] border-l-2 border-border pl-3 text-[13.5px] leading-relaxed text-muted-foreground">
+          <p className="m-0 mt-2.5 border-l-2 border-border pl-3 text-[13.5px] leading-relaxed text-muted-foreground">
             {feature.rationale}
           </p>
         </div>
@@ -139,14 +145,14 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
       <section className="flex flex-col gap-3">
         <SectionHeading
           actions={FILTERS.map((option) => {
-            const count = feature.subtasks.filter(option.match).length
+            const count = feature.stories.filter(option.match).length
             return (
               <button
                 key={option.id}
                 type="button"
                 onClick={() => setFilter(option.id)}
                 data-selected={filter === option.id}
-                className="chip inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs"
+                className="chip inline-flex items-center gap-1.5 rounded-4xl border border-border px-3 py-1.5 text-xs"
               >
                 {option.label}
                 <span className="font-mono-data opacity-60">{count}</span>
@@ -154,26 +160,26 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
             )
           })}
         >
-          Subtasks
+          Stories
         </SectionHeading>
 
-        {visibleSubtasks.length === 0 ? (
+        {visibleStories.length === 0 ? (
           <EmptyState
             message={
-              feature.subtasks.length === 0
-                ? "No subtasks on this feature yet."
-                : `No subtasks match "${activeFilter.label}".`
+              feature.stories.length === 0
+                ? "No stories on this feature yet."
+                : `No stories match "${activeFilter.label}".`
             }
           />
         ) : (
           <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-            {visibleSubtasks.map((subtask) => (
-              <SubtaskCard key={subtask.key} subtask={subtask} />
+            {visibleStories.map((story) => (
+              <StoryCard key={story.key} story={story} />
             ))}
           </ul>
         )}
 
-        {feature.subtasks.length > 0 ? <StatusMixLine feature={feature} /> : null}
+        {feature.stories.length > 0 ? <StatusMixLine feature={feature} /> : null}
       </section>
 
       <section className="grid gap-x-10 gap-y-8 border-t border-border pt-7 md:grid-cols-2">
@@ -200,7 +206,7 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
                 <li
                   key={ac.id}
                   data-status="in_progress"
-                  className="flex items-start gap-2.5 rounded-lg px-3.5 py-2.5 text-[13.5px]"
+                  className="flex items-start gap-2.5 rounded-4xl px-3.5 py-2.5 text-[13.5px]"
                 >
                   <span aria-hidden="true" className="mt-0.5 font-medium">
                     !
@@ -213,7 +219,7 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
             </ul>
           )}
           <p className="m-0 text-xs leading-relaxed text-muted-foreground">
-            Criteria are read from the ticket description on every run. A gap closes on its own once a subtask or PR
+            Criteria are read from the ticket description on every run. A gap closes on its own once a story or PR
             matching it appears — nothing here is closed by hand.
           </p>
         </div>
@@ -253,7 +259,7 @@ function StatusMixLine({ feature }: { feature: FeatureT }) {
     ] as const
   )
     .filter(([, count]) => count > 0)
-    .map(([status, count]) => `${count} ${SUBTASK_STATUS_LABELS[status].toLowerCase()}`)
+    .map(([status, count]) => `${count} ${WORK_STATUS_LABELS[status].toLowerCase()}`)
 
   return (
     <p className="font-mono-data m-0 text-xs text-muted-foreground">

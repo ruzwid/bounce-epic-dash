@@ -6,12 +6,12 @@ const history: HistoryPoint[] = [
   {
     date: "2026-08-10",
     generatedAt: "2026-08-10T08:00:00.000Z",
-    kpis: { featuresTracked: 2, lightTierMilestones: 0, subtasksTracked: 3, shipped: 0, staged: 1, inReview: 0, blockedOrTodo: 2 },
+    kpis: { featuresTracked: 2, lightTierMilestones: 0, storiesTracked: 3, shipped: 0, staged: 1, inReview: 0, blockedOrTodo: 2 },
   },
   {
     date: "2026-08-11",
     generatedAt: "2026-08-11T08:00:00.000Z",
-    kpis: { featuresTracked: 2, lightTierMilestones: 0, subtasksTracked: 3, shipped: 1, staged: 0, inReview: 0, blockedOrTodo: 2 },
+    kpis: { featuresTracked: 2, lightTierMilestones: 0, storiesTracked: 3, shipped: 1, staged: 0, inReview: 0, blockedOrTodo: 2 },
   },
 ];
 

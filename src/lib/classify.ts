@@ -7,9 +7,9 @@
 //
 // Never collapse staged into shipped, anywhere, in any count or label.
 import type { z } from "zod";
-import type { SubtaskStatus as SubtaskStatusSchema } from "./schema.ts";
+import type { WorkStatus as WorkStatusSchema } from "./schema.ts";
 
-type SubtaskStatus = z.infer<typeof SubtaskStatusSchema>;
+type WorkStatus = z.infer<typeof WorkStatusSchema>;
 
 /** A GitHub PR as fetched by src/lib/github.ts, before shippedToDefault /
  *  stackChain have been computed (that's what this module does). */
@@ -93,21 +93,21 @@ export function findReleaseGate(
   };
 }
 
-/** Derives a subtask's GitHub-aware status. Starts from the JIRA status
+/** Derives a story's GitHub-aware status. Starts from the JIRA status
  *  mapped through config's statusMap (default "todo" + a warning for
  *  unmapped names — the map should have an entry for every status the
  *  configured JIRA project actually uses), then upgrades to "shipped" or
  *  "staged" if any linked PR proves it, since a stale JIRA status must
  *  never outrank real GitHub activity. */
-export function deriveSubtaskStatus(
+export function deriveWorkStatus(
   jiraStatus: string,
-  statusMap: Record<string, SubtaskStatus>,
+  statusMap: Record<string, WorkStatus>,
   prs: RawPr[],
   defaultBranch: string,
-): SubtaskStatus {
+): WorkStatus {
   let base = statusMap[jiraStatus];
   if (base === undefined) {
-    console.warn(`deriveSubtaskStatus: unmapped JIRA status "${jiraStatus}", defaulting to "todo"`);
+    console.warn(`deriveWorkStatus: unmapped JIRA status "${jiraStatus}", defaulting to "todo"`);
     base = "todo";
   }
 

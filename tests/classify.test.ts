@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   classifyPr,
-  deriveSubtaskStatus,
+  deriveWorkStatus,
   findReleaseGate,
   traceStackChain,
 } from "../src/lib/classify.ts";
@@ -89,12 +89,12 @@ describe("findReleaseGate", () => {
   });
 });
 
-describe("deriveSubtaskStatus", () => {
+describe("deriveWorkStatus", () => {
   const statusMap = { Done: "shipped" as const, "In Progress": "in_progress" as const, "To Do": "todo" as const };
 
   it("upgrades to 'shipped' when a linked PR shipped to the default branch, even if JIRA says In Progress", () => {
     const pr = makePr({ number: 20, state: "MERGED", baseRefName: "master", mergedAt: "2026-01-01T00:00:00.000Z" });
-    expect(deriveSubtaskStatus("In Progress", statusMap, [pr], DEFAULT_BRANCH)).toBe("shipped");
+    expect(deriveWorkStatus("In Progress", statusMap, [pr], DEFAULT_BRANCH)).toBe("shipped");
   });
 
   it("is 'staged', not 'shipped', when the only linked PR merged to an integration branch", () => {
@@ -104,7 +104,7 @@ describe("deriveSubtaskStatus", () => {
       baseRefName: "integration/wpp",
       mergedAt: "2026-01-01T00:00:00.000Z",
     });
-    expect(deriveSubtaskStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("staged");
+    expect(deriveWorkStatus("Done", statusMap, [pr], DEFAULT_BRANCH)).toBe("staged");
   });
 
   it("stays 'staged' (not 'shipped') even if that staged PR's release gate is merely open", () => {
@@ -114,15 +114,15 @@ describe("deriveSubtaskStatus", () => {
       baseRefName: "integration/wpp",
       mergedAt: "2026-01-01T00:00:00.000Z",
     });
-    // The release PR being open elsewhere doesn't change this subtask's own status.
-    expect(deriveSubtaskStatus("Done", statusMap, [stagedPr], DEFAULT_BRANCH)).toBe("staged");
+    // The release PR being open elsewhere doesn't change this story's own status.
+    expect(deriveWorkStatus("Done", statusMap, [stagedPr], DEFAULT_BRANCH)).toBe("staged");
   });
 
   it("falls back to 'todo' with no PRs and an unmapped JIRA status", () => {
-    expect(deriveSubtaskStatus("Some Custom Status", statusMap, [], DEFAULT_BRANCH)).toBe("todo");
+    expect(deriveWorkStatus("Some Custom Status", statusMap, [], DEFAULT_BRANCH)).toBe("todo");
   });
 
   it("uses the mapped base status when there are no linked PRs", () => {
-    expect(deriveSubtaskStatus("To Do", statusMap, [], DEFAULT_BRANCH)).toBe("todo");
+    expect(deriveWorkStatus("To Do", statusMap, [], DEFAULT_BRANCH)).toBe("todo");
   });
 });

@@ -20,7 +20,7 @@ const chartConfig = {
   pace: { label: "Pace needed for target", color: "var(--muted-foreground)" },
 } satisfies ChartConfig
 
-// Explicit legend order — see the note in SubtaskStatusMixChart.
+// Explicit legend order — see the note in StoryStatusMixChart.
 const SERIES = Object.keys(chartConfig) as (keyof typeof chartConfig)[]
 
 export function BurnUpChart({ series, targetDate }: BurnUpChartProps) {
@@ -33,7 +33,7 @@ export function BurnUpChart({ series, targetDate }: BurnUpChartProps) {
         <EmptyState message="Not enough history yet — check back after a couple of weeks of snapshots." />
       ) : (
         <>
-          <div className="surface rounded-xl border border-border bg-card p-4">
+          <div className="surface rounded-4xl border border-border bg-card p-4">
             <ChartContainer config={chartConfig} className="aspect-auto h-72 w-full">
               <ComposedChart data={series} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />

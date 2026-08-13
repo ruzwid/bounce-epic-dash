@@ -39,7 +39,7 @@ describe("validateJudgment", () => {
     if (!result.ok) expect(result.reason).toMatch(/ac-999/);
   });
 
-  it("rejects acCoverage evidence that isn't a real subtask key or PR ref for that feature", () => {
+  it("rejects acCoverage evidence that isn't a real story key or PR ref for that feature", () => {
     const bad = structuredClone(VALID_JUDGMENT) as any;
     bad.features[0].acCoverage[0].evidence = ["TEST-99999"];
     const result = validateJudgment(bad, PENDING);
@@ -47,7 +47,7 @@ describe("validateJudgment", () => {
     if (!result.ok) expect(result.reason).toMatch(/TEST-99999/);
   });
 
-  it("rejects a callout ref that isn't a real subtask key or PR ref for that feature", () => {
+  it("rejects a callout ref that isn't a real story key or PR ref for that feature", () => {
     const bad = structuredClone(VALID_JUDGMENT) as any;
     bad.features[0].callouts[0].refs = ["TEST-99999"];
     const result = validateJudgment(bad, PENDING);
@@ -74,7 +74,7 @@ describe("validateJudgment", () => {
 
   it("accepts a scoreOverride within 20 points with a reason", () => {
     const ok = structuredClone(VALID_JUDGMENT) as any;
-    ok.features[0].scoreOverride = { value: 65, reason: "Staged subtask has been stuck for weeks." };
+    ok.features[0].scoreOverride = { value: 65, reason: "Staged story has been stuck for weeks." };
     const result = validateJudgment(ok, PENDING);
     expect(result.ok).toBe(true);
   });
@@ -117,7 +117,7 @@ function makeRawFeature(overrides: Partial<RawFeature> = {}): RawFeature {
       },
     },
     acBullets: [{ id: "ac-1", text: "Users can do X" }, { id: "ac-2", text: "Users can do Y" }],
-    subtasks: [
+    stories: [
       {
         key: "TEST-11",
         summary: "Sub A",
@@ -144,6 +144,7 @@ function makeRawFeature(overrides: Partial<RawFeature> = {}): RawFeature {
             body: "SECRET-PR-BODY-MARKER: this raw PR description must never appear in a snapshot.",
           },
         ],
+        subtasks: [],
       },
       {
         key: "TEST-12",
@@ -153,6 +154,7 @@ function makeRawFeature(overrides: Partial<RawFeature> = {}): RawFeature {
         assignee: "Alice",
         updatedAt: "2026-01-10T00:00:00.000Z",
         prs: [],
+        subtasks: [],
       },
     ],
     dataOk: true,
@@ -197,10 +199,10 @@ describe("buildSnapshot", () => {
   });
 
   it("never includes PR body text anywhere in the snapshot, even though raw.json carries it", () => {
-    // rawFeatures' TEST-11 subtask PR has a real body (SECRET-PR-BODY-MARKER)
+    // rawFeatures' TEST-11 story PR has a real body (SECRET-PR-BODY-MARKER)
     // in data/raw's shape — buildSnapshot must never carry it through,
-    // whether via a subtask's PrRef or a releaseGate's PrRef.
-    expect(rawFeatures[0]?.subtasks[0]?.prs[0]?.body).toMatch(/SECRET-PR-BODY-MARKER/);
+    // whether via a story's PrRef or a releaseGate's PrRef.
+    expect(rawFeatures[0]?.stories[0]?.prs[0]?.body).toMatch(/SECRET-PR-BODY-MARKER/);
     const snapshot = buildSnapshot({
       date: "2026-01-15",
       epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
@@ -217,7 +219,7 @@ describe("buildSnapshot", () => {
     // Confirm structurally, not just by absence of this one marker: no
     // PrRef embedded anywhere in the snapshot carries a `body` key at all.
     for (const f of snapshot.features) {
-      for (const s of f.subtasks) {
+      for (const s of f.stories) {
         for (const pr of s.prs) {
           expect(pr).not.toHaveProperty("body");
         }

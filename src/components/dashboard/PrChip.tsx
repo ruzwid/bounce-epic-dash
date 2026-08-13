@@ -49,7 +49,7 @@ export function PrChip({ pr, className }: { pr: PrRefT; className?: string }) {
       data-pr={tone}
       title={`${pr.title} — ${TONE_DESCRIPTION[tone]}${target}`}
       className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded-md px-2.5 py-1 text-xs no-underline",
+        "inline-flex max-w-full items-center gap-1.5 rounded-4xl px-2.5 py-1 text-xs no-underline",
         className,
       )}
     >

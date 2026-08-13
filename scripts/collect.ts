@@ -11,7 +11,7 @@ loadEnv({ path: ".env.local" });
 import { extractAcBullets, extractOverview } from "../src/lib/adf.ts";
 import {
   classifyPr,
-  deriveSubtaskStatus,
+  deriveWorkStatus,
   findReleaseGate,
   traceStackChain,
   type RawPr,
@@ -21,16 +21,17 @@ import type { Config, MilestoneFeature } from "../src/lib/config-schema.ts";
 import { getDefaultBranch, getRepoPrs, listOrgRepos } from "../src/lib/github.ts";
 import { writeJsonAtomic } from "../src/lib/io.ts";
 import { cleanPrBody } from "../src/lib/prbody.ts";
-import { getIssue, searchSubtasks, type RawJiraIssue } from "../src/lib/jira.ts";
+import { getIssue, searchChildren, type RawJiraIssue } from "../src/lib/jira.ts";
 import { computeScore, deriveStage, type ScoreBasis } from "../src/lib/score.ts";
+import { featurePrs, storyPrs } from "../src/lib/stories.ts";
 import type { z } from "zod";
-import type { CollectionError as CollectionErrorSchema, Stage as StageSchema, SubtaskStatus as SubtaskStatusSchema } from "../src/lib/schema.ts";
+import type { CollectionError as CollectionErrorSchema, Stage as StageSchema, WorkStatus as WorkStatusSchema } from "../src/lib/schema.ts";
 
-type SubtaskStatus = z.infer<typeof SubtaskStatusSchema>;
+type WorkStatus = z.infer<typeof WorkStatusSchema>;
 type Stage = z.infer<typeof StageSchema>;
 type CollectionError = z.infer<typeof CollectionErrorSchema>;
 
-const STATUS_PRIORITY: Record<SubtaskStatus, number> = {
+const STATUS_PRIORITY: Record<WorkStatus, number> = {
   shipped: 5,
   staged: 4,
   in_review: 3,
@@ -40,7 +41,7 @@ const STATUS_PRIORITY: Record<SubtaskStatus, number> = {
 };
 
 /** The unit of work: either a configured feature, or (light-tier,
- *  direct-subtask milestones) a synthetic feature built from the
+ *  direct-story milestones) a synthetic feature built from the
  *  milestone's own ticket. */
 export type FeatureTarget = MilestoneFeature & {
   title: string;
@@ -69,14 +70,24 @@ export type RawPrRecord = {
   body: string | null;
 };
 
-export type RawSubtask = {
+/** Fields shared by both tracked levels below a Feature. */
+type RawWorkItem = {
   key: string;
   summary: string;
   jiraStatus: string;
-  status: SubtaskStatus;
+  status: WorkStatus;
   assignee: string | null;
   updatedAt: string;
+  /** PRs matched to this ticket's own key only — a Story does not absorb
+   *  its sub-tasks' PRs here. See storyPrs() in src/lib/stories.ts. */
   prs: RawPrRecord[];
+};
+
+/** A JIRA Sub-task — the leaf. Not a scoring unit; see schema.ts. */
+export type RawSubtask = RawWorkItem;
+
+export type RawStory = RawWorkItem & {
+  subtasks: RawSubtask[];
 };
 
 export type RawReleaseGate = {
@@ -104,7 +115,7 @@ export type RawFeature = {
    *  fetched for AC extraction, and this reads a different section of the
    *  same payload rather than making a second call. */
   overview: string;
-  subtasks: RawSubtask[];
+  stories: RawStory[];
   dataOk: boolean;
 };
 
@@ -121,14 +132,14 @@ export type RawMilestone = {
 };
 
 export type Deps = {
-  searchSubtasks: typeof searchSubtasks;
+  searchChildren: typeof searchChildren;
   getIssue: typeof getIssue;
   getDefaultBranch: typeof getDefaultBranch;
   getRepoPrs: typeof getRepoPrs;
   listOrgRepos: typeof listOrgRepos;
 };
 
-export const defaultDeps: Deps = { searchSubtasks, getIssue, getDefaultBranch, getRepoPrs, listOrgRepos };
+export const defaultDeps: Deps = { searchChildren, getIssue, getDefaultBranch, getRepoPrs, listOrgRepos };
 
 /**
  * Every pull request in the org since the epic's start date, fetched once
@@ -258,34 +269,64 @@ function toPrRecord(pr: RawPr, org: string, defaultBranch: string, allPrsInRepo:
   };
 }
 
-/** Combines per-repo status derivation (deriveSubtaskStatus needs one
+/** Combines per-repo status derivation (deriveWorkStatus needs one
  *  defaultBranch) across however many repos a feature's PRs landed in,
- *  taking the highest-priority result — if ANY repo shows the subtask
- *  shipped, the subtask is shipped, full stop. */
-function combineSubtaskStatus(
+ *  taking the highest-priority result — if ANY repo shows the story
+ *  shipped, the story is shipped, full stop. */
+function combineWorkStatus(
   jiraStatus: string,
-  statusMap: Record<string, SubtaskStatus>,
+  statusMap: Record<string, WorkStatus>,
   prs: RawPr[],
   defaultBranchByRepo: Record<string, string>,
-): SubtaskStatus {
+): WorkStatus {
   if (prs.length === 0) {
-    return deriveSubtaskStatus(jiraStatus, statusMap, [], "");
+    return deriveWorkStatus(jiraStatus, statusMap, [], "");
   }
   const byRepo = new Map<string, RawPr[]>();
   for (const pr of prs) {
     byRepo.set(pr.repo, [...(byRepo.get(pr.repo) ?? []), pr]);
   }
   const candidates = [...byRepo.entries()].map(([repo, repoPrs]) =>
-    deriveSubtaskStatus(jiraStatus, statusMap, repoPrs, defaultBranchByRepo[repo] ?? ""),
+    deriveWorkStatus(jiraStatus, statusMap, repoPrs, defaultBranchByRepo[repo] ?? ""),
   );
   return candidates.reduce((best, candidate) =>
     STATUS_PRIORITY[candidate] > STATUS_PRIORITY[best] ? candidate : best,
   );
 }
 
+/**
+ * Folds a Story's Sub-task evidence into the status derived from its own
+ * PRs. Only ever raises, and only as far as the evidence actually proves:
+ *
+ *   every sub-task shipped        -> at least "shipped"  (fully proven)
+ *   any sub-task has a live PR    -> at least "in_review" (work in flight)
+ *
+ * Deliberately NOT a flat union of every PR: deriveWorkStatus returns
+ * "shipped" the moment any single PR shipped, so unioning a story's
+ * sub-task PRs would let one merged sub-task out of five declare the whole
+ * story shipped — the precise over-claim this dashboard exists to catch.
+ *
+ * Never lowers a status either. A story whose sub-tasks are all "todo" is
+ * left exactly as its own JIRA status and PRs describe it; inferring
+ * regressions from an incomplete decomposition would be its own kind of
+ * invention.
+ */
+export function rollUpStoryStatus(ownStatus: WorkStatus, subtasks: { status: WorkStatus }[]): WorkStatus {
+  if (subtasks.length === 0) return ownStatus;
+
+  const atLeast = (candidate: WorkStatus) =>
+    STATUS_PRIORITY[candidate] > STATUS_PRIORITY[ownStatus] ? candidate : ownStatus;
+
+  if (subtasks.every((s) => s.status === "shipped")) return atLeast("shipped");
+  if (subtasks.some((s) => s.status === "shipped" || s.status === "staged" || s.status === "in_review")) {
+    return atLeast("in_review");
+  }
+  return ownStatus;
+}
+
 function buildRawFeature(params: {
   target: FeatureTarget;
-  subtasks: RawSubtask[];
+  stories: RawStory[];
   acBullets: { id: string; text: string }[];
   overview?: string;
   releaseGate: RawReleaseGate | null;
@@ -295,20 +336,23 @@ function buildRawFeature(params: {
   dataOk: boolean;
   scoreWeights: Config["scoreWeights"];
 }): RawFeature {
-  const { target, subtasks, acBullets, overview = "", releaseGate, repos = [], now, dataOk, scoreWeights } = params;
-  const { score, scoreBasis } = computeScore(subtasks.map((s) => s.status), scoreWeights);
-  const allShippedToDefault = subtasks.length > 0 && subtasks.every((s) => s.status === "shipped");
+  const { target, stories, acBullets, overview = "", releaseGate, repos = [], now, dataOk, scoreWeights } = params;
+  const { score, scoreBasis } = computeScore(stories.map((s) => s.status), scoreWeights);
+  const allShippedToDefault = stories.length > 0 && stories.every((s) => s.status === "shipped");
   const stage = deriveStage(score, allShippedToDefault);
 
+  // Sub-tasks count as activity too — a story untouched for a month whose
+  // sub-task shipped yesterday is not stalled.
   const activityTimestamps = [
-    ...subtasks.map((s) => s.updatedAt),
-    ...subtasks.flatMap((s) => s.prs.map((p) => p.updatedAt)),
+    ...stories.map((s) => s.updatedAt),
+    ...stories.flatMap((s) => s.subtasks.map((sub) => sub.updatedAt)),
+    ...stories.flatMap((s) => storyPrs(s).map((p) => p.updatedAt)),
   ].map((d) => new Date(d).getTime());
   const daysSinceLastActivity = activityTimestamps.length ? daysBetween(new Date(Math.max(...activityTimestamps)), now) : null;
 
-  const stagedMergeTimestamps = subtasks
+  const stagedMergeTimestamps = stories
     .filter((s) => s.status === "staged")
-    .flatMap((s) => s.prs.filter((p) => p.state === "MERGED" && !p.shippedToDefault))
+    .flatMap((s) => storyPrs(s).filter((p) => p.state === "MERGED" && !p.shippedToDefault))
     .map((p) => p.mergedAt)
     .filter((d): d is string => Boolean(d))
     .map((d) => new Date(d).getTime());
@@ -330,7 +374,7 @@ function buildRawFeature(params: {
     releaseGate,
     acBullets,
     overview,
-    subtasks,
+    stories,
     dataOk,
   };
 }
@@ -348,11 +392,11 @@ export async function collectFeature(
 ): Promise<{ feature: RawFeature; errors: CollectionError[] }> {
   const errors: CollectionError[] = [];
 
-  let subtaskIssues: RawJiraIssue[];
+  let storyIssues: RawJiraIssue[];
   let parentIssue: RawJiraIssue;
   try {
-    [subtaskIssues, parentIssue] = await Promise.all([
-      deps.searchSubtasks(target.key),
+    [storyIssues, parentIssue] = await Promise.all([
+      deps.searchChildren(target.key),
       deps.getIssue(target.key),
     ]);
   } catch (err) {
@@ -360,7 +404,7 @@ export async function collectFeature(
     return {
       feature: buildRawFeature({
         target,
-        subtasks: [],
+        stories: [],
         acBullets: [],
         releaseGate: null,
         now,
@@ -383,42 +427,66 @@ export async function collectFeature(
 
   const { allPrs, prsByRepo, defaultBranchByRepo } = prIndex;
 
-  const toRawSubtask = (issue: RawJiraIssue): RawSubtask => {
+  const fieldsOf = (issue: RawJiraIssue) => issue.fields as Record<string, unknown>;
+
+  // Searched across every repo in the org — a ticket's work is wherever its
+  // key says it is. When the index is empty (GitHub unreachable this run,
+  // recorded by buildPrIndex), this degrades to the JIRA status alone
+  // rather than dropping the feature.
+  const matchPrs = (key: string) =>
+    allPrs.filter((pr) => mentionsTicket(pr.headRefName, key) || mentionsTicket(pr.title, key));
+
+  const toWorkItem = (issue: RawJiraIssue) => {
     const key = issue.key;
-    const jiraStatus = String(((issue.fields as Record<string, unknown>).status as { name?: string } | undefined)?.name ?? "");
-    // Searched across every repo in the org — a subtask's work is wherever
-    // its key says it is. When the index is empty (GitHub unreachable this
-    // run, recorded by buildPrIndex), this degrades to the JIRA status
-    // alone rather than dropping the feature.
-    const matched = allPrs.filter((pr) => mentionsTicket(pr.headRefName, key) || mentionsTicket(pr.title, key));
-    const status = combineSubtaskStatus(jiraStatus, config.jira.statusMap, matched, defaultBranchByRepo);
-    const prs = matched.map((pr) => toPrRecord(pr, config.github.org, defaultBranchByRepo[pr.repo]!, prsByRepo[pr.repo]!));
+    const jiraStatus = String((fieldsOf(issue).status as { name?: string } | undefined)?.name ?? "");
+    const matched = matchPrs(key);
     return {
       key,
-      summary: String((issue.fields as Record<string, unknown>).summary ?? ""),
+      summary: String(fieldsOf(issue).summary ?? ""),
       jiraStatus,
-      status,
-      assignee: ((issue.fields as Record<string, unknown>).assignee as { displayName?: string } | null)?.displayName ?? null,
-      updatedAt: toIso((issue.fields as Record<string, unknown>).updated),
-      prs,
+      status: combineWorkStatus(jiraStatus, config.jira.statusMap, matched, defaultBranchByRepo),
+      assignee: (fieldsOf(issue).assignee as { displayName?: string } | null)?.displayName ?? null,
+      updatedAt: toIso(fieldsOf(issue).updated),
+      prs: matched.map((pr) => toPrRecord(pr, config.github.org, defaultBranchByRepo[pr.repo]!, prsByRepo[pr.repo]!)),
     };
   };
 
-  // A feature ticket with no subtasks yet can still be actively worked
+  /** A Story plus the level below it. Sub-tasks are where a good deal of
+   *  this epic's branch names actually live — collecting only Stories left
+   *  their pull requests attributed to nothing and therefore invisible. */
+  const toRawStory = async (issue: RawJiraIssue): Promise<RawStory> => {
+    const own = toWorkItem(issue);
+    let subtaskIssues: RawJiraIssue[] = [];
+    try {
+      subtaskIssues = await deps.searchChildren(issue.key);
+    } catch (err) {
+      // One story's children failing must not cost the whole feature —
+      // same containment rule the feature-level fetch already follows.
+      errors.push({ source: "jira", scope: issue.key, message: `Sub-task fetch failed: ${errMsg(err)}` });
+    }
+    const subtasks: RawSubtask[] = subtaskIssues.map(toWorkItem);
+    return { ...own, status: rollUpStoryStatus(own.status, subtasks), subtasks };
+  };
+
+  // A feature ticket with no stories yet can still be actively worked
   // (e.g. "Code Review" on the ticket itself) — falling back to zero
-  // subtasks would silently read as not_started. Treat the parent ticket
-  // as a single subtask-equivalent data point in that case, matching PRs
-  // against the feature's own key the same way a real subtask would be.
-  const subtasks: RawSubtask[] = subtaskIssues.length > 0 ? subtaskIssues.map(toRawSubtask) : [toRawSubtask(parentIssue)];
+  // stories would silently read as not_started. Treat the parent ticket
+  // as a single story-equivalent data point in that case, matching PRs
+  // against the feature's own key the same way a real story would be.
+  const stories: RawStory[] = await Promise.all(
+    (storyIssues.length > 0 ? storyIssues : [parentIssue]).map(toRawStory),
+  );
 
   // Release gate: the integration branch most of THIS feature's own staged
-  // PRs (i.e. PRs already attributed to one of its subtasks, not every PR
+  // PRs (i.e. PRs already attributed to one of its stories, not every PR
   // in a repo it happens to share with other features) actually merged
   // into. There's normally exactly one; if several, take the majority so
   // the reported gate reflects most of the work.
   let releaseGate: RawReleaseGate | null = null;
-  const featurePrs = subtasks.flatMap((s) => s.prs);
-  const stagedPrs = featurePrs.filter((pr) => pr.state === "MERGED" && !pr.shippedToDefault);
+  // Every PR under the feature, sub-tasks included — a release gate or a
+  // repo list built from Story-level PRs alone would miss whole branches.
+  const allFeaturePrs = featurePrs({ stories });
+  const stagedPrs = allFeaturePrs.filter((pr) => pr.state === "MERGED" && !pr.shippedToDefault);
   if (stagedPrs.length > 0) {
     const counts = new Map<string, number>();
     for (const pr of stagedPrs) {
@@ -440,14 +508,14 @@ export async function collectFeature(
   return {
     feature: buildRawFeature({
       target: resolvedTarget,
-      subtasks,
+      stories,
       acBullets,
       overview,
       releaseGate,
       // The repos this feature's work actually landed in, derived from the
       // PRs attributed to it — not declared up front. A feature with no
       // PRs yet reports none, which is the honest answer.
-      repos: [...new Set(featurePrs.map((pr) => pr.repo))].sort(),
+      repos: [...new Set(allFeaturePrs.map((pr) => pr.repo))].sort(),
       now,
       dataOk: !prIndex.degraded,
       scoreWeights: config.scoreWeights,
@@ -457,7 +525,7 @@ export async function collectFeature(
 }
 
 /** Expands config.milestones into the flat list of features to collect.
- *  Light-tier milestones with no features[] fall back to direct-subtask
+ *  Light-tier milestones with no features[] fall back to direct-story
  *  mode using milestone.ticket. A milestone with neither is a clear,
  *  recorded error — never a crash, never invented data. */
 function expandTargets(config: Config): { targets: FeatureTarget[]; errors: CollectionError[] } {
@@ -509,9 +577,16 @@ export type PendingFeature = {
   acBullets: { id: string; text: string }[];
   /** The ticket's stated goal, so the judge writes its rationale against
    *  what the feature is supposed to do rather than inferring intent from
-   *  subtask titles alone. */
+   *  story titles alone. */
   overview: string;
-  subtasks: { key: string; summary: string; status: SubtaskStatus }[];
+  /** Sub-tasks are listed under their story so the judge can cite one as
+   *  evidence — refWhitelistFor (scripts/merge.ts) accepts these keys. */
+  stories: {
+    key: string;
+    summary: string;
+    status: WorkStatus;
+    subtasks: { key: string; summary: string; status: WorkStatus }[];
+  }[];
   prs: {
     ref: string;
     title: string;
@@ -598,7 +673,7 @@ async function collectContext(
 }
 
 export function toPending(feature: RawFeature): PendingFeature {
-  const prs = feature.subtasks.flatMap((s) => s.prs);
+  const prs = featurePrs(feature);
   return {
     key: feature.key,
     code: feature.code,
@@ -612,7 +687,12 @@ export function toPending(feature: RawFeature): PendingFeature {
     releaseGateStatus: feature.releaseGate?.status ?? null,
     acBullets: feature.acBullets,
     overview: feature.overview,
-    subtasks: feature.subtasks.map((s) => ({ key: s.key, summary: s.summary, status: s.status })),
+    stories: feature.stories.map((s) => ({
+      key: s.key,
+      summary: s.summary,
+      status: s.status,
+      subtasks: s.subtasks.map((sub) => ({ key: sub.key, summary: sub.summary, status: sub.status })),
+    })),
     prs: prs.map((p) => {
       const cleaned = cleanPrBody(p.body);
       return {

@@ -16,6 +16,7 @@ import { loadConfig, loadOverrides, logicalDate } from "../src/lib/config.ts";
 import type { Config, OverridesFile } from "../src/lib/config-schema.ts";
 import { writeJsonAtomic } from "../src/lib/io.ts";
 import { deriveStage } from "../src/lib/score.ts";
+import { storyPrs } from "../src/lib/stories.ts";
 import {
   Judgment,
   StatusSnapshot,
@@ -36,13 +37,18 @@ type CalloutT = z.infer<typeof CalloutSchema>;
 
 export type ValidateResult = { ok: true; value: JudgmentT } | { ok: false; reason: string };
 
-/** Every subtask key or "repo#number" PR ref that appeared in pending.json
+/** Every story key or "repo#number" PR ref that appeared in pending.json
  *  for one feature — the whitelist a callout.refs entry (or acCoverage
  *  evidence, though that's not currently cross-checked beyond ids) must be
  *  drawn from. */
 function refWhitelistFor(pf: PendingFile["features"][number]): Set<string> {
   const refs = new Set<string>([pf.key]);
-  for (const s of pf.subtasks) refs.add(s.key);
+  for (const s of pf.stories) {
+    refs.add(s.key);
+    // Sub-tasks are legitimate evidence — the judge sees them in
+    // pending.json, so citing one must not read as an invented reference.
+    for (const sub of s.subtasks) refs.add(sub.key);
+  }
   for (const p of pf.prs) refs.add(p.ref);
   return refs;
 }
@@ -78,7 +84,7 @@ export function validateJudgment(judgmentRaw: unknown, pending: PendingFile): Va
       }
       for (const ref of ac.evidence) {
         if (!refWhitelist.has(ref)) {
-          return { ok: false, reason: `judgment.json for ${jf.featureKey} has acCoverage "${ac.id}" citing evidence "${ref}", which is not a subtask key or PR ref in pending.json for that feature — invented reference.` };
+          return { ok: false, reason: `judgment.json for ${jf.featureKey} has acCoverage "${ac.id}" citing evidence "${ref}", which is not a story key or PR ref in pending.json for that feature — invented reference.` };
         }
       }
     }
@@ -86,7 +92,7 @@ export function validateJudgment(judgmentRaw: unknown, pending: PendingFile): Va
     for (const callout of jf.callouts) {
       for (const ref of callout.refs) {
         if (!refWhitelist.has(ref)) {
-          return { ok: false, reason: `judgment.json for ${jf.featureKey} has a callout referencing "${ref}", which is not a subtask key or PR ref in pending.json for that feature — invented reference.` };
+          return { ok: false, reason: `judgment.json for ${jf.featureKey} has a callout referencing "${ref}", which is not a story key or PR ref in pending.json for that feature — invented reference.` };
         }
       }
     }
@@ -163,7 +169,7 @@ export function buildSnapshot(params: {
 
     const scoreOverride = jf?.scoreOverride ?? null;
     const effectiveScore = scoreOverride ? scoreOverride.value : raw.score;
-    const allShippedToDefault = raw.subtasks.length > 0 && raw.subtasks.every((s) => s.status === "shipped");
+    const allShippedToDefault = raw.stories.length > 0 && raw.stories.every((s) => s.status === "shipped");
     const stage = deriveStage(effectiveScore, allShippedToDefault);
 
     return {
@@ -191,7 +197,7 @@ export function buildSnapshot(params: {
           }
         : null,
       acCoverage: jf?.acCoverage ?? [],
-      subtasks: raw.subtasks.map((s) => ({
+      stories: raw.stories.map((s) => ({
         key: s.key,
         summary: s.summary,
         jiraStatus: s.jiraStatus,
@@ -199,6 +205,15 @@ export function buildSnapshot(params: {
         assignee: s.assignee,
         updatedAt: s.updatedAt,
         prs: s.prs.map(sanitizePrRef),
+        subtasks: s.subtasks.map((sub) => ({
+          key: sub.key,
+          summary: sub.summary,
+          jiraStatus: sub.jiraStatus,
+          status: sub.status,
+          assignee: sub.assignee,
+          updatedAt: sub.updatedAt,
+          prs: sub.prs.map(sanitizePrRef),
+        })),
       })),
       callouts,
       override: activeOverride
@@ -220,9 +235,12 @@ export function buildSnapshot(params: {
       ? "All tracked features have shipped something to the default branch."
       : `${featuresWithNothingOnMaster} of ${totalFeatures} feature(s) have nothing shipped to the default branch yet.`;
 
+  // Sub-task PRs included via storyPrs — a review sitting on a sub-task is
+  // still a review somebody is waiting on, and omitting them is what let a
+  // story with two open sub-task PRs render as "nothing to review yet".
   const reviewQueue: ReviewRequestT[] = rawFeatures.flatMap((raw) =>
-    raw.subtasks.flatMap((s) =>
-      s.prs
+    raw.stories.flatMap((s) =>
+      storyPrs(s)
         .filter((p) => p.state === "OPEN")
         .flatMap((p) =>
           p.reviewRequests.map((reviewer) => ({
@@ -239,7 +257,9 @@ export function buildSnapshot(params: {
   );
 
   return {
-    schemaVersion: 1,
+    // 2: Feature.stories, each carrying its own Sub-tasks. Snapshots
+    // written at version 1 still parse — see renameLegacy in schema.ts.
+    schemaVersion: 2,
     date,
     generatedAt: now.toISOString(),
     epic: { ...epic, overview: epic.overview ?? "" },
@@ -253,7 +273,7 @@ export function buildSnapshot(params: {
     kpis: {
       featuresTracked: totalFeatures,
       lightTierMilestones: new Set(features.filter((f) => f.tier === "light").map((f) => f.milestone)).size,
-      subtasksTracked: features.reduce((sum, f) => sum + f.scoreBasis.total, 0),
+      storiesTracked: features.reduce((sum, f) => sum + f.scoreBasis.total, 0),
       shipped: features.reduce((sum, f) => sum + f.scoreBasis.shipped, 0),
       staged: features.reduce((sum, f) => sum + f.scoreBasis.staged, 0),
       inReview: features.reduce((sum, f) => sum + f.scoreBasis.inReview, 0),

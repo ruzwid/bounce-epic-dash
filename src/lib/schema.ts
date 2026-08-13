@@ -1,7 +1,7 @@
 // src/lib/schema.ts
 import { z } from "zod";
 
-export const SubtaskStatus = z.enum([
+export const WorkStatus = z.enum([
   "shipped", "staged", "in_review", "in_progress", "blocked", "todo",
 ]);
 
@@ -29,14 +29,39 @@ export const PrRef = z.object({
   filesTouched: z.array(z.string()).default([]),
 });
 
-export const Subtask = z.object({
+/** Fields every tracked JIRA work item carries, at either level below a
+ *  Feature. Split out so a Story and a Sub-task can't drift apart. */
+const WorkItem = {
   key: z.string(),
   summary: z.string(),
   jiraStatus: z.string(),          // raw JIRA name
-  status: SubtaskStatus,           // derived, GitHub-aware
+  status: WorkStatus,           // derived, GitHub-aware
   assignee: z.string().nullable(),
   updatedAt: z.string().datetime(),
+  /** PRs matched to *this* ticket's own key. A Story does NOT absorb its
+   *  sub-tasks' PRs here — use storyPrs() (src/lib/stories.ts) when you
+   *  want the full evidence set, so the same PR is never stored twice and
+   *  every PR keeps pointing at the ticket that actually owns it. */
   prs: z.array(PrRef).default([]),
+};
+
+/** A JIRA Sub-task: the leaf of the hierarchy
+ *  (Epic > Milestone > Feature > Story > Sub-task).
+ *
+ *  Deliberately not a scoring unit. A Story split into seven sub-tasks and
+ *  one with none both count once towards its Feature's score, so how finely
+ *  somebody chose to decompose a ticket can never move a percentage. Their
+ *  value is evidence: a sub-task's PRs are what prove its Story's status. */
+export const Subtask = z.object(WorkItem);
+
+/** A JIRA Story: the unit of work this dashboard scores.
+ *
+ *  Named `Story` because that is literally the JIRA issue type — the code
+ *  used to call these "subtasks", which hid the fact that a level existed
+ *  below them and that its pull requests were never being collected. */
+export const Story = z.object({
+  ...WorkItem,
+  subtasks: z.array(Subtask).default([]),
 });
 
 export const AcCoverage = z.object({
@@ -44,7 +69,7 @@ export const AcCoverage = z.object({
   /** paraphrased, never the verbatim spec bullet */
   label: z.string(),
   coverage: z.enum(["covered", "partial", "no_signal"]),
-  evidence: z.array(z.string()).default([]),   // subtask keys / "repo#123"
+  evidence: z.array(z.string()).default([]),   // story/sub-task keys / "repo#123"
 });
 
 export const ReleaseGate = z.object({
@@ -69,7 +94,22 @@ export const Override = z.object({
 
 export const Milestone = z.enum(["M1", "M2", "M3", "M4"]);
 
-export const Feature = z.object({
+/** Snapshots written before Sub-tasks were collected call a Feature's
+ *  Stories `subtasks`, and its KPI `subtasksTracked`. Those files are still
+ *  read on every build — loadHistory() feeds all of them to the burn-up
+ *  chart — so the rename is tolerated on read rather than breaking every
+ *  snapshot ever written. New snapshots are schemaVersion 2. */
+function renameLegacy<T extends Record<string, unknown>>(from: string, to: string) {
+  return (raw: unknown): unknown => {
+    if (raw && typeof raw === "object" && !(to in raw) && from in raw) {
+      const { [from]: legacy, ...rest } = raw as T;
+      return { ...rest, [to]: legacy };
+    }
+    return raw;
+  };
+}
+
+export const Feature = z.preprocess(renameLegacy("subtasks", "stories"), z.object({
   key: z.string(),                 // BOUN-11207
   code: z.string(),                // "F1.1"
   title: z.string(),
@@ -102,11 +142,11 @@ export const Feature = z.object({
   releaseGate: ReleaseGate.nullable(),
 
   acCoverage: z.array(AcCoverage).default([]),
-  subtasks: z.array(Subtask).default([]),
+  stories: z.array(Story).default([]),
   callouts: z.array(Callout).default([]),
   override: Override.nullable(),
   dataOk: z.boolean(),             // false → render "unavailable", not 0%
-});
+}));
 
 export const ReviewRequest = z.object({
   pr: PrRef,
@@ -135,7 +175,10 @@ export const MilestoneSummary = z.object({
 });
 
 export const StatusSnapshot = z.object({
-  schemaVersion: z.literal(1),
+  /** 1: Feature.subtasks held Stories, and Sub-tasks were never collected.
+   *  2: Feature.stories, each with its own Sub-tasks. Both parse — see
+   *  renameLegacy above. */
+  schemaVersion: z.union([z.literal(1), z.literal(2)]),
   /** logical Europe/Dublin date, YYYY-MM-DD — the file name */
   date: z.string().date(),
   generatedAt: z.string().datetime(),
@@ -156,15 +199,17 @@ export const StatusSnapshot = z.object({
     sentence: z.string(),
   }),
 
-  kpis: z.object({
+  kpis: z.preprocess(renameLegacy("subtasksTracked", "storiesTracked"), z.object({
     featuresTracked: z.number(),
     lightTierMilestones: z.number(),
-    subtasksTracked: z.number(),
+    /** Stories, not sub-tasks — the scoring unit. Sub-tasks are evidence
+     *  and are deliberately not counted here (see Subtask in this file). */
+    storiesTracked: z.number(),
     shipped: z.number(),
     staged: z.number(),
     inReview: z.number(),
     blockedOrTodo: z.number(),
-  }),
+  })),
 
   features: z.array(Feature),
   reviewQueue: z.array(ReviewRequest),

@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react"
 import { configSource, loadAppConfig } from "@/lib/dashboard/appConfig"
-import { SUBTASK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
+import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
 import { SectionHeading } from "../SectionHeading"
 import { StatusPill } from "../StatusPill"
 import { Avatar } from "../Avatar"
@@ -18,7 +18,7 @@ export function ConfigPage() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h1 className="font-display m-0 text-[28px] leading-tight">Config</h1>
-        <p className="m-0 max-w-[62ch] text-[13.5px] leading-relaxed text-muted-foreground">
+        <p className="m-0 text-[13.5px] leading-relaxed text-muted-foreground">
           The tracked epic, its milestones, and the rules the collector applies — read straight from{" "}
           <code className="rounded-sm bg-muted px-1.5 py-0.5">config.yaml</code> at build time. Credentials are not part
           of this file and are never published.
@@ -27,7 +27,7 @@ export function ConfigPage() {
 
       <section className="flex flex-col gap-3">
         <SectionHeading>Epic</SectionHeading>
-        <dl className="surface m-0 grid gap-x-6 gap-y-0 rounded-xl border border-border bg-card px-5 py-1 sm:grid-cols-2">
+        <dl className="surface m-0 grid gap-x-6 gap-y-0 rounded-4xl border border-border bg-card px-5 py-1 sm:grid-cols-2">
           <Field label="Key" value={config.epic.key} mono />
           <Field label="Title" value={config.epic.title} />
           <Field label="PR search floor" value={config.epic.startDate} mono />
@@ -40,23 +40,23 @@ export function ConfigPage() {
 
       <section className="flex flex-col gap-3">
         <SectionHeading note="which repositories are searched for pull requests">Repository scope</SectionHeading>
-        <p className="m-0 max-w-[70ch] text-[13.5px] leading-relaxed text-muted-foreground">
+        <p className="m-0 text-[13.5px] leading-relaxed text-muted-foreground">
           Every non-archived repository in{" "}
           <span className="font-mono-data">{config.github.org}</span> pushed since{" "}
           <span className="font-mono-data">{config.epic.startDate}</span> is searched on each run. Pull requests are
-          attributed to a subtask by ticket key in the branch name or title, so a ticket's work is found wherever it
+          attributed to a story by ticket key in the branch name or title, so a ticket's work is found wherever it
           landed — there is no per-feature repository list to keep up to date.
         </p>
-        <dl className="surface m-0 grid gap-x-6 gap-y-0 rounded-xl border border-border bg-card px-5 py-1 sm:grid-cols-2">
+        <dl className="surface m-0 grid gap-x-6 gap-y-0 rounded-4xl border border-border bg-card px-5 py-1 sm:grid-cols-2">
           <Field label="Always included" value={config.github.includeRepos.join(", ") || "none"} mono />
           <Field label="Excluded" value={config.github.excludeRepos.join(", ") || "none"} mono />
         </dl>
       </section>
 
       <section className="flex flex-col gap-3">
-        <SectionHeading note="weighted mean across a feature's subtasks">Score weights</SectionHeading>
+        <SectionHeading note="weighted mean across a feature's stories">Score weights</SectionHeading>
         <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
-          {(Object.keys(SUBTASK_STATUS_LABELS) as (keyof typeof SUBTASK_STATUS_LABELS)[]).map((status) => (
+          {(Object.keys(WORK_STATUS_LABELS) as (keyof typeof WORK_STATUS_LABELS)[]).map((status) => (
             <li key={status} className="flex items-center gap-2">
               <StatusPill status={status} />
               <span className="font-mono-data text-sm">
@@ -71,11 +71,11 @@ export function ConfigPage() {
         <SectionHeading note={`${config.milestones.length} tracked`}>Milestones</SectionHeading>
         <div className="flex flex-col gap-3">
           {config.milestones.map((milestone) => (
-            <div key={milestone.id} className="surface rounded-xl border border-border bg-card">
+            <div key={milestone.id} className="surface rounded-4xl border border-border bg-card">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border-soft px-5 py-3.5">
                 <span className="font-mono-data text-xs text-muted-foreground">{milestone.id}</span>
                 <span className="text-[14.5px] font-medium">{milestone.title}</span>
-                <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded-4xl bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                   {milestone.tier} tier
                 </span>
                 <span className="ml-auto text-xs text-muted-foreground">
@@ -90,7 +90,7 @@ export function ConfigPage() {
               </div>
               {milestone.features.length === 0 ? (
                 <p className="m-0 px-5 py-3 text-sm text-muted-foreground">
-                  No feature tickets — subtasks are read directly from the milestone.
+                  No feature tickets — stories are read directly from the milestone.
                 </p>
               ) : (
                 <ul className="m-0 flex list-none flex-col p-0">
@@ -116,7 +116,7 @@ export function ConfigPage() {
         <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-2 p-0">
           {Object.entries(config.jira.statusMap).map(([jiraName, status]) => (
             <li key={jiraName} className="flex items-center gap-2 text-sm">
-              <span className="font-mono-data rounded-md bg-muted px-2 py-1 text-xs">{jiraName}</span>
+              <span className="font-mono-data rounded-4xl bg-muted px-2 py-1 text-xs">{jiraName}</span>
               <span aria-hidden="true" className="text-muted-foreground">
                 →
               </span>
@@ -125,7 +125,7 @@ export function ConfigPage() {
           ))}
         </ul>
         <p className="m-0 text-xs leading-relaxed text-muted-foreground">
-          This mapping is a starting hint only. The collector upgrades or downgrades each subtask from real pull
+          This mapping is a starting hint only. The collector upgrades or downgrades each story from real pull
           request state afterwards, so a ticket marked Done with nothing merged never renders as shipped.
         </p>
       </section>
@@ -136,7 +136,7 @@ export function ConfigPage() {
           {Object.entries(config.people).map(([login, name]) => (
             <li
               key={login}
-              className="flex items-center gap-2 rounded-lg border border-border py-1.5 pr-3 pl-2 text-sm"
+              className="flex items-center gap-2 rounded-4xl border border-border py-1.5 pr-3 pl-2 text-sm"
             >
               <Avatar login={login} name={name} size={22} />
               {name} <span className="font-mono-data text-xs text-muted-foreground">{login}</span>
@@ -146,11 +146,11 @@ export function ConfigPage() {
       </section>
 
       <details className="group">
-        <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-lg text-sm text-muted-foreground select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
+        <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-4xl text-sm text-muted-foreground select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
           <ChevronRight className="size-3.5 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90" />
           View config.yaml as written
         </summary>
-        <pre className="surface mt-3 overflow-x-auto rounded-xl border border-border bg-card p-5 text-xs leading-relaxed">
+        <pre className="surface mt-3 overflow-x-auto rounded-4xl border border-border bg-card p-5 text-xs leading-relaxed">
           <code>{configSource}</code>
         </pre>
       </details>

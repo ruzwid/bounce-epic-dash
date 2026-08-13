@@ -16,26 +16,25 @@ type FeatureT = z.infer<typeof FeatureSchema>
  * how long since anyone touched it.
  */
 export function FeatureRow({ feature }: { feature: FeatureT }) {
-  const allShipped = feature.subtasks.length > 0 && feature.subtasks.every((s) => s.status === "shipped")
+  const allShipped = feature.stories.length > 0 && feature.stories.every((s) => s.status === "shipped")
 
   return (
     <li className="list-none">
       <ShellLink
         page="feature"
         code={featureSlug(feature.code)}
-        className="surface-card group flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-3.5 no-underline"
+        className="surface-card group flex items-center gap-4 rounded-4xl border border-border bg-card px-5 py-3.5 no-underline"
       >
         <span aria-hidden="true" data-status-dot={feature.stage} className="size-2 shrink-0 rounded-full" />
 
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="flex flex-wrap items-baseline gap-x-2.5">
-            <span className="font-mono-data shrink-0 text-xs text-muted-foreground">{feature.code}</span>
-            <span className="truncate text-sm font-medium">{feature.title}</span>
-          </span>
+          {/* feature.title already starts with the code ("F1.1 — ..."),
+              so there's no separate code label here. */}
+          <span className="truncate text-sm font-medium">{feature.title}</span>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <OwnerLabel name={feature.owner} size={16} />
             <span>
-              · {feature.subtasks.length} subtask{feature.subtasks.length === 1 ? "" : "s"} ·{" "}
+              · {feature.stories.length} {feature.stories.length === 1 ? "story" : "stories"} ·{" "}
               {feature.daysSinceLastActivity === null
                 ? "activity unknown"
                 : `last activity ${feature.daysSinceLastActivity}d ago`}

@@ -11,7 +11,7 @@
 //
 // config.yaml holds no secrets by construction — credentials live in
 // .env.local, which is gitignored and never imported here.
-import { appConfig, appConfigSource } from "virtual:app-config";
+import { appConfig, appConfigSource, jiraBaseUrl } from "virtual:app-config";
 import { Config } from "../config-schema.ts";
 
 export type AppConfig = Config;
@@ -19,6 +19,14 @@ export type AppConfig = Config;
 /** The raw YAML text, for showing the file as it is actually written —
  *  comments and all, which is most of the documentation this file has. */
 export const configSource: string = appConfigSource;
+
+/** `https://<org>.atlassian.net/browse/BOUN-1234` for any ticket key, or
+ *  null if JIRA_BASE_URL isn't set (a checkout without .env.local) — every
+ *  caller must handle null by rendering the title unlinked rather than
+ *  guessing at a host. */
+export function jiraIssueUrl(key: string): string | null {
+  return jiraBaseUrl ? `${jiraBaseUrl}/browse/${encodeURIComponent(key)}` : null;
+}
 
 let parsed: Config | null = null;
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dashboardSearchSchema, matchesFilters, needsAttention } from "../../src/lib/dashboard/search.ts";
+import { dashboardSearchSchema, groupMatchesMilestoneFilter, matchesFilters, needsAttention } from "../../src/lib/dashboard/search.ts";
 import type { z } from "zod";
 import type { Feature as FeatureSchema, PrRef as PrRefSchema } from "../../src/lib/schema.ts";
 
@@ -48,7 +48,7 @@ function makeFeature(overrides: Partial<FeatureT> = {}): FeatureT {
     daysInStaged: null,
     releaseGate: null,
     acCoverage: [],
-    subtasks: [],
+    stories: [],
     callouts: [],
     override: null,
     dataOk: true,
@@ -78,7 +78,7 @@ describe("needsAttention", () => {
 
   it("is true when a PR has been waiting on review for more than 2 days", () => {
     const feature = makeFeature({
-      subtasks: [
+      stories: [
         {
           key: "SUB-1",
           summary: "s",
@@ -87,6 +87,7 @@ describe("needsAttention", () => {
           assignee: "Alice",
           updatedAt: "2026-08-09T00:00:00.000Z",
           prs: [makePr({ state: "OPEN", reviewRequests: ["bob"], updatedAt: "2026-08-08T00:00:00.000Z" })],
+          subtasks: [],
         },
       ],
     });
@@ -95,7 +96,7 @@ describe("needsAttention", () => {
 
   it("is false when a PR is open for review but under 2 days", () => {
     const feature = makeFeature({
-      subtasks: [
+      stories: [
         {
           key: "SUB-1",
           summary: "s",
@@ -104,6 +105,7 @@ describe("needsAttention", () => {
           assignee: "Alice",
           updatedAt: "2026-08-11T00:00:00.000Z",
           prs: [makePr({ state: "OPEN", reviewRequests: ["bob"], updatedAt: "2026-08-11T00:00:00.000Z" })],
+          subtasks: [],
         },
       ],
     });
@@ -167,6 +169,29 @@ describe("matchesFilters", () => {
     expect(matchesFilters(m1, search, NOW)).toBe(true);
     const wrongEngineer = { ...search, engineer: "Bob" };
     expect(matchesFilters(m1, wrongEngineer, NOW)).toBe(false);
+  });
+});
+
+describe("groupMatchesMilestoneFilter", () => {
+  const allFilters = { milestone: "all" as const, engineer: null, needsAttention: false, q: "" };
+
+  it("'all' matches every group", () => {
+    expect(groupMatchesMilestoneFilter(["M1"], allFilters)).toBe(true);
+    expect(groupMatchesMilestoneFilter(["M3", "M4"], allFilters)).toBe(true);
+  });
+
+  it("'m1' matches only a group containing M1", () => {
+    const search = { ...allFilters, milestone: "m1" as const };
+    expect(groupMatchesMilestoneFilter(["M1"], search)).toBe(true);
+    expect(groupMatchesMilestoneFilter(["M2"], search)).toBe(false);
+    expect(groupMatchesMilestoneFilter(["M3", "M4"], search)).toBe(false);
+  });
+
+  it("'m3-m4' matches the merged group but not M1 or M2 — this is the bug fix: without it, picking a milestone left every other group rendering with an empty, filtered-out feature list instead of not rendering at all", () => {
+    const search = { ...allFilters, milestone: "m3-m4" as const };
+    expect(groupMatchesMilestoneFilter(["M3", "M4"], search)).toBe(true);
+    expect(groupMatchesMilestoneFilter(["M1"], search)).toBe(false);
+    expect(groupMatchesMilestoneFilter(["M2"], search)).toBe(false);
   });
 });
 

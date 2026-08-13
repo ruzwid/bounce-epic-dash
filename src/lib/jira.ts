@@ -49,9 +49,9 @@ async function jiraFetch(path: string, init: RequestInit = {}): Promise<Response
   return res;
 }
 
-/** All subtasks/child issues of `parentKey`, paginated via nextPageToken
+/** All stories/child issues of `parentKey`, paginated via nextPageToken
  *  until exhausted. */
-export async function searchSubtasks(
+export async function searchChildren(
   parentKey: string,
   fields: string[] = ["summary", "status", "assignee", "issuetype", "updated"],
 ): Promise<RawJiraIssue[]> {

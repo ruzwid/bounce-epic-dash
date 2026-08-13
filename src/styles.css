@@ -68,14 +68,24 @@
      together. Distinct hues (not distinct saturation) so shipped vs.
      staged is unambiguous at a glance and under common colour-vision
      deficiencies. --destructive reuses --status-blocked deliberately,
-     rather than inventing a seventh hue. */
-  --status-shipped: #2f7d32;
+     rather than inventing a seventh hue. --status-shipped deliberately
+     reuses --primary rather than a stock green: "shipped" is this
+     product's actual finish line, so it gets the brand's own olive
+     instead of a generic traffic-light colour — every bar, dot, and
+     pill that reads "done" is drawn in the same hue as the logo. */
+  --status-shipped: var(--primary);
   --status-staged: #9a7b4f;
   --status-in-review: #5f6b7a;
   --status-in-progress: #b5654a;
   --status-blocked: #d32f2f;
   --status-todo: #a9a89f;
   --destructive: var(--status-blocked);
+
+  /* PR-chip-only hue: a shipped PR reads as purple, distinct from the
+     --status-shipped green used by the subtask/status-pill family. Kept
+     separate on purpose — this is about *where the code is*, not the
+     six-hue status system, and the two shouldn't move together. */
+  --pr-shipped: #7d4fb0;
 }
 
 .dark {
@@ -105,13 +115,14 @@
   --input: rgb(237 235 227 / 0.16);
   --ring: #a9c24a;
 
-  --status-shipped: #6fb073;
+  --status-shipped: var(--primary);
   --status-staged: #c7a472;
   --status-in-review: #93a3b5;
   --status-in-progress: #de9078;
   --status-blocked: #eb6f6b;
   --status-todo: #7c7a72;
   --destructive: var(--status-blocked);
+  --pr-shipped: #b98fe0;
 
   --shadow-surface: 0 1px 2px rgb(0 0 0 / 0.35);
   --shadow-surface-hover: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 2px 6px -2px rgb(0 0 0 / 0.45);
@@ -153,6 +164,10 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.35);
   --radius-2xl: calc(var(--radius) * 1.75);
+  /* rounded-4xl is now the house radius for every button, card, and chip
+     — kept on this same ratio-based scale (rather than Tailwind's fixed
+     2rem) so it still tracks --radius if the base ever moves. */
+  --radius-4xl: calc(var(--radius) * 2.7);
 }
 
 * {
@@ -375,37 +390,55 @@ code {
 }
 
 /* A bare dot outside a pill (sidebar rows, feed items) — same six hues,
-   no chip background. */
+   no chip background. [data-status-icon] is the same idea for a Jira
+   ticket-link icon (see JiraLink.tsx): colour, not background, since an
+   icon has no fill to speak of. Both share every tone rule below so the
+   two can never drift out of sync. */
 [data-status-dot] {
   --status-color: var(--status-todo);
   background: var(--status-color);
 }
+[data-status-icon] {
+  --status-color: var(--status-todo);
+  color: var(--status-color);
+}
 [data-status-dot="shipped"],
-[data-status-dot="done"] {
+[data-status-dot="done"],
+[data-status-icon="shipped"],
+[data-status-icon="done"] {
   --status-color: var(--status-shipped);
 }
 [data-status-dot="staged"],
-[data-status-dot="nearly_done"] {
+[data-status-dot="nearly_done"],
+[data-status-icon="staged"],
+[data-status-icon="nearly_done"] {
   --status-color: var(--status-staged);
 }
-[data-status-dot="in_review"] {
+[data-status-dot="in_review"],
+[data-status-icon="in_review"] {
   --status-color: var(--status-in-review);
 }
 [data-status-dot="in_progress"],
 [data-status-dot="early"],
-[data-status-dot="underway"] {
+[data-status-dot="underway"],
+[data-status-icon="in_progress"],
+[data-status-icon="early"],
+[data-status-icon="underway"] {
   --status-color: var(--status-in-progress);
 }
-[data-status-dot="blocked"] {
+[data-status-dot="blocked"],
+[data-status-icon="blocked"] {
   --status-color: var(--status-blocked);
 }
 [data-status-dot="todo"],
-[data-status-dot="not_started"] {
+[data-status-dot="not_started"],
+[data-status-icon="todo"],
+[data-status-icon="not_started"] {
   --status-color: var(--status-todo);
 }
 
 /* PR reference chips. The hue encodes *where the code actually is*, which
-   is this dashboard's whole thesis: green only for merged-to-default,
+   is this dashboard's whole thesis: purple only for merged-to-default,
    gold for merged-into-an-integration-branch, olive for an open PR. Same
    color-mix construction as the status pills so the two families match. */
 [data-pr] {
@@ -416,7 +449,7 @@ code {
 }
 
 [data-pr="shipped"] {
-  --pr-color: var(--status-shipped);
+  --pr-color: var(--pr-shipped);
 }
 [data-pr="staged"] {
   --pr-color: var(--status-staged);
@@ -472,7 +505,7 @@ code {
   }
   .responsive-table tr {
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-4xl);
     margin-bottom: 0.75rem;
     padding: 0.75rem;
   }

@@ -3,13 +3,13 @@
 // Status is always conveyed by this text, never by color alone — every
 // StatusPill renders one of these labels next to its dot.
 import type { z } from "zod";
-import type { Stage as StageSchema, SubtaskStatus as SubtaskStatusSchema } from "../schema.ts";
+import type { Stage as StageSchema, WorkStatus as WorkStatusSchema } from "../schema.ts";
 
-export type SubtaskStatusValue = z.infer<typeof SubtaskStatusSchema>;
+export type WorkStatusValue = z.infer<typeof WorkStatusSchema>;
 export type StageValue = z.infer<typeof StageSchema>;
-export type PillStatus = SubtaskStatusValue | StageValue;
+export type PillStatus = WorkStatusValue | StageValue;
 
-export const SUBTASK_STATUS_LABELS: Record<SubtaskStatusValue, string> = {
+export const WORK_STATUS_LABELS: Record<WorkStatusValue, string> = {
   shipped: "Shipped",
   staged: "Staged",
   in_review: "In review",
@@ -27,5 +27,5 @@ export const STAGE_LABELS: Record<StageValue, string> = {
 };
 
 export function statusLabel(status: PillStatus): string {
-  return (SUBTASK_STATUS_LABELS as Record<string, string>)[status] ?? (STAGE_LABELS as Record<string, string>)[status] ?? status;
+  return (WORK_STATUS_LABELS as Record<string, string>)[status] ?? (STAGE_LABELS as Record<string, string>)[status] ?? status;
 }

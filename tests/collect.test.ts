@@ -3,6 +3,7 @@ import {
   buildPrIndex,
   collectFeature,
   mentionsTicket,
+  rollUpStoryStatus,
   type Deps,
   type FeatureTarget,
   type PrIndex,
@@ -15,7 +16,10 @@ const NOW = new Date("2026-01-15T12:00:00.000Z");
 
 const CONFIG: Config = {
   epic: { key: "TEST-1", title: "Test Epic", startDate: "2026-01-01", targetDate: null },
-  jira: { projectKey: "TEST", statusMap: { Done: "shipped", "In Progress": "in_progress", "To Do": "todo" } },
+  jira: {
+    projectKey: "TEST",
+    statusMap: { Done: "shipped", "Code Review": "in_review", "In Progress": "in_progress", "To Do": "todo" },
+  },
   github: { org: "test-org", excludeRepos: [], includeRepos: [] },
   timezone: "Europe/Dublin",
   scoreWeights: { shipped: 1, staged: 0.5, in_review: 0.3, in_progress: 0.15, blocked: 0, todo: 0 },
@@ -54,9 +58,17 @@ function jiraIssue(key: string, statusName: string) {
   };
 }
 
+/** Key-aware children mock: parent key -> its child issues. Anything not
+ *  listed has none, which is what a real Sub-task returns — collectFeature
+ *  now walks two levels, so a flat mockResolvedValue would make every story
+ *  its own sub-task. */
+function childrenBy(map: Record<string, ReturnType<typeof jiraIssue>[]>) {
+  return vi.fn(async (parentKey: string) => map[parentKey] ?? []);
+}
+
 function deps(overrides: Partial<Deps> = {}): Deps {
   return {
-    searchSubtasks: vi.fn().mockResolvedValue([jiraIssue("TEST-11", "Done")]),
+    searchChildren: childrenBy({ "TEST-10": [jiraIssue("TEST-11", "Done")] }),
     getIssue: vi.fn().mockResolvedValue({ key: "TEST-10", fields: { description: null } }),
     getDefaultBranch: vi.fn().mockResolvedValue("master"),
     getRepoPrs: vi.fn().mockResolvedValue([]),
@@ -158,11 +170,11 @@ describe("collectFeature", () => {
     const { feature, errors } = await collectFeature(target(), CONFIG, NOW, deps(), index([]));
     expect(feature.dataOk).toBe(true);
     expect(errors).toEqual([]);
-    expect(feature.subtasks).toHaveLength(1);
+    expect(feature.stories).toHaveLength(1);
   });
 
   it("marks a feature dataOk: false on JIRA failure, without throwing", async () => {
-    const d = deps({ searchSubtasks: vi.fn().mockRejectedValue(new Error("JIRA is down")) });
+    const d = deps({ searchChildren: vi.fn().mockRejectedValue(new Error("JIRA is down")) });
     const { feature, errors } = await collectFeature(target(), CONFIG, NOW, d, index([]));
     expect(feature.dataOk).toBe(false);
     expect(feature.score).toBe(0); // never a bare "0%" without dataOk=false alongside it
@@ -171,11 +183,11 @@ describe("collectFeature", () => {
 
   it("a JIRA failure on one feature does not affect collecting another feature", async () => {
     const failingDeps = deps({
-      searchSubtasks: vi.fn().mockRejectedValue(new Error("JIRA is down")),
+      searchChildren: vi.fn().mockRejectedValue(new Error("JIRA is down")),
       getIssue: vi.fn().mockRejectedValue(new Error("JIRA is down")),
     });
     const healthyDeps = deps({
-      searchSubtasks: vi.fn().mockResolvedValue([jiraIssue("TEST-21", "Done")]),
+      searchChildren: childrenBy({ "TEST-20": [jiraIssue("TEST-21", "Done")] }),
       getIssue: vi.fn().mockResolvedValue({ key: "TEST-20", fields: { description: null } }),
     });
 
@@ -193,11 +205,11 @@ describe("collectFeature", () => {
     const degraded: PrIndex = { allPrs: [], prsByRepo: {}, defaultBranchByRepo: {}, degraded: true };
     const { feature } = await collectFeature(target(), CONFIG, NOW, deps(), degraded);
     expect(feature.dataOk).toBe(false);
-    expect(feature.subtasks).toHaveLength(1);
-    expect(feature.subtasks[0]?.key).toBe("TEST-11");
+    expect(feature.stories).toHaveLength(1);
+    expect(feature.stories[0]?.key).toBe("TEST-11");
   });
 
-  it("attributes a PR to a subtask by ticket key in the branch name, and derives shipped from it", async () => {
+  it("attributes a PR to a story by ticket key in the branch name, and derives shipped from it", async () => {
     const pr = makePr({
       number: 1,
       headRefName: "TEST-11-add-thing",
@@ -206,16 +218,16 @@ describe("collectFeature", () => {
       mergedAt: "2026-01-12T00:00:00.000Z",
       repo: "service-a",
     });
-    const d = deps({ searchSubtasks: vi.fn().mockResolvedValue([jiraIssue("TEST-11", "In Progress")]) });
+    const d = deps({ searchChildren: childrenBy({ "TEST-10": [jiraIssue("TEST-11", "In Progress")] }) });
     const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([pr]));
-    expect(feature.subtasks[0]?.status).toBe("shipped");
-    expect(feature.subtasks[0]?.prs).toHaveLength(1);
-    expect(feature.subtasks[0]?.prs[0]?.shippedToDefault).toBe(true);
+    expect(feature.stories[0]?.status).toBe("shipped");
+    expect(feature.stories[0]?.prs).toHaveLength(1);
+    expect(feature.stories[0]?.prs[0]?.shippedToDefault).toBe(true);
   });
 
   it("attributes PRs from every repo the ticket's work landed in, not one declared repo", async () => {
     // The regression this guards: repo scope used to be declared per
-    // feature in config.yaml, so a subtask whose work spanned a UI repo,
+    // feature in config.yaml, so a story whose work spanned a UI repo,
     // its API and a shared types package only ever showed the one PR from
     // the declared repo. Two thirds of this epic's PRs were invisible.
     const prs = [
@@ -223,11 +235,11 @@ describe("collectFeature", () => {
       makePr({ number: 2, headRefName: "TEST-11-api", repo: "dashboard-api", state: "MERGED", baseRefName: "master", mergedAt: "2026-01-12T00:00:00.000Z" }),
       makePr({ number: 3, title: "[TEST-11] shared types", headRefName: "types-bump", repo: "ts-types", state: "OPEN" }),
     ];
-    const d = deps({ searchSubtasks: vi.fn().mockResolvedValue([jiraIssue("TEST-11", "In Progress")]) });
+    const d = deps({ searchChildren: childrenBy({ "TEST-10": [jiraIssue("TEST-11", "In Progress")] }) });
 
     const { feature } = await collectFeature(target(), CONFIG, NOW, d, index(prs));
 
-    expect(feature.subtasks[0]?.prs.map((p) => `${p.repo}#${p.number}`)).toEqual([
+    expect(feature.stories[0]?.prs.map((p) => `${p.repo}#${p.number}`)).toEqual([
       "dashboard#1",
       "dashboard-api#2",
       "ts-types#3",
@@ -249,24 +261,104 @@ describe("collectFeature", () => {
       repo: "service-a",
     });
     const { feature } = await collectFeature(target(), CONFIG, NOW, deps(), index([unrelatedStagedPr]));
-    expect(feature.subtasks[0]?.prs).toEqual([]); // TEST-99's PR isn't attributed to TEST-11
+    expect(feature.stories[0]?.prs).toEqual([]); // TEST-99's PR isn't attributed to TEST-11
     expect(feature.releaseGate).toBeNull(); // and must not leak into this feature's gate
   });
 
-  it("falls back to the parent ticket's own status when it has no subtasks yet", async () => {
-    // A feature ticket sitting in "Code Review" with zero subtasks created
+  it("falls back to the parent ticket's own status when it has no stories yet", async () => {
+    // A feature ticket sitting in "Code Review" with zero stories created
     // must not silently read as not_started/score 0.
     const d = deps({
-      searchSubtasks: vi.fn().mockResolvedValue([]),
+      searchChildren: childrenBy({}),
       getIssue: vi.fn().mockResolvedValue({
         key: "TEST-10",
         fields: { summary: "The feature itself", description: null, status: { name: "In Progress" } },
       }),
     });
     const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
-    expect(feature.subtasks).toHaveLength(1);
-    expect(feature.subtasks[0]?.key).toBe("TEST-10");
-    expect(feature.subtasks[0]?.status).toBe("in_progress");
+    expect(feature.stories).toHaveLength(1);
+    expect(feature.stories[0]?.key).toBe("TEST-10");
+    expect(feature.stories[0]?.status).toBe("in_progress");
     expect(feature.score).toBeGreaterThan(0);
+  });
+
+  it("collects a story's sub-tasks and attributes their PRs to them", async () => {
+    // The regression this guards: only one level below the Feature was ever
+    // fetched, so Sub-tasks — and every PR whose branch carried a sub-task
+    // key — were invisible. 15 sub-tasks and 9 real PRs were being dropped.
+    const pr = makePr({ number: 7, headRefName: "TEST-111-work", repo: "service-a", state: "OPEN" });
+    const d = deps({
+      searchChildren: childrenBy({
+        "TEST-10": [jiraIssue("TEST-11", "Code Review")],
+        "TEST-11": [jiraIssue("TEST-111", "Code Review")],
+      }),
+    });
+
+    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([pr]));
+
+    const story = feature.stories[0]!;
+    expect(story.subtasks.map((s) => s.key)).toEqual(["TEST-111"]);
+    expect(story.subtasks[0]?.prs.map((p) => `${p.repo}#${p.number}`)).toEqual(["service-a#7"]);
+    // The PR belongs to the sub-task, so it is NOT duplicated onto the story.
+    expect(story.prs).toEqual([]);
+    // ...but the feature's repo list is still derived from it.
+    expect(feature.repos).toEqual(["service-a"]);
+  });
+
+  it("a story with no PRs of its own still reads as in review when a sub-task has an open one", async () => {
+    // BOUN-11441 in the real epic: zero PRs of its own, two open sub-task
+    // PRs, and the Reviews page therefore claimed "no pull request is open".
+    const pr = makePr({ number: 23, headRefName: "TEST-111-port", repo: "service-a", state: "OPEN" });
+    const d = deps({
+      searchChildren: childrenBy({
+        "TEST-10": [jiraIssue("TEST-11", "Code Review")],
+        "TEST-11": [jiraIssue("TEST-111", "Code Review")],
+      }),
+    });
+
+    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([pr]));
+    expect(feature.stories[0]?.status).toBe("in_review");
+  });
+
+  it("keeps collecting a story when its sub-task fetch fails, recording the error", async () => {
+    const searchChildren = vi.fn(async (parentKey: string) => {
+      if (parentKey === "TEST-10") return [jiraIssue("TEST-11", "Done")];
+      throw new Error("JIRA is down");
+    });
+    const { feature, errors } = await collectFeature(target(), CONFIG, NOW, deps({ searchChildren }), index([]));
+
+    expect(feature.dataOk).toBe(true);
+    expect(feature.stories[0]?.subtasks).toEqual([]);
+    expect(errors).toEqual([
+      { source: "jira", scope: "TEST-11", message: "Sub-task fetch failed: JIRA is down" },
+    ]);
+  });
+});
+
+describe("rollUpStoryStatus", () => {
+  it("leaves a story with no sub-tasks exactly as its own evidence found it", () => {
+    expect(rollUpStoryStatus("in_progress", [])).toBe("in_progress");
+  });
+
+  it("raises to shipped only when every sub-task shipped", () => {
+    expect(rollUpStoryStatus("in_progress", [{ status: "shipped" }, { status: "shipped" }])).toBe("shipped");
+  });
+
+  it("will not let one shipped sub-task declare the whole story shipped", () => {
+    // The over-claim this dashboard exists to catch: deriveWorkStatus
+    // returns "shipped" for ANY shipped PR, so a flat union of a story's
+    // sub-task PRs would mark a barely-started story as done.
+    expect(rollUpStoryStatus("todo", [{ status: "shipped" }, { status: "todo" }])).toBe("in_review");
+  });
+
+  it("raises a story with live sub-task work to in_review", () => {
+    expect(rollUpStoryStatus("todo", [{ status: "in_review" }, { status: "todo" }])).toBe("in_review");
+    expect(rollUpStoryStatus("todo", [{ status: "staged" }])).toBe("in_review");
+  });
+
+  it("never lowers a status, and never raises past what its own evidence proved", () => {
+    expect(rollUpStoryStatus("shipped", [{ status: "todo" }])).toBe("shipped");
+    expect(rollUpStoryStatus("staged", [{ status: "in_review" }])).toBe("staged");
+    expect(rollUpStoryStatus("todo", [{ status: "todo" }])).toBe("todo");
   });
 });

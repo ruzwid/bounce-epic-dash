@@ -5,4 +5,5 @@
 declare module "virtual:app-config" {
   export const appConfig: unknown;
   export const appConfigSource: string;
+  export const jiraBaseUrl: string | null;
 }

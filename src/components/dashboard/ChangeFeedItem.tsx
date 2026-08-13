@@ -27,7 +27,7 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
               <code className="rounded-sm bg-muted px-1.5 py-0.5">{change.pr.baseRef}</code>.
             </>
           }
-          attribution={`${change.feature.code} · ${change.subtask.key} · ${change.feature.owner}`}
+          attribution={`${change.feature.code} · ${change.story.key} · ${change.feature.owner}`}
         />
       )
     case "newly_staged":
@@ -37,7 +37,7 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
           headline="Moved to staged"
           detail={
             <>
-              <span className="font-mono-data">{change.subtask.key}</span> merged into{" "}
+              <span className="font-mono-data">{change.story.key}</span> merged into{" "}
               <code className="rounded-sm bg-muted px-1.5 py-0.5">{change.integrationBranch}</code>, not master.
             </>
           }
@@ -51,7 +51,7 @@ export function ChangeFeedItem({ change }: ChangeFeedItemProps) {
           headline="Newly blocked"
           detail={
             <>
-              <span className="font-mono-data">{change.subtask.key}</span> — {change.subtask.summary}
+              <span className="font-mono-data">{change.story.key}</span> — {change.story.summary}
             </>
           }
           attribution={`${change.feature.code} · ${change.feature.owner}`}

@@ -8,6 +8,7 @@ import { SectionHeading } from "../SectionHeading"
 import { StatusPill } from "../StatusPill"
 import { OwnerLabel } from "../OwnerLabel"
 import { EmptyState } from "../EmptyState"
+import { JiraLink } from "../JiraLink"
 
 type FeatureT = z.infer<typeof FeatureSchema>
 
@@ -38,8 +39,8 @@ export function AttentionPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
         <h1 className="font-display m-0 text-[28px] leading-tight">Needs attention</h1>
-        <p className="m-0 max-w-[62ch] text-[13.5px] leading-relaxed text-muted-foreground">
-          A feature lands here when it has a blocked subtask, no activity for over a week, a pull request that has been
+        <p className="m-0 text-[13.5px] leading-relaxed text-muted-foreground">
+          A feature lands here when it has a blocked story, no activity for over a week, a pull request that has been
           waiting on review for more than two days, or an open callout from the run.
         </p>
       </header>
@@ -64,12 +65,17 @@ function AttentionCard({ feature, now }: { feature: FeatureT; now: Date }) {
   const reasons = attentionReasons(feature, now)
 
   return (
-    <li className="surface-card flex list-none flex-col gap-3 rounded-xl border border-border bg-card px-5 py-4">
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
-        <span className="font-mono-data text-xs text-muted-foreground">{feature.code}</span>
+    <li className="surface-card flex list-none flex-col gap-3 rounded-4xl border border-border bg-card px-5 py-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        {/* feature.title already starts with the code ("F1.1 — ..."), so
+            there's no separate code label here — just the one link. */}
         <ShellLink page="feature" code={featureSlug(feature.code)} className="text-[14.5px] font-medium">
           {feature.title}
         </ShellLink>
+        {/* Icon-only: the title above is already the internal link to this
+            feature's page, and nesting a second full anchor inside it
+            isn't valid HTML. */}
+        <JiraLink issueKey={feature.key} type="feature" tone={feature.stage} />
         <StatusPill status={feature.stage} className="shrink-0" />
         <OwnerLabel name={feature.owner} className="ml-auto text-xs text-muted-foreground" />
       </div>
@@ -82,7 +88,7 @@ function AttentionCard({ feature, now }: { feature: FeatureT; now: Date }) {
               <span
                 aria-hidden="true"
                 data-status={REASON_STATUS[reason.kind]}
-                className="mt-px flex size-5 shrink-0 items-center justify-center rounded-md"
+                className="mt-px flex size-5 shrink-0 items-center justify-center rounded-4xl"
               >
                 <Icon className="size-3" />
               </span>

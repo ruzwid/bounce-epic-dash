@@ -17,19 +17,19 @@ describe("computeChanges", () => {
     expect(computeChanges(current, null)).toEqual([]);
   });
 
-  it("produces exactly one 'shipped' item for the subtask that flipped staged->shipped, with the right scoreDelta", () => {
+  it("produces exactly one 'shipped' item for the story that flipped staged->shipped, with the right scoreDelta", () => {
     const changes = computeChanges(current, previous);
     const shipped = changes.filter((c) => c.kind === "shipped");
     expect(shipped).toHaveLength(1);
     expect(shipped[0]).toMatchObject({ kind: "shipped", scoreDelta: 25 });
-    expect(shipped[0]!.subtask.key).toBe("SUB-1");
+    expect(shipped[0]!.story.key).toBe("SUB-1");
   });
 
-  it("produces a 'newly_blocked' item for the subtask that flipped to blocked", () => {
+  it("produces a 'newly_blocked' item for the story that flipped to blocked", () => {
     const changes = computeChanges(current, previous);
     const blocked = changes.filter((c) => c.kind === "newly_blocked");
     expect(blocked).toHaveLength(1);
-    expect(blocked[0]!.subtask.key).toBe("SUB-3");
+    expect(blocked[0]!.story.key).toBe("SUB-3");
   });
 
   it("produces a 'newly_stalled' item only for the feature crossing the 14-day threshold", () => {

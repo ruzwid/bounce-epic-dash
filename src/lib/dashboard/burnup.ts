@@ -6,7 +6,7 @@ export type BurnUpPoint = {
   shipped: number;
   staged: number;
   total: number;
-  /** Straight-line count of subtasks that "should" be shipped by this
+  /** Straight-line count of stories that "should" be shipped by this
    *  date to be on pace for `targetDate` — null when there's no target
    *  date configured. Never an estimate; it's a fixed line from
    *  (startDate, 0) to (targetDate, finalTotal). */
@@ -15,7 +15,7 @@ export type BurnUpPoint = {
 
 /** shipped/staged/total over time, plus the target-date pace line.
  *  `finalTotal` (the scope the pace line aims at) is the most recent
- *  point's subtasksTracked — a single fixed target, so the dashed line is
+ *  point's storiesTracked — a single fixed target, so the dashed line is
  *  straight rather than wobbling as scope changes snapshot to snapshot. */
 export function buildBurnUpSeries(
   history: HistoryPoint[],
@@ -24,7 +24,7 @@ export function buildBurnUpSeries(
 ): BurnUpPoint[] {
   if (history.length === 0) return [];
 
-  const finalTotal = history[history.length - 1]!.kpis.subtasksTracked;
+  const finalTotal = history[history.length - 1]!.kpis.storiesTracked;
   const startMs = new Date(startDate).getTime();
   const targetMs = targetDate ? new Date(targetDate).getTime() : null;
 
@@ -39,7 +39,7 @@ export function buildBurnUpSeries(
       date: point.date,
       shipped: point.kpis.shipped,
       staged: point.kpis.staged,
-      total: point.kpis.subtasksTracked,
+      total: point.kpis.storiesTracked,
       pace,
     };
   });

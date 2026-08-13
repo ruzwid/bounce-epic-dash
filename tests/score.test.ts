@@ -33,12 +33,12 @@ describe("computeScore", () => {
     });
   });
 
-  it("is 100 only when every subtask is shipped", () => {
+  it("is 100 only when every story is shipped", () => {
     const result = computeScore(["shipped", "shipped", "shipped"], DEFAULT_WEIGHTS);
     expect(result.score).toBe(100);
   });
 
-  it("is 0, not NaN, when there are no subtasks", () => {
+  it("is 0, not NaN, when there are no stories", () => {
     const result = computeScore([], DEFAULT_WEIGHTS);
     expect(result.score).toBe(0);
     expect(result.scoreBasis.total).toBe(0);
@@ -58,13 +58,13 @@ describe("deriveStage", () => {
     expect(deriveStage(score, allShipped)).toBe(expected);
   });
 
-  it("is 'done' at score 100 when every subtask shipped to the default branch", () => {
+  it("is 'done' at score 100 when every story shipped to the default branch", () => {
     expect(deriveStage(100, true)).toBe("done");
   });
 
-  it("is 'nearly_done', NOT 'done', at score 100 when subtasks are only staged (not shipped)", () => {
+  it("is 'nearly_done', NOT 'done', at score 100 when stories are only staged (not shipped)", () => {
     // A feature can hit 100 by weight (e.g. custom scoreWeights where staged
-    // counts fully) while every subtask is still stuck on an integration
+    // counts fully) while every story is still stuck on an integration
     // branch. That must never render as "done".
     expect(deriveStage(100, false)).toBe("nearly_done");
   });

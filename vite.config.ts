@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
 import { parse } from 'yaml'
+import { config as loadDotenv } from 'dotenv'
 import { nitro } from 'nitro/vite'
 import { devtools } from '@tanstack/devtools-vite'
 
@@ -9,6 +10,12 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+
+// Same convention as scripts/collect.ts and scripts/merge.ts: .env.local is
+// not auto-loaded by Vite, so this is the only way appConfigPlugin below
+// can see JIRA_BASE_URL. Silently no-ops if the file is absent (CI/prod
+// set real env vars instead) — never throws on a missing .env.local.
+loadDotenv({ path: '.env.local' })
 
 // Config files run in Node at build time — this is not a runtime fetch,
 // it's how the prerenderer learns which /$date pages exist. Dynamic
@@ -27,11 +34,12 @@ function snapshotDatePages(): string[] {
 
 // config.yaml, resolved to plain JS at build time.
 //
-// The browser needs two things from it: the people map (to turn a display
-// name back into a GitHub login for avatars) and the full structure (for
-// the Config page). Parsing YAML at *runtime* to get either would put the
-// `yaml` package in the bundle of every page that shows an avatar — about
-// 100KB to look up a username. Parsing here instead means the client ships
+// The browser needs three things from it: the people map (to turn a display
+// name back into a GitHub login for avatars), the full structure (for the
+// Config page), and the Jira host (to link tickets from titles/cards).
+// Parsing YAML at *runtime* to get any of this would put the `yaml`
+// package in the bundle of every page that shows an avatar — about 100KB
+// to look up a username. Parsing here instead means the client ships
 // data, not a parser.
 function appConfigPlugin(): Plugin {
   const virtualId = 'virtual:app-config'
@@ -51,9 +59,15 @@ function appConfigPlugin(): Plugin {
       // Watched so editing config.yaml hot-reloads in dev rather than
       // silently serving a stale copy until the next restart.
       this.addWatchFile(configPath)
+      // JIRA_BASE_URL is a host, not a secret (no token/email baked in) —
+      // safe to ship to the client. Null when unset, so a checkout without
+      // .env.local just renders tickets unlinked instead of failing the
+      // build.
+      const jiraBaseUrl = process.env.JIRA_BASE_URL?.replace(/\/$/, '') ?? null
       return [
         `export const appConfig = ${JSON.stringify(parse(source))};`,
         `export const appConfigSource = ${JSON.stringify(source)};`,
+        `export const jiraBaseUrl = ${JSON.stringify(jiraBaseUrl)};`,
       ].join('\n')
     },
   }

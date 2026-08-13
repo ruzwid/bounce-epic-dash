@@ -2,12 +2,14 @@ import { Link } from "@tanstack/react-router"
 import type { ReactNode } from "react"
 import { useShell } from "./ShellContext"
 
-export type ShellPage = "today" | "attention" | "reviews" | "config" | "feature"
+export type ShellPage = "today" | "attention" | "reviews" | "config" | "feature" | "milestone"
 
 type ShellLinkProps = {
   page: ShellPage
   /** Required when `page` is "feature" — the feature slug, e.g. "f1-1". */
   code?: string
+  /** Required when `page` is "milestone" — the milestone id, e.g. "m1". */
+  id?: string
   className?: string
   /** Applied when this link matches the current route. */
   activeProps?: Record<string, unknown>
@@ -22,7 +24,7 @@ type ShellLinkProps = {
  * `to` is a literal union — building the path as a template string would
  * throw away the type checking that makes a typo a build error.
  */
-export function ShellLink({ page, code, className, activeProps, title, children }: ShellLinkProps) {
+export function ShellLink({ page, code, id, className, activeProps, title, children }: ShellLinkProps) {
   const { date } = useShell()
   const shared = { className, activeProps, title }
 
@@ -58,6 +60,12 @@ export function ShellLink({ page, code, className, activeProps, title, children 
             {children}
           </Link>
         )
+      case "milestone":
+        return (
+          <Link to="/$date/m/$id" params={{ date, id: id! }} {...shared}>
+            {children}
+          </Link>
+        )
     }
   }
 
@@ -89,6 +97,12 @@ export function ShellLink({ page, code, className, activeProps, title, children 
     case "feature":
       return (
         <Link to="/f/$code" params={{ code: code! }} {...shared}>
+          {children}
+        </Link>
+      )
+    case "milestone":
+      return (
+        <Link to="/m/$id" params={{ id: id! }} {...shared}>
           {children}
         </Link>
       )

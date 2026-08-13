@@ -19,13 +19,13 @@ function makeFeature(overrides: Partial<RawFeature> = {}): RawFeature {
     daysInStaged: null,
     releaseGate: null,
     acBullets: [],
-    subtasks: [],
+    stories: [],
     dataOk: true,
     ...overrides,
   };
 }
 
-function makePrRecord(overrides: Partial<RawFeature["subtasks"][number]["prs"][number]>) {
+function makePrRecord(overrides: Partial<RawFeature["stories"][number]["prs"][number]>) {
   return {
     repo: "service-a",
     number: 1,
@@ -49,7 +49,7 @@ function makePrRecord(overrides: Partial<RawFeature["subtasks"][number]["prs"][n
 describe("toPending PR body wiring", () => {
   it("always includes body/bodyTruncated/bodySignal keys, even when the raw PR had no body", () => {
     const feature = makeFeature({
-      subtasks: [
+      stories: [
         {
           key: "TEST-11",
           summary: "Sub A",
@@ -58,6 +58,7 @@ describe("toPending PR body wiring", () => {
           assignee: "Alice",
           updatedAt: "2026-01-12T00:00:00.000Z",
           prs: [makePrRecord({ body: null })],
+          subtasks: [],
         },
       ],
     });
@@ -73,7 +74,7 @@ describe("toPending PR body wiring", () => {
 
   it("carries a cleaned, real PR body through into pending.json", () => {
     const feature = makeFeature({
-      subtasks: [
+      stories: [
         {
           key: "TEST-11",
           summary: "Sub A",
@@ -82,6 +83,7 @@ describe("toPending PR body wiring", () => {
           assignee: "Alice",
           updatedAt: "2026-01-12T00:00:00.000Z",
           prs: [makePrRecord({ body: FILLED_BODY })],
+          subtasks: [],
         },
       ],
     });
@@ -95,7 +97,7 @@ describe("toPending PR body wiring", () => {
 
   it("marks an unfilled-template PR body as template_only rather than passing it through raw", () => {
     const feature = makeFeature({
-      subtasks: [
+      stories: [
         {
           key: "TEST-11",
           summary: "Sub A",
@@ -104,6 +106,7 @@ describe("toPending PR body wiring", () => {
           assignee: "Alice",
           updatedAt: "2026-01-12T00:00:00.000Z",
           prs: [makePrRecord({ body: UNFILLED_TEMPLATE_BODY })],
+          subtasks: [],
         },
       ],
     });

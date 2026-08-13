@@ -2,12 +2,23 @@
 // Derivations the sidebar and the shell header need, kept out of the
 // components so they stay pure and testable.
 import type { z } from "zod";
-import type { Feature as FeatureSchema, StatusSnapshot as StatusSnapshotSchema } from "../schema.ts";
+import type {
+  Feature as FeatureSchema,
+  PrRef as PrRefSchema,
+  Stage as StageSchema,
+  StatusSnapshot as StatusSnapshotSchema,
+  Story as StorySchema,
+} from "../schema.ts";
+import { deriveStage } from "../score.ts";
+import { loadAppConfig } from "./appConfig.ts";
 import { featureAnchorId } from "./anchors.ts";
 import { needsAttention } from "./search.ts";
 
 type FeatureT = z.infer<typeof FeatureSchema>;
+type StoryT = z.infer<typeof StorySchema>;
+type PrRefT = z.infer<typeof PrRefSchema>;
 type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>;
+type StageT = z.infer<typeof StageSchema>;
 
 /** "F1.1" -> "f1-1", "DF4.1.1" -> "df4-1-1". Shared with the in-page
  *  anchor ids so a feature has exactly one slug in the whole app. */
@@ -23,10 +34,18 @@ export function featureBySlug(features: FeatureT[], slug: string): FeatureT | nu
 export type SidebarGroup = {
   id: string;
   label: string;
+  /** The part of `label` after "· " — the owner/tier text, split out so a
+   *  caller linking each id in `milestoneIds` individually (the merged
+   *  M3/M4 case) doesn't have to re-parse `label` to find it. */
+  suffix: string;
   /** The milestone ticket's own description, when the snapshot carries
    *  one. Empty for the fallback grouping below. */
   overview: string;
   features: FeatureT[];
+  /** Every Milestone id ("M1", or ["M3","M4"] for the merged group) this
+   *  heading represents a page for — one ShellLink per id, since M3/M4
+   *  are two separate tickets sharing one sidebar/Today heading. */
+  milestoneIds: string[];
 };
 
 /** M3 and M4 are always read together — one owner, one platform build —
@@ -36,6 +55,16 @@ const LIGHT_TIER_GROUP = ["M3", "M4"] as const;
 function isLightTier(id: string): boolean {
   return (LIGHT_TIER_GROUP as readonly string[]).includes(id);
 }
+
+/** Shared with milestoneBySlug() below, so a snapshot written before
+ *  milestones were published gets the exact same fallback title in the
+ *  sidebar as on the milestone page it links to. */
+const FALLBACK_MILESTONE_TITLES: Record<string, string> = {
+  M1: "Core efficiency",
+  M2: "Expansion",
+  M3: "Light tier",
+  M4: "Light tier",
+};
 
 /**
  * One group per milestone, in the order the snapshot lists them, with
@@ -59,29 +88,139 @@ export function sidebarGroups(snapshot: StatusSnapshotT): SidebarGroup[] {
         if (lightAdded) continue;
         lightAdded = true;
         const light = snapshot.milestones.filter((m) => isLightTier(m.id));
+        const suffix = light[0]?.owner ?? "light tier";
         groups.push({
           id: "m3-m4",
-          label: `${light.map((m) => m.id).join(" / ")} · ${light[0]?.owner ?? "light tier"}`,
+          label: `${light.map((m) => m.id).join(" / ")} · ${suffix}`,
+          suffix,
           overview: light.map((m) => m.overview).filter(Boolean).join("\n\n"),
           features: featuresFor(light.map((m) => m.id)),
+          milestoneIds: light.map((m) => m.id),
         });
         continue;
       }
       groups.push({
         id: milestone.id.toLowerCase(),
         label: `${milestone.id} · ${stripMilestonePrefix(milestone)}`,
+        suffix: stripMilestonePrefix(milestone),
         overview: milestone.overview,
         features: featuresFor([milestone.id]),
+        milestoneIds: [milestone.id],
       });
     }
     return groups.filter((group) => group.features.length > 0);
   }
 
   return [
-    { id: "m1", label: "M1 · Core efficiency", overview: "", features: featuresFor(["M1"]) },
-    { id: "m2", label: "M2 · Expansion", overview: "", features: featuresFor(["M2"]) },
-    { id: "m3-m4", label: "M3 / M4 · Light tier", overview: "", features: featuresFor(LIGHT_TIER_GROUP) },
+    {
+      id: "m1",
+      label: "M1 · Core efficiency",
+      suffix: "Core efficiency",
+      overview: "",
+      features: featuresFor(["M1"]),
+      milestoneIds: ["M1"],
+    },
+    {
+      id: "m2",
+      label: "M2 · Expansion",
+      suffix: "Expansion",
+      overview: "",
+      features: featuresFor(["M2"]),
+      milestoneIds: ["M2"],
+    },
+    {
+      id: "m3-m4",
+      label: "M3 / M4 · Light tier",
+      suffix: "Light tier",
+      overview: "",
+      features: featuresFor(LIGHT_TIER_GROUP),
+      milestoneIds: [...LIGHT_TIER_GROUP],
+    },
   ].filter((group) => group.features.length > 0);
+}
+
+export type MilestoneOverview = {
+  /** "M1" */
+  id: string;
+  /** The milestone's own JIRA key, for linking out — null when this
+   *  snapshot predates published milestones (see sidebarGroups above). */
+  key: string | null;
+  title: string;
+  overview: string;
+  tier: "full" | "light" | null;
+  owner: string | null;
+  features: FeatureT[];
+};
+
+/** The milestone a `/m/:id` URL refers to, or null. Falls back to
+ *  grouping by `feature.milestone` alone for snapshots written before
+ *  milestones were published, same as sidebarGroups(). */
+export function milestoneBySlug(snapshot: StatusSnapshotT, slug: string): MilestoneOverview | null {
+  const id = slug.toUpperCase();
+  const features = snapshot.features.filter((f) => f.milestone === id);
+  if (features.length === 0) return null;
+
+  const summary = snapshot.milestones.find((m) => m.id === id) ?? null;
+  return {
+    id,
+    key: summary?.key ?? null,
+    title: summary ? stripMilestonePrefix(summary) : (FALLBACK_MILESTONE_TITLES[id] ?? id),
+    overview: summary?.overview ?? "",
+    tier: summary?.tier ?? null,
+    owner: summary?.owner ?? null,
+    features,
+  };
+}
+
+export type MilestoneProgress = {
+  score: number;
+  stage: StageT;
+  shipped: number;
+  staged: number;
+  inReview: number;
+  blockedOrTodo: number;
+  storiesTracked: number;
+};
+
+/** Same weighted-mean math as a single feature's score (src/lib/score.ts)
+ *  and the epic-level epicProgress() below, just summed across one
+ *  milestone's features instead of one feature's stories or the whole
+ *  epic's KPIs — so "M1 is 80% done" and "F1.1 is 80% done" never disagree
+ *  about what "done" means. */
+export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
+  const totals = features.reduce(
+    (acc, f) => ({
+      shipped: acc.shipped + f.scoreBasis.shipped,
+      staged: acc.staged + f.scoreBasis.staged,
+      inReview: acc.inReview + f.scoreBasis.inReview,
+      inProgress: acc.inProgress + f.scoreBasis.inProgress,
+      blocked: acc.blocked + f.scoreBasis.blocked,
+      todo: acc.todo + f.scoreBasis.todo,
+      total: acc.total + f.scoreBasis.total,
+    }),
+    { shipped: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 0 },
+  );
+
+  const weights = loadAppConfig().scoreWeights;
+  const weighted =
+    totals.shipped * weights.shipped +
+    totals.staged * weights.staged +
+    totals.inReview * weights.in_review +
+    totals.inProgress * weights.in_progress +
+    totals.blocked * weights.blocked +
+    totals.todo * weights.todo;
+  const score = totals.total === 0 ? 0 : Math.max(0, Math.min(100, Math.round((weighted / totals.total) * 100)));
+  const allDone = features.length > 0 && features.every((f) => f.stage === "done");
+
+  return {
+    score,
+    stage: deriveStage(score, allDone),
+    shipped: totals.shipped,
+    staged: totals.staged,
+    inReview: totals.inReview,
+    blockedOrTodo: totals.blocked + totals.todo,
+    storiesTracked: totals.total,
+  };
 }
 
 /** JIRA milestone summaries are written "M1 — Core Operational Efficiency";
@@ -115,7 +254,7 @@ export function attentionReasons(feature: FeatureT, now: Date): AttentionReason[
   if (feature.scoreBasis.blocked > 0) {
     reasons.push({
       kind: "blocked",
-      detail: `${feature.scoreBasis.blocked} subtask${feature.scoreBasis.blocked === 1 ? "" : "s"} blocked`,
+      detail: `${feature.scoreBasis.blocked} story${feature.scoreBasis.blocked === 1 ? "" : "s"} blocked`,
     });
   }
 
@@ -123,8 +262,8 @@ export function attentionReasons(feature: FeatureT, now: Date): AttentionReason[
     reasons.push({ kind: "stalled", detail: `No activity for ${feature.daysSinceLastActivity} days` });
   }
 
-  const waiting = feature.subtasks.flatMap((subtask) =>
-    subtask.prs.filter(
+  const waiting = feature.stories.flatMap((story) =>
+    story.prs.filter(
       (pr) => pr.state === "OPEN" && pr.reviewRequests.length > 0 && daysBetween(pr.updatedAt, now) > REVIEW_WAIT_DAYS,
     ),
   );
@@ -144,9 +283,9 @@ export function attentionReasons(feature: FeatureT, now: Date): AttentionReason[
 }
 
 export type EpicProgress = {
-  /** weighted completion across every tracked subtask, 0-100 */
+  /** weighted completion across every tracked story, 0-100 */
   percent: number;
-  /** share of all tracked subtasks, for the segmented bar */
+  /** share of all tracked stories, for the segmented bar */
   shippedShare: number;
   stagedShare: number;
   inReviewShare: number;
@@ -155,10 +294,10 @@ export type EpicProgress = {
 /** Epic-level completion, derived from the published KPI counts using the
  *  same weights as a single feature's score (src/lib/score.ts): shipped
  *  counts full, staged half, in review a third. Deliberately *not* the
- *  mean of feature scores — that would weight a one-subtask feature the
- *  same as a fourteen-subtask one. */
+ *  mean of feature scores — that would weight a one-story feature the
+ *  same as a fourteen-story one. */
 export function epicProgress(kpis: StatusSnapshotT["kpis"]): EpicProgress {
-  const total = kpis.subtasksTracked;
+  const total = kpis.storiesTracked;
   if (total === 0) {
     return { percent: 0, shippedShare: 0, stagedShare: 0, inReviewShare: 0 };
   }
@@ -171,15 +310,109 @@ export function epicProgress(kpis: StatusSnapshotT["kpis"]): EpicProgress {
   };
 }
 
-/** Every open PR across the snapshot, newest activity first — the Reviews
- *  page's fallback view when reviewQueue is empty (a snapshot can have no
- *  outstanding *requests* while still having open PRs). */
+/** The epic's own Stage, on the same 0/25/70/100 bands and "done only if
+ *  every feature actually shipped" rule as a feature or milestone — so
+ *  the epic's Jira link icon (Sidebar) reads the same six-hue language as
+ *  everything nested under it. */
+export function epicStage(snapshot: StatusSnapshotT): StageT {
+  const { percent } = epicProgress(snapshot.kpis);
+  const allDone = snapshot.features.length > 0 && snapshot.features.every((f) => f.stage === "done");
+  return deriveStage(percent, allDone);
+}
+
+/** Every open PR across the snapshot, newest activity first — every PR
+ *  tracked to a story, whether or not it has an outstanding review
+ *  request (a snapshot can have no requests while still having open
+ *  work). The base reviewsByTicket() below groups by ticket. */
 export function openPullRequests(snapshot: StatusSnapshotT) {
   return snapshot.features
     .flatMap((feature) =>
-      feature.subtasks.flatMap((subtask) =>
-        subtask.prs.filter((pr) => pr.state === "OPEN").map((pr) => ({ feature, subtask, pr })),
-      ),
+      feature.stories.flatMap((story) => [
+        ...story.prs.filter((pr) => pr.state === "OPEN").map((pr) => ({ feature, story, subtask: null, pr })),
+        // A PR opened against a Sub-task belongs to the sub-task, not to
+        // its Story. Walking only stories is what made these invisible.
+        ...story.subtasks.flatMap((subtask) =>
+          subtask.prs.filter((pr) => pr.state === "OPEN").map((pr) => ({ feature, story, subtask, pr })),
+        ),
+      ]),
     )
     .sort((a, b) => new Date(b.pr.updatedAt).getTime() - new Date(a.pr.updatedAt).getTime());
+}
+
+export type PrReviewStatus = {
+  pr: PrRefT;
+  /** Reviewers GitHub is still waiting on for this PR, each paired with
+   *  how many days they've been waited on. Empty when the PR is open but
+   *  nobody's been asked yet. */
+  waitingOn: { reviewer: string; ageDays: number }[];
+};
+
+/** The ticket a group of PRs actually hangs off — a Story, or one of its
+ *  Sub-tasks. Grouping by the owning ticket (rather than always by the
+ *  Story) keeps a stacked chain like BOUN-11497/8/9 as three reviewable
+ *  units, because that is what they are. */
+export type ReviewTicket = {
+  key: string;
+  summary: string;
+  status: StoryT["status"];
+  assignee: string | null;
+  /** True when these PRs sit on a Sub-task — drives the Jira icon and the
+   *  "under <story>" attribution line. */
+  isSubtask: boolean;
+  /** The Story this ticket is, or belongs to. */
+  story: StoryT;
+};
+
+export type TicketReviewGroup = {
+  feature: FeatureT;
+  ticket: ReviewTicket;
+  /** This ticket's open PRs. Almost always one — but a ticket that spans
+   *  repos (API + admin + web, say) opens more than one, and those are
+   *  one unit of work, not unrelated rows the reader has to notice share
+   *  a key. */
+  prs: PrReviewStatus[];
+  /** The oldest pending request across every PR here, for sorting — null
+   *  when nothing in the group has a reviewer requested yet. */
+  oldestWaitDays: number | null;
+};
+
+/** Every open PR, grouped by the ticket it belongs to and annotated with
+ *  who (if anyone) GitHub is still waiting on. The Reviews page's one
+ *  data source: "same ticket, three repos" is one card, not three
+ *  unrelated rows sorted apart by coincidence of PR update time. */
+export function reviewsByTicket(snapshot: StatusSnapshotT): TicketReviewGroup[] {
+  const waitingByPr = new Map<string, { reviewer: string; ageDays: number }[]>();
+  for (const request of snapshot.reviewQueue) {
+    const key = `${request.pr.repo}#${request.pr.number}`;
+    const list = waitingByPr.get(key) ?? [];
+    list.push({ reviewer: request.reviewer, ageDays: request.ageDays });
+    waitingByPr.set(key, list);
+  }
+
+  const groups = new Map<string, TicketReviewGroup>();
+  for (const { feature, story, subtask, pr } of openPullRequests(snapshot)) {
+    const owner = subtask ?? story;
+    const ticket: ReviewTicket = {
+      key: owner.key,
+      summary: owner.summary,
+      status: owner.status,
+      assignee: owner.assignee,
+      isSubtask: subtask !== null,
+      story,
+    };
+    const group = groups.get(ticket.key) ?? { feature, ticket, prs: [], oldestWaitDays: null };
+    group.prs.push({ pr, waitingOn: waitingByPr.get(`${pr.repo}#${pr.number}`) ?? [] });
+    groups.set(ticket.key, group);
+  }
+
+  for (const group of groups.values()) {
+    const waits = group.prs.flatMap((p) => p.waitingOn.map((w) => w.ageDays));
+    group.oldestWaitDays = waits.length > 0 ? Math.max(...waits) : null;
+  }
+
+  // Oldest-waiting-first, the same thesis the page always had — a ticket
+  // with no reviewer requested at all sorts after every ticket with an
+  // actual wait in progress, not because it matters less, but because it
+  // has no age to sort by.
+  return [...groups.values()].sort((a, b) => (b.oldestWaitDays ?? -1) - (a.oldestWaitDays ?? -1));
 }

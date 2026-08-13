@@ -22,12 +22,16 @@ function initials(name: string): string {
 
 /** Deterministic swatch for the fallback, drawn from the status family
  *  rather than a new palette — an avatar is decoration and must not
- *  introduce a hue the rest of the page doesn't already use. */
+ *  introduce a hue the rest of the page doesn't already use.
+ *
+ *  --status-shipped is deliberately excluded: it now aliases --primary
+ *  (see styles.css), whose dark-theme value is tuned for dark text on
+ *  top, not the white initials every swatch here renders. */
 const SWATCHES = [
-  "var(--status-shipped)",
   "var(--status-staged)",
   "var(--status-in-review)",
   "var(--status-in-progress)",
+  "var(--status-blocked)",
 ] as const
 
 function swatchFor(name: string): string {

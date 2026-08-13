@@ -2,7 +2,7 @@
 // Zod schemas describing the shape of config.yaml and overrides.yaml.
 // Kept separate from config.ts so the shape is easy to scan on its own.
 import { z } from "zod";
-import { Milestone as MilestoneId, Override, SubtaskStatus } from "./schema.ts";
+import { Milestone as MilestoneId, Override, WorkStatus } from "./schema.ts";
 
 export const MilestoneFeature = z.object({
   key: z.string(),
@@ -15,7 +15,7 @@ export const Milestone = z.object({
   title: z.string(),
   tier: z.enum(["full", "light"]),
   owner: z.string(),
-  /** milestone's own JIRA key, used when subtasks live directly under it
+  /** milestone's own JIRA key, used when stories live directly under it
    *  instead of under child feature tickets. Null is allowed here — it's
    *  only an error if collect.ts is asked to use it while features[] is
    *  also empty (see scripts/collect.ts). */
@@ -34,9 +34,9 @@ export const ScoreWeights = z.object({
 
 export const JiraConfig = z.object({
   projectKey: z.string(),
-  /** raw JIRA status name -> SubtaskStatus. Unmapped names fall back to
+  /** raw JIRA status name -> WorkStatus. Unmapped names fall back to
    *  "todo" with a console warning at collection time. */
-  statusMap: z.record(z.string(), SubtaskStatus).default({}),
+  statusMap: z.record(z.string(), WorkStatus).default({}),
 });
 
 export const GithubConfig = z.object({

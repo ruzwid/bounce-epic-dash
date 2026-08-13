@@ -6,6 +6,7 @@
 // schema passed straight to validateSearch keeps it).
 import { z } from "zod";
 import type { Feature as FeatureSchema } from "../schema.ts";
+import { storyPrs } from "../stories.ts";
 
 export const dashboardSearchSchema = z.object({
   // M3 and M4 share one filter value: they're both Tony's light-tier
@@ -52,18 +53,27 @@ export function needsAttention(feature: FeatureT, now: Date): boolean {
   }
   if (feature.callouts.length > 0) return true;
 
-  const waitingOnReview = feature.subtasks.some((subtask) =>
-    subtask.prs.some(
+  const waitingOnReview = feature.stories.some((story) =>
+    storyPrs(story).some(
       (pr) => pr.state === "OPEN" && pr.reviewRequests.length > 0 && daysBetween(pr.updatedAt, now) > REVIEW_WAIT_DAYS,
     ),
   );
   return waitingOnReview;
 }
 
+/** The one place "does this milestone id satisfy the milestone filter"
+ *  is decided — shared by matchesFilters (one feature) and
+ *  groupMatchesMilestoneFilter (a whole sidebar/Today group) below, so
+ *  the two can never disagree about what "m3-m4" means. */
+function milestoneMatchesFilter(milestone: string, filter: DashboardSearch["milestone"]): boolean {
+  if (filter === "all") return true;
+  if (filter === "m1") return milestone === "M1";
+  if (filter === "m2") return milestone === "M2";
+  return milestone === "M3" || milestone === "M4";
+}
+
 export function matchesFilters(feature: FeatureT, search: DashboardSearch, now: Date): boolean {
-  if (search.milestone === "m1" && feature.milestone !== "M1") return false;
-  if (search.milestone === "m2" && feature.milestone !== "M2") return false;
-  if (search.milestone === "m3-m4" && feature.milestone !== "M3" && feature.milestone !== "M4") return false;
+  if (!milestoneMatchesFilter(feature.milestone, search.milestone)) return false;
   if (search.engineer !== null && feature.owner !== search.engineer) return false;
   if (search.needsAttention && !needsAttention(feature, now)) return false;
 
@@ -74,4 +84,14 @@ export function matchesFilters(feature: FeatureT, search: DashboardSearch, now: 
   }
 
   return true;
+}
+
+/** Whether a sidebar/Today milestone group has anything to show under the
+ *  active milestone filter — true if any of its milestoneIds match.
+ *  matchesFilters alone can't express this: it decides per-feature, so
+ *  without this a milestone filter narrowed every group's feature list to
+ *  zero but still rendered the group itself, empty. Picking "M1" now
+ *  hides the M2/M3/M4 sections outright instead of rendering them empty. */
+export function groupMatchesMilestoneFilter(milestoneIds: string[], search: DashboardSearch): boolean {
+  return milestoneIds.some((id) => milestoneMatchesFilter(id, search.milestone));
 }

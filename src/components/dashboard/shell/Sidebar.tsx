@@ -1,9 +1,11 @@
-import { GitPullRequestArrow, LayoutGrid, Settings2, TriangleAlert } from "lucide-react"
+import { ChevronRight, GitPullRequestArrow, LayoutGrid, Settings2, TriangleAlert } from "lucide-react"
 import type { z } from "zod"
 import type { Feature as FeatureSchema } from "@/lib/schema"
-import { attentionFeatures, featureSlug, sidebarGroups } from "@/lib/dashboard/nav"
+import { attentionFeatures, epicStage, featureSlug, milestoneProgress, sidebarGroups } from "@/lib/dashboard/nav"
 import { cn } from "@/lib/utils"
 import ThemeToggle from "@/components/ThemeToggle"
+import { MilestoneGroupHeading } from "../MilestoneGroupHeading"
+import { JiraLink } from "../JiraLink"
 import { useShell } from "./ShellContext"
 import { ShellLink } from "./ShellLink"
 
@@ -36,15 +38,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     >
       <div className="flex flex-col gap-1 px-5 pt-5 pb-4">
         <div className="flex items-center gap-2.5">
-          <span
-            aria-hidden="true"
-            className="font-display flex size-6 items-center justify-center rounded-md bg-foreground text-[13px] leading-none text-background"
+          <JiraLink
+            issueKey={snapshot.epic.key}
+            type="epic"
+            tone={epicStage(snapshot)}
+            className="font-display gap-1.5 truncate text-[17px] text-foreground"
+            iconClassName="size-4"
           >
-            b
-          </span>
-          <span className="font-display truncate text-[17px]">{snapshot.epic.title}</span>
+            {snapshot.epic.title}
+          </JiraLink>
         </div>
-        <span className="font-mono-data pl-[34px] text-[11px] text-muted-foreground">
+        <span className="font-mono-data text-[11px] text-muted-foreground">
           {snapshot.epic.key} · epic
         </span>
       </div>
@@ -72,35 +76,48 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </li>
       </ul>
 
-      {groups.map((group) => (
-        <div key={group.id} className="flex flex-col">
-          <h2 className="eyebrow m-0 px-6 pt-3 pb-1.5 font-normal">{group.label}</h2>
-          <ul className="flex list-none flex-col gap-px px-3">
-            {group.features.map((feature) => (
-              <li key={feature.key}>
-                <ShellLink
-                  page="feature"
-                  code={featureSlug(feature.code)}
-                  className={cn(rowClass, "text-[13.5px]")}
-                  activeProps={ACTIVE}
-                  title={feature.title}
-                >
-                  <span
-                    aria-hidden="true"
-                    data-status-dot={feature.stage}
-                    className="size-[7px] shrink-0 rounded-full"
-                  />
-                  <span className="font-mono-data shrink-0 text-[11.5px] text-muted-foreground">{feature.code}</span>
-                  <span className="flex-1 truncate">{titleWithoutCode(feature)}</span>
-                  <span className="font-mono-data shrink-0 text-[11.5px] text-muted-foreground">
-                    {feature.dataOk ? `${feature.score}%` : "—"}
-                  </span>
-                </ShellLink>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {groups.map((group) => {
+        // Same rule as Today's milestone sections: nothing left to act on
+        // in a done milestone, so it starts collapsed — but the value is
+        // stable across re-renders, so expanding one by hand never gets
+        // reverted mid-session.
+        const isDone = milestoneProgress(group.features).stage === "done"
+        return (
+          <details key={group.id} className="group flex flex-col" open={!isDone}>
+            <summary className="eyebrow m-0 flex cursor-pointer list-none items-center gap-1 px-6 pt-3 pb-1.5 font-normal select-none [&::-webkit-details-marker]:hidden">
+              <ChevronRight
+                aria-hidden="true"
+                className="size-2.5 shrink-0 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90"
+              />
+              <MilestoneGroupHeading group={group} className="no-underline hover:underline" />
+            </summary>
+            <ul className="flex list-none flex-col gap-px px-3">
+              {group.features.map((feature) => (
+                <li key={feature.key}>
+                  <ShellLink
+                    page="feature"
+                    code={featureSlug(feature.code)}
+                    className={cn(rowClass, "text-[13.5px]")}
+                    activeProps={ACTIVE}
+                    title={feature.title}
+                  >
+                    <span
+                      aria-hidden="true"
+                      data-status-dot={feature.stage}
+                      className="size-3.5 shrink-0 rounded-full"
+                    />
+                    <span className="font-mono-data shrink-0 text-xs text-muted-foreground">{feature.code}</span>
+                    <span className="flex-1 truncate">{titleWithoutCode(feature)}</span>
+                    <span className="font-mono-data shrink-0 text-[11.5px] text-muted-foreground">
+                      {feature.dataOk ? `${feature.score}%` : "—"}
+                    </span>
+                  </ShellLink>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )
+      })}
 
       <div className="flex-1" />
 
@@ -119,14 +136,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 const rowClass =
-  "nav-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/85 no-underline"
+  "nav-item flex items-center gap-2.5 rounded-4xl px-2.5 py-2 text-sm text-foreground/85 no-underline"
 
 function CountBadge({ value, tone }: { value: number; tone: "warn" | "neutral" }) {
   return (
     <span
       data-status={tone === "warn" ? "in_progress" : undefined}
       className={cn(
-        "font-mono-data shrink-0 rounded-md px-1.5 py-0.5 text-[11px]",
+        "font-mono-data shrink-0 rounded-4xl px-1.5 py-0.5 text-[11px]",
         tone === "neutral" && "bg-muted text-muted-foreground",
       )}
     >

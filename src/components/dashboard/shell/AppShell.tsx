@@ -31,7 +31,7 @@ export function AppShell({ value, children }: AppShellProps) {
     <ShellProvider value={value}>
       <a
         href="#main"
-        className="sr-only rounded-lg bg-card px-3 py-2 text-sm focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
+        className="sr-only rounded-4xl bg-card px-3 py-2 text-sm focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
       >
         Skip to content
       </a>

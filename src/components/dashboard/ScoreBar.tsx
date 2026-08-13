@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 
 type ScoreBarProps = {
   score: number
-  /** Whether every subtask has actually shipped to the default branch —
+  /** Whether every story has actually shipped to the default branch —
    *  the bar only fills solid "done" green at 100 when this is true; a
    *  feature that hits 100 by weight without full shipment (see
    *  src/lib/score.ts's deriveStage) gets the neutral fill instead. */

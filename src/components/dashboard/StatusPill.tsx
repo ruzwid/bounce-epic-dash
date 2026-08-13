@@ -9,7 +9,7 @@ type StatusPillProps = {
 }
 
 /**
- * The one status-indicator component used everywhere a SubtaskStatus or
+ * The one status-indicator component used everywhere a WorkStatus or
  * Stage needs to be shown. Color (via `data-status`, see styles.css) is
  * always paired with a text label — never color alone.
  */
@@ -18,7 +18,7 @@ export function StatusPill({ status, label, className }: StatusPillProps) {
     <span
       data-status={status}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-4xl px-2.5 py-1 text-xs font-medium whitespace-nowrap",
         className,
       )}
     >
