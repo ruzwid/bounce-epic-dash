@@ -4,6 +4,7 @@ import type { HistoryPoint } from "./snapshots.ts";
 export type BurnUpPoint = {
   date: string;
   shipped: number;
+  doneUnverified: number;
   staged: number;
   total: number;
   /** Straight-line count of stories that "should" be shipped by this
@@ -38,6 +39,7 @@ export function buildBurnUpSeries(
     return {
       date: point.date,
       shipped: point.kpis.shipped,
+      doneUnverified: point.kpis.doneUnverified,
       staged: point.kpis.staged,
       total: point.kpis.storiesTracked,
       pace,

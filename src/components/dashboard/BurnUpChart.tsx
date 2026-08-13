@@ -15,6 +15,7 @@ const MIN_HISTORY_FOR_CHART = 10
 
 const chartConfig = {
   shipped: { label: "Shipped", color: "var(--status-shipped)" },
+  doneUnverified: { label: "Done, unverified", color: "var(--status-done-unverified)" },
   staged: { label: "Staged", color: "var(--status-staged)" },
   total: { label: "Total tracked", color: "var(--foreground)" },
   pace: { label: "Pace needed for target", color: "var(--muted-foreground)" },
@@ -46,6 +47,14 @@ export function BurnUpChart({ series, targetDate }: BurnUpChartProps) {
                   stackId="burnup"
                   stroke="var(--color-shipped)"
                   fill="var(--color-shipped)"
+                  fillOpacity={0.45}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="doneUnverified"
+                  stackId="burnup"
+                  stroke="var(--color-doneUnverified)"
+                  fill="var(--color-doneUnverified)"
                   fillOpacity={0.45}
                 />
                 <Area

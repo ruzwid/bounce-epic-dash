@@ -6,21 +6,21 @@ const history: HistoryPoint[] = [
   {
     date: "2026-08-10",
     generatedAt: "2026-08-10T08:00:00.000Z",
-    kpis: { featuresTracked: 2, lightTierMilestones: 0, storiesTracked: 3, shipped: 0, staged: 1, inReview: 0, blockedOrTodo: 2 },
+    kpis: { featuresTracked: 2, lightTierMilestones: 0, storiesTracked: 3, shipped: 0, doneUnverified: 0, staged: 1, inReview: 0, blockedOrTodo: 2 },
   },
   {
     date: "2026-08-11",
     generatedAt: "2026-08-11T08:00:00.000Z",
-    kpis: { featuresTracked: 2, lightTierMilestones: 0, storiesTracked: 3, shipped: 1, staged: 0, inReview: 0, blockedOrTodo: 2 },
+    kpis: { featuresTracked: 2, lightTierMilestones: 0, storiesTracked: 3, shipped: 1, doneUnverified: 0, staged: 0, inReview: 0, blockedOrTodo: 2 },
   },
 ];
 
 describe("buildBurnUpSeries", () => {
-  it("carries shipped/staged/total from each point's kpis", () => {
+  it("carries shipped/doneUnverified/staged/total from each point's kpis", () => {
     const series = buildBurnUpSeries(history, "2026-08-01", null);
     expect(series).toEqual([
-      { date: "2026-08-10", shipped: 0, staged: 1, total: 3, pace: null },
-      { date: "2026-08-11", shipped: 1, staged: 0, total: 3, pace: null },
+      { date: "2026-08-10", shipped: 0, doneUnverified: 0, staged: 1, total: 3, pace: null },
+      { date: "2026-08-11", shipped: 1, doneUnverified: 0, staged: 0, total: 3, pace: null },
     ]);
   });
 
