@@ -8,7 +8,8 @@ import { SectionHeading } from "../SectionHeading"
 import { StatStrip } from "../StatStrip"
 import { StaleBanner } from "../StaleBanner"
 import { Callout } from "../Callout"
-import { ChangeFeedItem } from "../ChangeFeedItem"
+import { Hero } from "../Hero"
+import { SinceYesterday } from "../SinceYesterday"
 import { FeatureRow } from "../FeatureRow"
 import { FilterBar } from "../FilterBar"
 import { EmptyState } from "../EmptyState"
@@ -27,6 +28,7 @@ export function TodayPage() {
   const { snapshot, previous, history, search, onSearchChange, now } = useShell()
 
   const changes = computeChanges(snapshot, previous)
+  const sinceLabel = previous ? formatSinceLabel(previous.date, snapshot.date) : null
   const engineers = [...new Set(snapshot.features.map((f) => f.owner))].sort()
   const burnUp = buildBurnUpSeries(history, history[0]?.date ?? snapshot.date, snapshot.epic.targetDate)
   // Groups the milestone filter excludes don't render at all — rendering
@@ -42,11 +44,9 @@ export function TodayPage() {
     <div className="flex flex-col gap-9">
       <section className="flex flex-col gap-3">
         <StaleBanner generatedAt={snapshot.generatedAt} now={now} />
-        <p className="font-display m-0 max-w-[28ch] text-3xl leading-[1.1] sm:text-4xl">
-          {snapshot.headline.sentence}
-        </p>
+        <Hero snapshot={snapshot} changes={changes} sinceLabel={sinceLabel} />
         {snapshot.epic.overview ? (
-          <p className="m-0 text-sm leading-relaxed text-muted-foreground">{snapshot.epic.overview}</p>
+          <p className="m-0 max-w-[70ch] text-sm leading-relaxed text-muted-foreground">{snapshot.epic.overview}</p>
         ) : null}
         {snapshot.collectionErrors.map((error, i) => (
           <Callout
@@ -61,20 +61,16 @@ export function TodayPage() {
         ))}
       </section>
 
-      <section className="flex flex-col gap-3">
+      <section className="flex flex-col gap-4">
         <SectionHeading note={previous ? `${previous.date} → ${snapshot.date}` : undefined}>
-          {previous ? capitalize(formatSinceLabel(previous.date, snapshot.date)) : "Since the previous snapshot"}
+          {sinceLabel ? capitalize(sinceLabel) : "Since the previous snapshot"}
         </SectionHeading>
         {!previous ? (
           <EmptyState message="This is the first snapshot on record — nothing to compare against yet." />
         ) : changes.length === 0 ? (
-          <EmptyState message={`Nothing changed ${formatSinceLabel(previous.date, snapshot.date)}.`} />
+          <EmptyState message={`Nothing changed ${sinceLabel}.`} />
         ) : (
-          <ul className="surface m-0 flex list-none flex-col overflow-hidden rounded-4xl border border-border bg-card p-0">
-            {changes.map((change, i) => (
-              <ChangeFeedItem key={i} change={change} />
-            ))}
-          </ul>
+          <SinceYesterday changes={changes} />
         )}
       </section>
 
@@ -87,14 +83,14 @@ export function TodayPage() {
               snapshot.kpis.lightTierMilestones > 0 ? `${snapshot.kpis.lightTierMilestones} light tier` : undefined,
           },
           { label: "Stories tracked", value: snapshot.kpis.storiesTracked },
-          { label: "Shipped to master", value: snapshot.kpis.shipped, color: "var(--status-shipped)" },
+          { label: "Shipped to master", value: snapshot.kpis.shipped, color: "var(--pr-shipped)" },
           {
             label: "Done, unverified",
             value: snapshot.kpis.doneUnverified,
             color: "var(--status-done-unverified)",
           },
           { label: "Staged, not shipped", value: snapshot.kpis.staged, color: "var(--status-staged)" },
-          { label: "In review", value: snapshot.kpis.inReview, color: "var(--status-in-review)" },
+          { label: "Stories in review", value: snapshot.kpis.inReview, color: "var(--status-in-review)" },
           {
             label: "Blocked or to do",
             value: snapshot.kpis.blockedOrTodo,

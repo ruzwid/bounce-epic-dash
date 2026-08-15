@@ -472,6 +472,13 @@ code {
 [data-status-icon="not_started"] {
   --status-color: var(--status-todo);
 }
+/* "Shipped to master" specifically — the code's location, not the status
+   family — so it reads in the same purple as the PR chips that prove it,
+   rather than the green a Done pill uses. See --pr-shipped below. */
+[data-status-dot="pr_shipped"],
+[data-status-icon="pr_shipped"] {
+  --status-color: var(--pr-shipped);
+}
 
 /* PR reference chips. The hue encodes *where the code actually is*, which
    is this dashboard's whole thesis: purple only for merged-to-default,

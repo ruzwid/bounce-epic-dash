@@ -23,9 +23,30 @@ jira:
   statusMap:
     Done: shipped
     "Code Review": in_review
+    # Code complete, waiting to go out with a release. Mapped to staged
+    # rather than shipped: the ticket is finished, the code isn't live.
+    "To Be Released": staged
+    # Product's own review queue (see productReviewStatus below). Only a
+    # base hint — a story here with a merged-to-master PR still derives
+    # "shipped", and one with an open PR still derives "in_review". It
+    # matters only when there's no PR evidence at all, where "somebody is
+    # reviewing this" is the honest read.
+    "Product Review": in_review
     "In Progress": in_progress
     "To Do": todo
     Blocked: blocked
+
+  # Product sign-off, as of the August 2026 flow change. The old "Product
+  # Approval" label no longer gates anything (its automations are off);
+  # instead, moving an epic/milestone/feature ticket to Product Review
+  # emails its product manager, and approval moves it straight to Done.
+  # So for epic work, reaching Done *is* the sign-off.
+  productReviewStatus: "Product Review"
+  signedOffStatuses: ["Done"]
+  # Legacy fallback for tickets approved under the old label-based flow.
+  # Remove this line once every tracked feature has been through the new
+  # status at least once.
+  productSignOffField: customfield_10698
 
 github:
   org: bounceinsights

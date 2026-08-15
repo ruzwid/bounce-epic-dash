@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { computeChanges, formatSinceLabel } from "../../src/lib/dashboard/diff.ts";
+import { computeChanges, formatSinceLabel, groupChanges, groupChangesByOwner } from "../../src/lib/dashboard/diff.ts";
 import { StatusSnapshot } from "../../src/lib/schema.ts";
 
 const FIXTURES = new URL("./fixtures/snapshots/", import.meta.url);
@@ -100,5 +100,171 @@ describe("formatSinceLabel", () => {
 
   it("falls back to the date for a long gap", () => {
     expect(formatSinceLabel("2026-07-01", "2026-08-11")).toBe("since 2026-07-01");
+  });
+});
+
+/** The fixtures are schemaVersion 1, which predates published sign-off.
+ *  Bumping both sides is what tells computeChanges the two snapshots are
+ *  actually comparable on that field. */
+function withSignOffData(snapshot: ReturnType<typeof loadFixture>) {
+  return { ...snapshot, schemaVersion: 3 as const };
+}
+
+describe("computeChanges — regressions", () => {
+  it("reports a story falling from shipped to done_unverified as a regression, not as newly done", () => {
+    // The real-world case: the epic's shipped count dropped by two while
+    // the page cheerfully reported "+4 pts".
+    const wasShipped = {
+      ...previous,
+      features: previous.features.map((f) =>
+        f.key === "BOUN-100"
+          ? { ...f, stories: f.stories.map((s) => (s.key === "SUB-1" ? { ...s, status: "shipped" as const } : s)) }
+          : f,
+      ),
+    };
+    const nowUnverified = {
+      ...current,
+      features: current.features.map((f) =>
+        f.key === "BOUN-100"
+          ? {
+              ...f,
+              stage: "underway" as const,
+              stories: f.stories.map((s) => (s.key === "SUB-1" ? { ...s, status: "done_unverified" as const } : s)),
+            }
+          : f,
+      ),
+    };
+    const changes = computeChanges(nowUnverified, wasShipped);
+    const regressed = changes.filter((c) => c.kind === "regressed");
+    expect(regressed).toHaveLength(1);
+    expect(regressed[0]).toMatchObject({ from: "shipped", to: "done_unverified" });
+    expect(changes.some((c) => c.kind === "newly_done_unverified" && c.feature.key === "BOUN-100")).toBe(false);
+  });
+
+  it("reports a feature whose stage slipped, with the score it lost", () => {
+    // F1.2 really does slip between these two fixtures — early -> not
+    // started, 15 points gone — and the old flat feed said nothing at all.
+    const featureRegressed = computeChanges(current, previous).filter((c) => c.kind === "feature_regressed");
+    expect(featureRegressed).toHaveLength(1);
+    expect(featureRegressed[0]).toMatchObject({
+      from: "early",
+      to: "not_started",
+      scoreDelta: -15,
+    });
+    expect(featureRegressed[0]!.feature.key).toBe("BOUN-200");
+  });
+
+  it("does not report a feature that advanced", () => {
+    const advanced = {
+      ...current,
+      features: current.features.map((f) => (f.key === "BOUN-200" ? { ...f, stage: "underway" as const } : f)),
+    };
+    expect(computeChanges(advanced, previous).some((c) => c.kind === "feature_regressed")).toBe(false);
+  });
+});
+
+describe("computeChanges — sign-off", () => {
+  it("reports a feature product approved overnight", () => {
+    const approved = {
+      ...withSignOffData(current),
+      features: current.features.map((f) =>
+        f.key === "BOUN-300" ? { ...f, signedOff: true, stage: "done" as const } : f,
+      ),
+    };
+    const changes = computeChanges(approved, withSignOffData(previous));
+    const released = changes.filter((c) => c.kind === "released");
+    expect(released).toHaveLength(1);
+    expect(released[0]!.feature.key).toBe("BOUN-300");
+  });
+
+  it("reports a feature sent into Product Review", () => {
+    const sent = {
+      ...withSignOffData(current),
+      features: current.features.map((f) => (f.key === "BOUN-100" ? { ...f, awaitingSignOff: true } : f)),
+    };
+    const changes = computeChanges(sent, withSignOffData(previous));
+    expect(changes.filter((c) => c.kind === "sent_for_sign_off")).toHaveLength(1);
+  });
+
+  it("stays silent about sign-off when the previous snapshot predates the field", () => {
+    // Otherwise the first snapshot after the field ships announces every
+    // long-approved feature as approved overnight.
+    const approved = {
+      ...withSignOffData(current),
+      features: current.features.map((f) => ({ ...f, signedOff: true })),
+    };
+    expect(computeChanges(approved, previous).some((c) => c.kind === "released")).toBe(false);
+  });
+
+  it("keeps reporting a release even though sign-off forces the feature to 'done'", () => {
+    // The settled-feature filter must not swallow the very transition
+    // that settled it.
+    const approved = {
+      ...withSignOffData(current),
+      features: current.features.map((f) => ({ ...f, signedOff: true, stage: "done" as const })),
+    };
+    const changes = computeChanges(approved, withSignOffData(previous));
+    expect(changes.filter((c) => c.kind === "released")).toHaveLength(3);
+  });
+});
+
+describe("computeChanges — scope", () => {
+  it("reports a feature that joined the epic, and does not diff its stories as movement", () => {
+    const shrunk = { ...previous, features: previous.features.filter((f) => f.key !== "BOUN-300") };
+    const changes = computeChanges(current, shrunk);
+    const added = changes.filter((c) => c.kind === "scope_added");
+    expect(added).toHaveLength(1);
+    expect(added[0]).toMatchObject({ isNewFeature: true });
+    expect(added[0]!.kind === "scope_added" && added[0]!.stories).toHaveLength(1);
+    expect(changes.some((c) => c.feature.key === "BOUN-300" && c.kind === "newly_done_unverified")).toBe(false);
+  });
+
+  it("reports stories added to an existing feature", () => {
+    const grown = {
+      ...current,
+      features: current.features.map((f) =>
+        f.key === "BOUN-100" ? { ...f, stories: [...f.stories, { ...f.stories[0]!, key: "SUB-99" }] } : f,
+      ),
+    };
+    const changes = computeChanges(grown, previous);
+    const added = changes.filter((c) => c.kind === "scope_added");
+    expect(added).toHaveLength(1);
+    expect(added[0]).toMatchObject({ isNewFeature: false });
+    // The stories themselves, not a count — the row names what arrived.
+    expect(added[0]!.kind === "scope_added" && added[0]!.stories.map((s) => s.key)).toEqual(["SUB-99"]);
+  });
+});
+
+describe("groupChanges", () => {
+  it("drops empty sections and keeps the rest in reading order", () => {
+    const sections = groupChanges(computeChanges(current, previous));
+    expect(sections.map((s) => s.id)).toEqual([
+      "shipped",
+      "newly_done_unverified",
+      "feature_regressed",
+      "newly_blocked",
+      "newly_stalled",
+    ]);
+    expect(sections.every((s) => s.items.length > 0)).toBe(true);
+  });
+
+  it("says the done-unverified explanation once, as a section note", () => {
+    const sections = groupChanges(computeChanges(current, previous));
+    const section = sections.find((s) => s.id === "newly_done_unverified")!;
+    expect(section.note).toMatch(/no pull request proves/i);
+    expect(section.items).toHaveLength(1);
+  });
+
+  it("returns nothing at all for an empty change set", () => {
+    expect(groupChanges([])).toEqual([]);
+  });
+});
+
+describe("groupChangesByOwner", () => {
+  it("buckets by feature owner, busiest first", () => {
+    const groups = groupChangesByOwner(computeChanges(current, previous));
+    expect(groups.length).toBeGreaterThan(0);
+    expect(groups[0]!.items.length).toBeGreaterThanOrEqual(groups[groups.length - 1]!.items.length);
+    expect(groups.flatMap((g) => g.items)).toHaveLength(computeChanges(current, previous).length);
   });
 });

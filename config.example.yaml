@@ -19,6 +19,17 @@ jira:
     "To Do": todo
     Blocked: blocked
 
+  # Optional. If your project gates "Done" behind a product-approval
+  # status, name it here: a feature ticket sitting in it reads as
+  # "waiting on product", and one that has reached any signedOffStatuses
+  # value counts as signed off (which forces its Stage to "done", see
+  # src/lib/score.ts). Set productReviewStatus to null to disable.
+  productReviewStatus: "Product Review"
+  signedOffStatuses: ["Done"]
+  # Optional legacy fallback: a custom field whose value is "Approved"
+  # when product signed off. Null (the default) skips it.
+  productSignOffField: null
+
 github:
   org: your-org
 

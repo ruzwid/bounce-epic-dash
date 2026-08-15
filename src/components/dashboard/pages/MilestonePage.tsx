@@ -57,14 +57,14 @@ export function MilestonePage({ milestone }: { milestone: MilestoneOverview }) {
         stats={[
           { label: "Features tracked", value: milestone.features.length },
           { label: "Stories tracked", value: progress.storiesTracked },
-          { label: "Shipped to master", value: progress.shipped, color: "var(--status-shipped)" },
+          { label: "Shipped to master", value: progress.shipped, color: "var(--pr-shipped)" },
           {
             label: "Done, unverified",
             value: progress.doneUnverified,
             color: "var(--status-done-unverified)",
           },
           { label: "Staged, not shipped", value: progress.staged, color: "var(--status-staged)" },
-          { label: "In review", value: progress.inReview, color: "var(--status-in-review)" },
+          { label: "Stories in review", value: progress.inReview, color: "var(--status-in-review)" },
           {
             label: "Blocked or to do",
             value: progress.blockedOrTodo,

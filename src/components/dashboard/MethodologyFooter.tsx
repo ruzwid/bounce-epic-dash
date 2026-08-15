@@ -26,13 +26,16 @@ export function MethodologyFooter({ snapshot }: MethodologyFooterProps) {
         </p>
       </div>
       <div>
-        <h2 className="m-0 mb-1 text-sm font-semibold text-foreground">Product Sign Off</h2>
+        <h2 className="m-0 mb-1 text-sm font-semibold text-foreground">Product review and sign-off</h2>
         <p className="m-0">
           A feature's stage can also read <strong className="text-foreground">Done</strong> because product
-          explicitly approved it via JIRA's Product Sign Off field — a separate, feature-level override from the
-          done-unverified case above. That approval outranks story status entirely, so a signed-off feature can show
-          Done while some of its stories are still todo, staged, or done-unverified; those cases are called out
-          separately on the Needs attention page rather than hidden.
+          approved it — a separate, feature-level override from the done-unverified case above. Moving a feature
+          ticket to <strong className="text-foreground">Product Review</strong> emails its product manager;
+          approval sends it straight to Done, rejection sends it back to In Progress. So for epic work, reaching
+          Done is the sign-off, and this dashboard reads it from the ticket's own status rather than from the
+          retired Product Approval label. That approval outranks story status entirely, so a signed-off feature
+          can show Done while some of its stories are still todo, staged, or done-unverified; those cases are
+          called out separately on the Needs attention page rather than hidden.
         </p>
       </div>
       <div>

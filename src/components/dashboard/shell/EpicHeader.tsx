@@ -161,15 +161,27 @@ function SegmentedProgress({ progress }: { progress: ReturnType<typeof epicProgr
   )
 }
 
-/** "11 Aug, 08:02" — the snapshot's own instant, rendered in UTC so a
- *  prerendered page and a browser in any timezone print the same string
- *  (a locale-dependent render would hydrate-mismatch). */
+/** "Tue, 11 Aug, 08:02" — the snapshot's own instant, rendered in UTC so
+ *  a prerendered page and a browser in any timezone print the same string
+ *  (a locale-dependent render would hydrate-mismatch).
+ *
+ *  The weekday is the page's only mention of which day this snapshot is
+ *  from, now that the Today hero leads with the sentence instead of a
+ *  date — and "Tuesday" is what people actually navigate by when asking
+ *  whether they've already read this one.
+ *
+ *  Formatted in two passes because en-GB renders the weekday without a
+ *  following comma ("Tue 11 Aug"), which reads as a typo next to the
+ *  comma before the time. */
 function formatGeneratedAt(generatedAt: string): string {
-  return new Intl.DateTimeFormat("en-GB", {
+  const date = new Date(generatedAt)
+  const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" }).format(date)
+  const rest = new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "UTC",
-  }).format(new Date(generatedAt))
+  }).format(date)
+  return `${weekday}, ${rest}`
 }

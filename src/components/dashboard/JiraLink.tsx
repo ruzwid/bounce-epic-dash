@@ -1,4 +1,4 @@
-import { Blocks, Bug, CircleCheck, FileText, Flag, Layers, ListChecks, type LucideIcon } from "lucide-react"
+import { Bug, CircleCheck, FileText, Flag, Layers, ListChecks, Package, type LucideIcon } from "lucide-react"
 import { jiraIssueUrl } from "@/lib/dashboard/appConfig"
 import { cn } from "@/lib/utils"
 
@@ -11,12 +11,12 @@ export type JiraIssueType = "epic" | "milestone" | "feature" | "story" | "task" 
  *
  *  `feature` is not in the agreed icon table (which covers the standard
  *  JIRA types) because Feature is this project's own level between a
- *  Milestone and a Story — Blocks reads as "assembled from smaller
- *  parts", which is exactly what it is. */
+ *  Milestone and a Story — Package reads as "a shippable thing made of
+ *  smaller parts", which is exactly what a Feature is here. */
 const ISSUE_TYPE_ICON: Record<JiraIssueType, LucideIcon> = {
   epic: Layers,
   milestone: Flag,
-  feature: Blocks,
+  feature: Package,
   story: FileText,
   task: CircleCheck,
   subtask: ListChecks,

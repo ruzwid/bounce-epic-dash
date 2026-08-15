@@ -162,6 +162,17 @@ export const Feature = z.preprocess(renameLegacy("subtasks", "stories"), z.objec
   callouts: z.array(Callout).default([]),
   override: Override.nullable(),
   dataOk: z.boolean(),             // false → render "unavailable", not 0%
+
+  /** Product has approved this feature — under the current flow, the
+   *  feature ticket reached Done by passing through Product Review. This
+   *  is what lets `stage` read "done" while stories are still open (see
+   *  deriveStage in src/lib/score.ts), so it has to be published: without
+   *  it the UI can only infer sign-off from that contradiction.
+   *  Defaulted for snapshots written before it was published. */
+  signedOff: z.boolean().default(false),
+  /** In Product Review right now — engineering is finished, product owes
+   *  a decision. Mutually exclusive with signedOff by construction. */
+  awaitingSignOff: z.boolean().default(false),
 }));
 
 export const ReviewRequest = z.object({
@@ -193,8 +204,12 @@ export const MilestoneSummary = z.object({
 export const StatusSnapshot = z.object({
   /** 1: Feature.subtasks held Stories, and Sub-tasks were never collected.
    *  2: Feature.stories, each with its own Sub-tasks. Both parse — see
-   *  renameLegacy above. */
-  schemaVersion: z.union([z.literal(1), z.literal(2)]),
+   *  renameLegacy above.
+   *  3: Feature.signedOff / awaitingSignOff are published. The version is
+   *  what lets the since-yesterday diff tell "product approved this
+   *  overnight" apart from "the previous snapshot predates the field and
+   *  defaulted it to false" — see hasSignOffData in dashboard/diff.ts. */
+  schemaVersion: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   /** logical Europe/Dublin date, YYYY-MM-DD — the file name */
   date: z.string().date(),
   generatedAt: z.string().datetime(),

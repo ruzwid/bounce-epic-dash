@@ -1,4 +1,17 @@
 import type { ReactNode } from "react"
+import {
+  Package,
+  CircleAlert,
+  CircleDashed,
+  ClipboardCheck,
+  Clock,
+  FileText,
+  GitBranch,
+  GitMerge,
+  GitPullRequest,
+  Hourglass,
+  type LucideIcon,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export type Stat = {
@@ -12,29 +25,59 @@ export type Stat = {
 }
 
 /**
- * Rules top and bottom, hairlines between: numbers read as one row of
- * related facts rather than a set of floating cards. Deliberately not a
- * card grid — the KPI row is a summary of the page below it, and boxing
- * each figure would give six small things the visual weight of six
- * sections.
+ * One glyph per stat, keyed by label so every page that renders a strip
+ * gets the same icon for the same fact without passing it in. Deliberately
+ * the same glyphs the rest of the interface uses for these ideas: GitMerge
+ * for work that landed, GitPullRequest for work under review.
+ */
+const STAT_ICONS: Record<string, LucideIcon> = {
+  "Features tracked": Package,
+  "Stories tracked": FileText,
+  "Shipped to master": GitMerge,
+  "Done, unverified": CircleAlert,
+  "Staged, not shipped": GitBranch,
+  "Stories in review": GitPullRequest,
+  "Blocked or to do": CircleDashed,
+  "Since last activity": Clock,
+  "Oldest staged work": Hourglass,
+  "Acceptance criteria covered": ClipboardCheck,
+  "PRs open": GitPullRequest,
+}
+
+/**
+ * A row of cards, one figure each: label and glyph on top, the number
+ * beneath it.
+ *
+ * The colour sits on the glyph rather than the number. Every figure here
+ * is legible as a plain count, and painting seven numbers in seven hues
+ * made the row read as an alert panel — "17 blocked or to do" in red when
+ * none of the seventeen were actually blocked. The glyph carries the same
+ * information without shouting it.
  */
 export function StatStrip({ stats, className }: { stats: Stat[]; className?: string }) {
   return (
-    <dl className={cn("m-0 flex flex-wrap border-y border-border py-4", className)}>
-      {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="min-w-[112px] flex-1 border-r border-border-soft px-4 first:pl-0 last:border-r-0"
-        >
-          <dd className="font-display font-mono-data m-0 text-[26px] leading-tight" style={{ color: stat.color }}>
-            {stat.value}
-          </dd>
-          <dt className="mt-0.5 text-[11.5px] text-muted-foreground">
-            {stat.label}
-            {stat.sublabel ? <span className="opacity-70"> · {stat.sublabel}</span> : null}
-          </dt>
-        </div>
-      ))}
+    <dl className={cn("m-0 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4", className)}>
+      {stats.map((stat) => {
+        const Icon = STAT_ICONS[stat.label]
+        return (
+          <div key={stat.label} className="flex flex-col gap-2 rounded-4xl bg-muted/60 px-4 py-3.5">
+            <div className="flex items-start justify-between gap-2">
+              <dt className="text-xs leading-snug text-muted-foreground">
+                {stat.label}
+                {stat.sublabel ? <span className="opacity-70"> · {stat.sublabel}</span> : null}
+              </dt>
+              {Icon ? (
+                <Icon
+                  aria-hidden="true"
+                  className="size-3.5 shrink-0 text-muted-foreground"
+                  style={stat.color ? { color: stat.color } : undefined}
+                />
+              ) : null}
+            </div>
+            <dd className="font-display font-mono-data m-0 text-[26px] leading-none">{stat.value}</dd>
+          </div>
+        )
+      })}
     </dl>
   )
 }

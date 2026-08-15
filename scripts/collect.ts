@@ -12,7 +12,9 @@ import { extractAcBullets, extractOverview } from "../src/lib/adf.ts";
 import {
   classifyPr,
   deriveWorkStatus,
+  deriveSignOff,
   findReleaseGate,
+  STATUS_PRIORITY,
   isAutomatedReleasePr,
   traceStackChain,
   type RawPr,
@@ -31,16 +33,6 @@ import type { CollectionError as CollectionErrorSchema, Stage as StageSchema, Wo
 type WorkStatus = z.infer<typeof WorkStatusSchema>;
 type Stage = z.infer<typeof StageSchema>;
 type CollectionError = z.infer<typeof CollectionErrorSchema>;
-
-const STATUS_PRIORITY: Record<WorkStatus, number> = {
-  shipped: 6,
-  done_unverified: 5,
-  staged: 4,
-  in_review: 3,
-  in_progress: 2,
-  blocked: 1,
-  todo: 0,
-};
 
 /** The unit of work: either a configured feature, or (light-tier,
  *  direct-story milestones) a synthetic feature built from the
@@ -120,12 +112,25 @@ export type RawFeature = {
    *  same payload rather than making a second call. */
   overview: string;
   stories: RawStory[];
-  /** JIRA's "Product Sign Off" field (customfield_10698) is "Approved" —
-   *  a human, out-of-band approval that overrides deriveStage's normal
-   *  score/shipped-based bands (see src/lib/score.ts). Never published to
-   *  the Feature schema; stage === "done" combined with a story that's
-   *  still done_unverified is, by construction, only reachable this way. */
+  /** The feature ticket's own JIRA status, verbatim ("Product Review",
+   *  "Done", …). The stories carry their own; this is the parent's, and
+   *  it's what the two sign-off flags below are derived from. */
+  featureStatus: string | null;
+  /** Product has approved this feature — a human, out-of-band approval
+   *  that overrides deriveStage's normal score/shipped-based bands (see
+   *  src/lib/score.ts).
+   *
+   *  Since the August 2026 flow change this is read from the feature
+   *  ticket's own status: epic work can only reach Done by passing
+   *  through Product Review, so Done *is* the approval. The old "Product
+   *  Approval" custom field is still read as a fallback for tickets
+   *  signed off before the change, but its automations are off and it
+   *  will never be set on anything new. */
   signedOff: boolean;
+  /** Sitting in Product Review right now: code is done, product has been
+   *  emailed, nobody has approved or rejected it yet. Distinct from
+   *  signedOff in both directions — this is the waiting state. */
+  awaitingSignOff: boolean;
   dataOk: boolean;
 };
 
@@ -253,6 +258,14 @@ function errMsg(err: unknown): string {
   return text.length > 200 ? `${text.slice(0, 200)}…` : text;
 }
 
+/** A JIRA issue's status name verbatim ("Product Review", "Done", …), or
+ *  null when the payload carried none — kept nullable rather than "" so a
+ *  missing status can never accidentally match a configured one. */
+function jiraStatusName(issue: RawJiraIssue): string | null {
+  const status = (issue.fields as Record<string, unknown>).status as { name?: string } | undefined;
+  return typeof status?.name === "string" && status.name.length > 0 ? status.name : null;
+}
+
 function toIso(jiraDate: unknown): string {
   if (typeof jiraDate !== "string" || !jiraDate) return new Date(0).toISOString();
   const parsed = new Date(jiraDate);
@@ -355,10 +368,12 @@ function buildRawFeature(params: {
   repos?: string[];
   now: Date;
   dataOk: boolean;
+  featureStatus: string | null;
   signedOff: boolean;
+  awaitingSignOff: boolean;
   scoreWeights: Config["scoreWeights"];
 }): RawFeature {
-  const { target, stories, acBullets, overview = "", releaseGate, repos = [], now, dataOk, signedOff, scoreWeights } = params;
+  const { target, stories, acBullets, overview = "", releaseGate, repos = [], now, dataOk, featureStatus, signedOff, awaitingSignOff, scoreWeights } = params;
   const { score, scoreBasis } = computeScore(stories.map((s) => s.status), scoreWeights);
   const allShippedToDefault = stories.length > 0 && stories.every((s) => s.status === "shipped");
   const stage = deriveStage(score, allShippedToDefault, signedOff);
@@ -397,7 +412,9 @@ function buildRawFeature(params: {
     acBullets,
     overview,
     stories,
+    featureStatus,
     signedOff,
+    awaitingSignOff,
     dataOk,
   };
 }
@@ -415,12 +432,17 @@ export async function collectFeature(
 ): Promise<{ feature: RawFeature; errors: CollectionError[] }> {
   const errors: CollectionError[] = [];
 
+  const legacySignOffField = config.jira.productSignOffField;
+
   let storyIssues: RawJiraIssue[];
   let parentIssue: RawJiraIssue;
   try {
     [storyIssues, parentIssue] = await Promise.all([
       deps.searchChildren(target.key),
-      deps.getIssue(target.key, [...DEFAULT_ISSUE_FIELDS, "customfield_10698"]),
+      deps.getIssue(
+        target.key,
+        legacySignOffField ? [...DEFAULT_ISSUE_FIELDS, legacySignOffField] : [...DEFAULT_ISSUE_FIELDS],
+      ),
     ]);
   } catch (err) {
     errors.push({ source: "jira", scope: target.key, message: errMsg(err) });
@@ -432,7 +454,9 @@ export async function collectFeature(
         releaseGate: null,
         now,
         dataOk: false,
+        featureStatus: null,
         signedOff: false,
+        awaitingSignOff: false,
         scoreWeights: config.scoreWeights,
       }),
       errors,
@@ -442,11 +466,18 @@ export async function collectFeature(
   const description = (parentIssue.fields as Record<string, unknown>).description;
   const acBullets = extractAcBullets(description).map((text, i) => ({ id: `ac-${i + 1}`, text }));
   const overview = extractOverview(description);
-  const productSignOff = (parentIssue.fields as Record<string, unknown>).customfield_10698 as
-    | { value?: string }
-    | null
-    | undefined;
-  const signedOff = productSignOff?.value === "Approved";
+  // Sign-off now rides on the feature ticket's own status (Product Review
+  // -> Done), with the retired "Product Approval" custom field read only
+  // as a fallback for tickets approved before that change.
+  const legacySignOff = legacySignOffField
+    ? ((parentIssue.fields as Record<string, unknown>)[legacySignOffField] as { value?: string } | null | undefined)
+    : undefined;
+  const featureStatus = jiraStatusName(parentIssue);
+  const { signedOff, awaitingSignOff } = deriveSignOff(
+    featureStatus,
+    config.jira,
+    legacySignOff?.value === "Approved",
+  );
 
   // Prefer the live JIRA summary over config's fallback title, so
   // config.yaml doesn't have to duplicate (and go stale on) ticket titles.
@@ -473,7 +504,7 @@ export async function collectFeature(
 
   const toWorkItem = (issue: RawJiraIssue) => {
     const key = issue.key;
-    const jiraStatus = String((fieldsOf(issue).status as { name?: string } | undefined)?.name ?? "");
+    const jiraStatus = jiraStatusName(issue) ?? "";
     const matched = matchPrs(key);
     return {
       key,
@@ -554,7 +585,9 @@ export async function collectFeature(
       repos: [...new Set(allFeaturePrs.map((pr) => pr.repo))].sort(),
       now,
       dataOk: !prIndex.degraded,
+      featureStatus,
       signedOff,
+      awaitingSignOff,
       scoreWeights: config.scoreWeights,
     }),
     errors,
@@ -624,10 +657,14 @@ export type PendingFeature = {
     status: WorkStatus;
     subtasks: { key: string; summary: string; status: WorkStatus }[];
   }[];
-  /** JIRA's "Product Sign Off" field is Approved — see RawFeature.signedOff.
-   *  The judge needs this to explain a feature whose stage reads "Done" for
+  /** Product has approved this feature — see RawFeature.signedOff. The
+   *  judge needs this to explain a feature whose stage reads "Done" for
    *  reasons other than the normal shipped-story path (see judge SKILL.md). */
   signedOff: boolean;
+  /** Sitting in Product Review, waiting on a decision — see
+   *  RawFeature.awaitingSignOff. A feature here is finished as far as
+   *  engineering is concerned; whatever is left is product's move. */
+  awaitingSignOff: boolean;
   prs: {
     ref: string;
     title: string;
@@ -729,6 +766,7 @@ export function toPending(feature: RawFeature): PendingFeature {
     acBullets: feature.acBullets,
     overview: feature.overview,
     signedOff: feature.signedOff,
+    awaitingSignOff: feature.awaitingSignOff,
     stories: feature.stories.map((s) => ({
       key: s.key,
       summary: s.summary,

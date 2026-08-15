@@ -187,6 +187,10 @@ export function buildSnapshot(params: {
       score: raw.score,
       scoreBasis: raw.scoreBasis,
       scoreOverride,
+      // Straight from collect — the judge has no say over whether product
+      // approved something.
+      signedOff: raw.signedOff ?? false,
+      awaitingSignOff: raw.awaitingSignOff ?? false,
       confidence: jf?.confidence ?? "low",
       rationale: jf?.rationale ?? "No judgment was provided for this feature.",
       daysSinceLastActivity: raw.daysSinceLastActivity,
@@ -259,9 +263,9 @@ export function buildSnapshot(params: {
   );
 
   return {
-    // 2: Feature.stories, each carrying its own Sub-tasks. Snapshots
-    // written at version 1 still parse — see renameLegacy in schema.ts.
-    schemaVersion: 2,
+    // 3: Feature.signedOff / awaitingSignOff are published. Snapshots
+    // written at 1 and 2 still parse — see renameLegacy in schema.ts.
+    schemaVersion: 3,
     date,
     generatedAt: now.toISOString(),
     epic: { ...epic, overview: epic.overview ?? "" },

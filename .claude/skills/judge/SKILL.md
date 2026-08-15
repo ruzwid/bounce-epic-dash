@@ -135,6 +135,11 @@ exit and no snapshot written — if you violate any rule below.
    (e.g. "Product signed this off as Done, even though 2 stories are still
    staged" is correct; a rationale that only reports the outstanding work
    without naming the sign-off would read as an unexplained contradiction).
+   `awaitingSignOff: true` is the other half of the same flow: the feature
+   ticket is sitting in Product Review, which means engineering considers
+   it finished and product owes a decision. Name that when it applies —
+   "waiting on product review since the last of its stories merged" tells
+   the reader whose move it is, which is the whole point of the status.
 
 5. **Confidence guardrails.** A tidy subtask breakdown combined with weeks
    of no activity (`daysSinceLastActivity` large) is `medium` or `low` and

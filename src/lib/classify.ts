@@ -107,6 +107,63 @@ export function findReleaseGate(
   };
 }
 
+/** How much a status claims, most to least. The single ordering for
+ *  "did this move forwards or backwards" — used when folding sub-task
+ *  evidence into a story (scripts/collect.ts) and when the dashboard
+ *  decides whether a status change since yesterday was progress or a
+ *  regression (src/lib/dashboard/diff.ts). `blocked` outranks `todo`:
+ *  blocked work has been started and hit something. */
+export const STATUS_PRIORITY: Record<WorkStatus, number> = {
+  shipped: 6,
+  done_unverified: 5,
+  staged: 4,
+  in_review: 3,
+  in_progress: 2,
+  blocked: 1,
+  todo: 0,
+};
+
+export type SignOffConfig = {
+  /** Status a feature ticket waits in for product's decision, or null if
+   *  the project has no such step. */
+  productReviewStatus: string | null;
+  /** Statuses that mean product has already approved. */
+  signedOffStatuses: string[];
+};
+
+export type SignOffState = { signedOff: boolean; awaitingSignOff: boolean };
+
+/**
+ * Reads product sign-off off a feature ticket's own JIRA status.
+ *
+ * The August 2026 flow change replaced the "Product Approval" label with
+ * a Product Review status: moving an epic/milestone/feature ticket there
+ * emails its product manager, approval sends it straight to Done, and
+ * rejection sends it back to In Progress. So for epic work, *being* Done
+ * is the sign-off — there is no separate field to check any more.
+ *
+ * `legacyFieldApproved` keeps tickets that were signed off under the old
+ * label working: it can only ever add a sign-off, never remove one, and
+ * it is ignored entirely for a ticket currently awaiting review (a stale
+ * "Approved" label must not out-vote a live Product Review).
+ *
+ * The two flags are mutually exclusive by construction — a ticket cannot
+ * be both waiting for a decision and already approved.
+ */
+export function deriveSignOff(
+  featureStatus: string | null,
+  config: SignOffConfig,
+  legacyFieldApproved = false,
+): SignOffState {
+  const awaitingSignOff =
+    config.productReviewStatus !== null && featureStatus === config.productReviewStatus;
+  if (awaitingSignOff) {
+    return { signedOff: false, awaitingSignOff: true };
+  }
+  const statusSignedOff = featureStatus !== null && config.signedOffStatuses.includes(featureStatus);
+  return { signedOff: statusSignedOff || legacyFieldApproved, awaitingSignOff: false };
+}
+
 /** Derives a story's GitHub-aware status. Starts from the JIRA status
  *  mapped through config's statusMap (default "todo" + a warning for
  *  unmapped names — the map should have an entry for every status the

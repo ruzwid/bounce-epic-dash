@@ -54,6 +54,8 @@ function makeFeature(overrides: Partial<FeatureT> = {}): FeatureT {
     callouts: [],
     override: null,
     dataOk: true,
+    signedOff: false,
+    awaitingSignOff: false,
     ...overrides,
   };
 }

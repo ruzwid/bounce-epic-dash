@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "date": "2026-08-13",
-  "generatedAt": "2026-08-13T19:58:22.966Z",
+  "generatedAt": "2026-08-14T19:15:42.868Z",
   "epic": {
     "key": "BOUN-11204",
     "title": "WPP at Scale",
@@ -84,33 +84,33 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Product signed this off as Done; JIRA marks 3 of 5 stories done_unverified, and two of the earlier validation PRs are closed rather than merged, so the core validation route/UI isn't independently confirmed on GitHub even though the follow-on E2E PRs that build on the same code did merge.",
+      "rationale": "Product signed this off as Done, so it reads as complete even though 3 of 5 stories are done-unverified — the validation script, tests, and generation-flow wiring are merged code but GitHub can't confirm any PR reached master (the base PR was closed unmerged); the E2E coverage and an unrelated backfill fix are the two confirmed shipped.",
       "daysSinceLastActivity": 15,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Validation checks the template's demographic questions against the questions workbook",
-          "coverage": "covered",
+          "label": "Validation checks the template's demographic questions against the questions Excel before survey creation",
+          "coverage": "partial",
           "evidence": [
+            "BOUN-11312",
             "dashboard-api#2053"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Survey creation proceeds once the demographic questions align",
-          "coverage": "covered",
-          "evidence": [
-            "dashboard#3806"
-          ]
+          "label": "Survey creation proceeds once demographic questions align",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Survey creation is blocked with a results report until mismatches are fixed",
-          "coverage": "covered",
+          "label": "Survey creation is blocked until a demographic mismatch is resolved",
+          "coverage": "partial",
           "evidence": [
-            "dashboard#3806"
+            "dashboard#3806",
+            "BOUN-11321"
           ]
         }
       ],
@@ -139,17 +139,8 @@
               "reviewRequests": [
                 "Madjda"
               ],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -187,17 +178,8 @@
               "updatedAt": "2026-07-28T16:04:36Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -225,17 +207,8 @@
               "updatedAt": "2026-07-29T13:34:25Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
@@ -252,21 +225,8 @@
               "updatedAt": "2026-07-29T13:34:28Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -294,13 +254,8 @@
               "updatedAt": "2026-07-24T09:28:52Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -310,16 +265,19 @@
       "callouts": [
         {
           "type": "drift",
-          "severity": "warn",
-          "message": "The two PRs implementing the core validation route and gating UI show a closed (not merged) state on GitHub, even though their JIRA stories are marked Done and downstream E2E-test PRs merged on top of the same code paths.",
+          "severity": "info",
+          "message": "Product sign-off marks this Done, but GitHub still can't confirm 3 of 5 stories reached master — the sign-off is trusted here, but the gap is worth knowing about.",
           "refs": [
-            "dashboard-api#2053",
-            "dashboard#3806"
+            "BOUN-11312",
+            "BOUN-11313",
+            "BOUN-11314"
           ]
         }
       ],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11208",
@@ -347,32 +305,30 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "All 9 stories are shipped and product-signed-off; PR bodies show move-to-status, per-survey and same-for-all rename, Research Defender/resume toggles, red-herrings, and bucket-reset bulk actions all landed, each with a per-survey pass/fail results modal.",
+      "rationale": "All nine stories are shipped to master, covering move/rename/toggle/reset/live bulk actions with per-survey error reporting.",
       "daysSinceLastActivity": 7,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Bulk move selected surveys to a chosen status",
+          "label": "Bulk move to a destination status applies to every selected survey",
           "coverage": "covered",
           "evidence": [
-            "admin-v2#644",
-            "admin-v2#645"
+            "admin-v2#644"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Bulk reset only open/available buckets to 0",
+          "label": "Bulk bucket reset only touches open/available buckets",
           "coverage": "covered",
           "evidence": [
-            "admin-api#1139",
             "admin-v2#657"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Bulk rename with one external name applied to all selected surveys",
+          "label": "Bulk rename to one name for all selected surveys",
           "coverage": "covered",
           "evidence": [
             "admin-v2#648"
@@ -380,7 +336,7 @@
         },
         {
           "id": "ac-4",
-          "label": "Bulk rename with a distinct name saved per survey",
+          "label": "Bulk rename set individually per survey",
           "coverage": "covered",
           "evidence": [
             "admin-v2#648"
@@ -388,7 +344,7 @@
         },
         {
           "id": "ac-5",
-          "label": "Bulk toggle of Research Defender / survey resume across selected surveys",
+          "label": "Bulk toggle of Research Defender / survey resume across selections",
           "coverage": "covered",
           "evidence": [
             "admin-v2#650",
@@ -397,12 +353,10 @@
         },
         {
           "id": "ac-6",
-          "label": "Per-survey failure reporting when a bulk action can't apply",
-          "coverage": "covered",
+          "label": "Per-survey error surfaced when an action can't be applied",
+          "coverage": "partial",
           "evidence": [
-            "admin-v2#648",
-            "admin-v2#650",
-            "admin-v2#645"
+            "admin-v2#650"
           ]
         }
       ],
@@ -429,21 +383,8 @@
               "updatedAt": "2026-07-29T14:14:22Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "VivekMurarkaIndIre",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -479,21 +420,8 @@
                   "updatedAt": "2026-07-29T16:21:51Z",
                   "stackChain": [],
                   "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "Madjda",
-                      "state": "APPROVED"
-                    },
-                    {
-                      "reviewer": "gelbh",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "VivekMurarkaIndIre",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -509,33 +437,6 @@
           "updatedAt": "2026-07-31T14:14:40.560Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1130,
-              "title": "[BOUN-11285] - Bulk rename User specific title across selected surveys",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1130",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11285",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T14:14:48Z",
-              "updatedAt": "2026-07-31T14:14:49Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 648,
               "title": "[BOUN-11285] - Bulk rename User specific title across selected surveys",
@@ -549,17 +450,26 @@
               "updatedAt": "2026-07-31T14:14:51Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1130,
+              "title": "[BOUN-11285] - Bulk rename User specific title across selected surveys",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1130",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11285",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T14:14:48Z",
+              "updatedAt": "2026-07-31T14:14:49Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -574,33 +484,6 @@
           "updatedAt": "2026-07-31T14:35:38.775Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1132,
-              "title": "[BOUN-11286]: Bulk enable disable Research defender",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1132",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11286",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T12:29:41Z",
-              "updatedAt": "2026-07-31T12:29:41Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "VivekMurarkaIndIre",
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 650,
               "title": "[BOUN-11286]: Bulk enable disable Research defender",
@@ -614,17 +497,26 @@
               "updatedAt": "2026-07-31T12:28:57Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "VivekMurarkaIndIre",
+              "reviews": [],
+              "author": null,
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1132,
+              "title": "[BOUN-11286]: Bulk enable disable Research defender",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1132",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11286",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T12:29:41Z",
+              "updatedAt": "2026-07-31T12:29:41Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -639,33 +531,6 @@
           "updatedAt": "2026-07-31T15:23:22.217Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1137,
-              "title": "[BOUN-11287]: Bulk enable/disable Survey Resume",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1137",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11287",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T15:23:11Z",
-              "updatedAt": "2026-07-31T15:23:11Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "VivekMurarkaIndIre",
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 656,
               "title": "[BOUN-11287]: Bulk enable/disable Survey Resume",
@@ -679,17 +544,26 @@
               "updatedAt": "2026-07-31T15:23:00Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "VivekMurarkaIndIre",
+              "reviews": [],
+              "author": null,
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1137,
+              "title": "[BOUN-11287]: Bulk enable/disable Survey Resume",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1137",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11287",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T15:23:11Z",
+              "updatedAt": "2026-07-31T15:23:11Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -717,17 +591,8 @@
               "updatedAt": "2026-07-31T13:12:04Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -742,33 +607,6 @@
           "updatedAt": "2026-08-05T11:22:59.908Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1139,
-              "title": "[BOUN-11289] - Bulk reset available targeting buckets",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1139",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11289",
-              "shippedToDefault": true,
-              "mergedAt": "2026-08-05T11:02:15Z",
-              "updatedAt": "2026-08-05T11:02:15Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 657,
               "title": "[BOUN-11289] - Bulk reset available targeting buckets",
@@ -782,17 +620,26 @@
               "updatedAt": "2026-08-05T11:02:18Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1139,
+              "title": "[BOUN-11289] - Bulk reset available targeting buckets",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1139",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11289",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-05T11:02:15Z",
+              "updatedAt": "2026-08-05T11:02:15Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -820,21 +667,8 @@
               "updatedAt": "2026-07-30T13:56:23Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "VivekMurarkaIndIre",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -864,13 +698,8 @@
               "reviewRequests": [
                 "ruzwid"
               ],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -898,13 +727,8 @@
               "updatedAt": "2026-08-06T14:58:10Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -913,7 +737,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11209",
@@ -940,44 +766,44 @@
       },
       "scoreOverride": null,
       "confidence": "low",
-      "rationale": "Signed off as Done, but the only PR recorded for this feature (BOUN-11400) is a labels/copy polish pass on the existing bucket filter bar rather than a description of the underlying multi-select, union/intersect, or clear-reset filter mechanics, so today's data gives limited direct evidence for most of these AC bullets.",
+      "rationale": "The one tracked story (label/copy polish) is shipped, but it only touches filter-copy wording, not the multi-facet checkbox logic the AC bullets describe.",
       "daysSinceLastActivity": 13,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Selecting a criteria value auto-checks all matching available buckets",
+          "label": "Selecting one criteria value auto-checks matching available buckets",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Two values in the same facet are combined with OR",
+          "label": "Two values in the same facet are OR'd",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Values across two facets are combined with AND",
+          "label": "Values across two facets are AND'd",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Bulk actions apply only to checked buckets",
+          "label": "Bulk action applies only to checked buckets",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "Clear resets both the criteria selection and bucket checkboxes",
+          "label": "Clear resets both filter selections and checkboxes",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-6",
-          "label": "Any configured balance criteria beyond gender/age appear as filterable facets",
+          "label": "Non-gender/age balance criteria also appear as facets",
           "coverage": "partial",
           "evidence": [
             "admin-v2#655"
@@ -1007,26 +833,28 @@
               "updatedAt": "2026-07-31T14:48:25Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "TonyCasey",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
           "subtasks": []
         }
       ],
-      "callouts": [],
+      "callouts": [
+        {
+          "type": "spec_gap",
+          "severity": "info",
+          "message": "The only tracked story is copy polish; the filtering/bulk-action mechanics the acceptance criteria describe have no dedicated ticket or PR evidence here.",
+          "refs": [
+            "BOUN-11400"
+          ]
+        }
+      ],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11210",
@@ -1053,31 +881,30 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "Signed off as Done; all 5 stories shipped, with detailed PR evidence for panel-selection gating, PureSpectrum hash-only scoping to complete/quality/dedupe links, and Walr respondent-code replace plus export.",
+      "rationale": "All five stories shipped: the bulk External Panel Links action, its utils/tests, the UI, and a product-feedback follow-up covering PureSpectrumQual, Walr and WalrWPP.",
       "daysSinceLastActivity": 6,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "No provider-specific fields show until a panel is chosen",
-          "coverage": "covered",
+          "label": "No provider fields shown until a panel is chosen",
+          "coverage": "partial",
           "evidence": [
             "admin-v2#640"
           ]
         },
         {
           "id": "ac-2",
-          "label": "PureSpectrumQual export produces a clean entry-link file with respondentId stripped",
+          "label": "PureSpectrumQual entry-link export strips respondentId with a clean query string",
           "coverage": "covered",
           "evidence": [
-            "admin-v2#639",
-            "admin-v2#640"
+            "admin-v2#639"
           ]
         },
         {
           "id": "ac-3",
-          "label": "PureSpectrumQual hash apply only touches complete/quality/dedupe links",
+          "label": "PureSpectrumQual hash only updates complete/quality/dedupe links",
           "coverage": "covered",
           "evidence": [
             "admin-v2#639"
@@ -1085,7 +912,7 @@
         },
         {
           "id": "ac-4",
-          "label": "Walr Quality code apply replaces respondentId and exports",
+          "label": "Walr Quality code replaces respondentId and produces an export",
           "coverage": "covered",
           "evidence": [
             "admin-v2#659"
@@ -1093,20 +920,17 @@
         },
         {
           "id": "ac-5",
-          "label": "Locale is appended correctly with a single ampersand",
-          "coverage": "covered",
+          "label": "Locale code appended with a single &",
+          "coverage": "partial",
           "evidence": [
-            "admin-v2#640",
             "admin-v2#659"
           ]
         },
         {
           "id": "ac-6",
-          "label": "A survey opened individually reflects the same bulk-applied panel config",
-          "coverage": "partial",
-          "evidence": [
-            "admin-v2#640"
-          ]
+          "label": "Bulk-applied panel config reflects on the single-survey screen",
+          "coverage": "no_signal",
+          "evidence": []
         }
       ],
       "stories": [
@@ -1132,17 +956,8 @@
               "updatedAt": "2026-08-05T08:38:36Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1170,17 +985,8 @@
               "updatedAt": "2026-07-29T10:57:34Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1208,21 +1014,8 @@
               "updatedAt": "2026-07-31T08:25:16Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1250,21 +1043,8 @@
               "updatedAt": "2026-07-31T10:32:41Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1292,17 +1072,8 @@
               "updatedAt": "2026-08-07T16:56:38Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1311,7 +1082,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11211",
@@ -1340,9 +1113,9 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Product signed this off as Done even though 4 of 5 stories are done_unverified (JIRA Done, not confirmed shipped by a merged PR reaching master), and the feature has sat 22 days with an open release gate.",
+      "rationale": "Product signed this off as Done, so it reads as complete despite 4 of 5 stories being done-unverified — the quota/day-on-day reporting stack (F1.5.1-4) is merged code, but its base PR was closed without ever merging to master, so GitHub can't confirm any of the four reached master; the separate reports-at-scale story is shipped.",
       "daysSinceLastActivity": 9,
-      "daysInStaged": 22,
+      "daysInStaged": 21,
       "releaseGate": {
         "integrationBranch": "BOUN-11251",
         "pr": {
@@ -1359,13 +1132,8 @@
           "updatedAt": "2026-07-31T13:00:19Z",
           "stackChain": [],
           "reviewRequests": [],
-          "reviews": [
-            {
-              "reviewer": "VivekMurarkaIndIre",
-              "state": "CHANGES_REQUESTED"
-            }
-          ],
-          "author": "EmadNazzal",
+          "reviews": [],
+          "author": null,
           "filesTouched": []
         },
         "status": "open"
@@ -1373,32 +1141,33 @@
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "An All Cells rollup is shown for every row in the quota tables",
+          "label": "An All Cells rollup is populated on every quota table row",
           "coverage": "partial",
           "evidence": [
-            "dashboard-api#2046",
-            "dashboard-api#2048"
+            "BOUN-11295",
+            "dashboard-api#2046"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Day-on-day completes report shows totals, remaining, and % filled overall and per cell",
-          "coverage": "covered",
+          "label": "Day-on-day completes shows totals, remaining, and % filled overall and per cell",
+          "coverage": "partial",
           "evidence": [
+            "BOUN-11303",
             "dashboard-api#2048"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Reports reflect social grade / region quotas where a market requires them",
-          "coverage": "covered",
+          "label": "Social grade / region quotas reflected where a market requires them",
+          "coverage": "partial",
           "evidence": [
-            "dashboard-api#2046"
+            "BOUN-11295"
           ]
         },
         {
           "id": "ac-4",
-          "label": "Non-nested quota targets are sourced from the setup page rather than invented",
+          "label": "Non-nested quota targets sourced from the setup page, not invented",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -1426,13 +1195,8 @@
               "updatedAt": "2026-07-31T13:00:19Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "CHANGES_REQUESTED"
-                }
-              ],
-              "author": "EmadNazzal",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1462,17 +1226,8 @@
                 2044
               ],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "EmadNazzal",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1503,17 +1258,8 @@
                 2044
               ],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "EmadNazzal",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1545,17 +1291,8 @@
                 2044
               ],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "EmadNazzal",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1570,33 +1307,6 @@
           "updatedAt": "2026-08-04T09:35:47.228Z",
           "prs": [
             {
-              "repo": "cron-api",
-              "number": 677,
-              "title": "[BOUN-11317] - F1.5.5 - WPP Reports (Metrics, Quotas, and Day-to-Day ) at Scale",
-              "url": "https://github.com/bounceinsights/cron-api/pull/677",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11317",
-              "shippedToDefault": true,
-              "mergedAt": "2026-07-31T14:22:19Z",
-              "updatedAt": "2026-07-31T14:22:19Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "EmadNazzal",
-              "filesTouched": []
-            },
-            {
               "repo": "ts-types",
               "number": 628,
               "title": "[BOUN-11317] - F1.5.5 - WPP Reports (Metrics, Quotas, and Day-to-Day ) at Scale",
@@ -1610,21 +1320,26 @@
               "updatedAt": "2026-07-31T14:21:02Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "EmadNazzal",
+              "reviews": [],
+              "author": null,
+              "filesTouched": []
+            },
+            {
+              "repo": "cron-api",
+              "number": 677,
+              "title": "[BOUN-11317] - F1.5.5 - WPP Reports (Metrics, Quotas, and Day-to-Day ) at Scale",
+              "url": "https://github.com/bounceinsights/cron-api/pull/677",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11317",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-31T14:22:19Z",
+              "updatedAt": "2026-07-31T14:22:19Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
@@ -1643,17 +1358,8 @@
               "reviewRequests": [
                 "ruzwid"
               ],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "EmadNazzal",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1662,24 +1368,21 @@
       ],
       "callouts": [
         {
-          "type": "release_blocked",
-          "severity": "warn",
-          "message": "This feature has had an open release gate for 22 days without resolving, despite product sign-off.",
-          "refs": [
-            "dashboard-api#2062"
-          ]
-        },
-        {
           "type": "drift",
           "severity": "info",
-          "message": "The base/parent PR for this four-part reporting stack shows a closed (not merged) state, though the three follow-on PRs in the same chain did merge.",
+          "message": "Product sign-off marks this Done, but the base PR for the whole four-story chain was closed without merging, so none of them are GitHub-confirmed to have reached master.",
           "refs": [
-            "dashboard-api#2044"
+            "BOUN-11251",
+            "BOUN-11273",
+            "BOUN-11295",
+            "BOUN-11303"
           ]
         }
       ],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11212",
@@ -1719,44 +1422,40 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Early stage (score 10) with active work today; most of the 10 subtasks are still todo, and the one shipped subtask so far (localized displayName foundation) covers Excel-import brand/category label localization rather than the respondent-facing translation loop (rendering, response mapping, publish gating) the acceptance criteria describe.",
+      "rationale": "One story (WPP Excel import for multilingual displayName) is in review across three repos with real, in-flight PRs; the rest of the ten stories covering translation mapping/rules/results-filtering are still todo.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Survey renders in the language selected via a URL parameter",
+          "label": "A URL language parameter renders the survey in that language",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Unmapped language parameter falls back to English rendering",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard-api#2088"
-          ]
+          "label": "Unmapped language falls back to English",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Responses are mapped back to English at capture and record the survey language",
+          "label": "Responses are mapped back to English at capture, tagged with the taken language",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "The current translation process stays untouched",
+          "label": "The existing translation process is unaffected",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "Manual Creator edits to imported languages persist until that language is re-imported",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard-api#2089"
-          ]
+          "label": "Manual Creator edits persist unless the language is re-imported",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-6",
@@ -1801,7 +1500,7 @@
               "stackChain": [],
               "reviewRequests": [],
               "reviews": [],
-              "author": "gelbh",
+              "author": null,
               "filesTouched": []
             },
             {
@@ -1819,7 +1518,7 @@
               "stackChain": [],
               "reviewRequests": [],
               "reviews": [],
-              "author": "gelbh",
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -1830,220 +1529,8 @@
               "jiraStatus": "To Be Released",
               "status": "shipped",
               "assignee": "Tomer Gelbhart",
-              "updatedAt": "2026-08-13T17:18:34.165Z",
+              "updatedAt": "2026-08-13T16:38:43.856Z",
               "prs": [
-                {
-                  "repo": "firestore-functions",
-                  "number": 714,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/firestore-functions/pull/714",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:38:34Z",
-                  "updatedAt": "2026-08-13T16:38:34Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "survey-ingestion-engine",
-                  "number": 253,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/survey-ingestion-engine/pull/253",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:38:48Z",
-                  "updatedAt": "2026-08-13T16:38:49Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "cron-api",
-                  "number": 692,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/cron-api/pull/692",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:38:42Z",
-                  "updatedAt": "2026-08-13T16:38:42Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "admin-api",
-                  "number": 1151,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/admin-api/pull/1151",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:38:46Z",
-                  "updatedAt": "2026-08-13T16:38:46Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "ai-server",
-                  "number": 808,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/ai-server/pull/808",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:38:52Z",
-                  "updatedAt": "2026-08-13T16:38:52Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "retrieval-engine-v2",
-                  "number": 498,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/retrieval-engine-v2/pull/498",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:39:04Z",
-                  "updatedAt": "2026-08-13T16:39:04Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "py-types",
-                  "number": 47,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/py-types/pull/47",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:33:14Z",
-                  "updatedAt": "2026-08-13T16:33:14Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "orchestrator",
-                  "number": 185,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/orchestrator/pull/185",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:38:55Z",
-                  "updatedAt": "2026-08-13T16:38:55Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "api",
-                  "number": 1539,
-                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
-                  "url": "https://github.com/bounceinsights/api/pull/1539",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:37:44Z",
-                  "updatedAt": "2026-08-13T16:37:45Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "Madjda",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "gelbh",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "api-core",
-                  "number": 1018,
-                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
-                  "url": "https://github.com/bounceinsights/api-core/pull/1018",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:33:08Z",
-                  "updatedAt": "2026-08-13T16:33:08Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "ruzwid",
-                      "state": "APPROVED"
-                    },
-                    {
-                      "reviewer": "VivekMurarkaIndIre",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "gelbh",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "exports-api",
-                  "number": 355,
-                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
-                  "url": "https://github.com/bounceinsights/exports-api/pull/355",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:39:00Z",
-                  "updatedAt": "2026-08-13T16:39:01Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "bounceinsights",
-                  "filesTouched": []
-                },
                 {
                   "repo": "ts-types",
                   "number": 644,
@@ -2058,17 +1545,8 @@
                   "updatedAt": "2026-08-13T16:31:23Z",
                   "stackChain": [],
                   "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "ruzwid",
-                      "state": "APPROVED"
-                    },
-                    {
-                      "reviewer": "VivekMurarkaIndIre",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "gelbh",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 },
                 {
@@ -2086,7 +1564,205 @@
                   "stackChain": [],
                   "reviewRequests": [],
                   "reviews": [],
-                  "author": "gelbh",
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "api-core",
+                  "number": 1018,
+                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
+                  "url": "https://github.com/bounceinsights/api-core/pull/1018",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:33:08Z",
+                  "updatedAt": "2026-08-13T16:33:08Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "exports-api",
+                  "number": 355,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/exports-api/pull/355",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:39:00Z",
+                  "updatedAt": "2026-08-13T16:39:01Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "orchestrator",
+                  "number": 185,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/orchestrator/pull/185",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:55Z",
+                  "updatedAt": "2026-08-13T16:38:55Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "firestore-functions",
+                  "number": 714,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/firestore-functions/pull/714",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:34Z",
+                  "updatedAt": "2026-08-13T16:38:34Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "cron-api",
+                  "number": 692,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/cron-api/pull/692",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:42Z",
+                  "updatedAt": "2026-08-13T16:38:42Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "retrieval-engine-v2",
+                  "number": 498,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/retrieval-engine-v2/pull/498",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:39:04Z",
+                  "updatedAt": "2026-08-13T16:39:04Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "py-types",
+                  "number": 47,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/py-types/pull/47",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:33:14Z",
+                  "updatedAt": "2026-08-13T16:33:14Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "admin-api",
+                  "number": 1151,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/admin-api/pull/1151",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:46Z",
+                  "updatedAt": "2026-08-13T16:38:46Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "survey-ingestion-engine",
+                  "number": 253,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/survey-ingestion-engine/pull/253",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:48Z",
+                  "updatedAt": "2026-08-13T16:38:49Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "ai-server",
+                  "number": 808,
+                  "title": "BOUN-11497 - Empty Pull Request For Automated Release",
+                  "url": "https://github.com/bounceinsights/ai-server/pull/808",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:38:52Z",
+                  "updatedAt": "2026-08-13T16:38:52Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
+                  "filesTouched": []
+                },
+                {
+                  "repo": "api",
+                  "number": 1539,
+                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
+                  "url": "https://github.com/bounceinsights/api/pull/1539",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:37:44Z",
+                  "updatedAt": "2026-08-13T16:37:45Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 },
                 {
@@ -2103,21 +1779,8 @@
                   "updatedAt": "2026-08-13T16:37:42Z",
                   "stackChain": [],
                   "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "ruzwid",
-                      "state": "APPROVED"
-                    },
-                    {
-                      "reviewer": "VivekMurarkaIndIre",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "gelbh",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 },
                 {
@@ -2135,7 +1798,7 @@
                   "stackChain": [],
                   "reviewRequests": [],
                   "reviews": [],
-                  "author": "bounceinsights",
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -2155,23 +1818,20 @@
                   "url": "https://github.com/bounceinsights/dashboard-api/pull/2089",
                   "state": "OPEN",
                   "isDraft": false,
-                  "baseRef": "master",
+                  "baseRef": "BOUN-11497",
                   "headRef": "BOUN-11498",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-13T16:55:26Z",
-                  "stackChain": [],
+                  "updatedAt": "2026-08-11T15:58:18Z",
+                  "stackChain": [
+                    2088
+                  ],
                   "reviewRequests": [
                     "EmadNazzal",
                     "VivekMurarkaIndIre"
                   ],
-                  "reviews": [
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    }
-                  ],
-                  "author": "gelbh",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -2195,20 +1855,16 @@
                   "headRef": "BOUN-11499",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-13T17:07:27Z",
+                  "updatedAt": "2026-08-11T16:30:37Z",
                   "stackChain": [
-                    2089
+                    2089,
+                    2088
                   ],
                   "reviewRequests": [
                     "EmadNazzal"
                   ],
-                  "reviews": [
-                    {
-                      "reviewer": "VivekMurarkaIndIre",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "gelbh",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -2334,19 +1990,11 @@
           "subtasks": []
         }
       ],
-      "callouts": [
-        {
-          "type": "drift",
-          "severity": "info",
-          "message": "The one shipped subtask so far is Excel-import display-name localization groundwork, not yet the respondent-facing survey translation this feature's acceptance criteria describe.",
-          "refs": [
-            "BOUN-11497",
-            "dashboard-api#2088"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11213",
@@ -2376,43 +2024,40 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Underway (score 25) with activity today; template-question role tagging and reading those tags at generation time are both in review, replacing the hardcoded question-id lookup, though one PR describes throwing on a missing/untagged question rather than the graceful default fallback the spec calls for.",
+      "rationale": "Question tagging (F2.2.1) and Q-ID resolution from tags (F2.2.2) are both open for review across three repos; the survey-editor Custom Project field (F2.2.3) is in progress with no PR yet.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Script reads a configurable value from the template instead of a hardcoded constant",
-          "coverage": "covered",
+          "label": "Scripts read a configured value from the template instead of a hardcoded constant",
+          "coverage": "partial",
           "evidence": [
+            "BOUN-11431",
             "dashboard-api#2091"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Script falls back to a sensible default when the template doesn't specify a value",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard-api#2091"
-          ]
+          "label": "A sensible default is used when the template doesn't specify a value",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Survey editor UI lets a user view and edit tagged configurable values",
-          "coverage": "covered",
+          "label": "A tagged question's configurable values are viewable/editable in the editor UI",
+          "coverage": "partial",
           "evidence": [
+            "BOUN-11430",
             "dashboard#3839"
           ]
         },
         {
           "id": "ac-4",
-          "label": "An edited config value is picked up on the next run without a redeploy",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard-api#2091",
-            "dashboard#3839"
-          ]
+          "label": "An edited value takes effect on the next run without a deploy",
+          "coverage": "no_signal",
+          "evidence": []
         }
       ],
       "stories": [
@@ -2424,37 +2069,6 @@
           "assignee": "Ruzzell Widjaja",
           "updatedAt": "2026-08-07T08:17:32.595Z",
           "prs": [
-            {
-              "repo": "api-core",
-              "number": 1015,
-              "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
-              "url": "https://github.com/bounceinsights/api-core/pull/1015",
-              "state": "OPEN",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11430",
-              "shippedToDefault": false,
-              "mergedAt": null,
-              "updatedAt": "2026-08-11T15:00:17Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "CHANGES_REQUESTED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
-              "filesTouched": []
-            },
             {
               "repo": "ts-types",
               "number": 641,
@@ -2469,21 +2083,26 @@
               "updatedAt": "2026-08-13T11:00:18Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "CHANGES_REQUESTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1015,
+              "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+              "url": "https://github.com/bounceinsights/api-core/pull/1015",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11430",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-11T15:00:17Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
@@ -2500,21 +2119,8 @@
               "updatedAt": "2026-08-13T14:01:56Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "gelbh",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "CHANGES_REQUESTED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -2542,21 +2148,8 @@
               "updatedAt": "2026-08-13T11:32:34Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "CHANGES_REQUESTED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "CHANGES_REQUESTED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
@@ -2575,21 +2168,8 @@
                 3839
               ],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "ruzwid",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -2606,18 +2186,11 @@
           "subtasks": []
         }
       ],
-      "callouts": [
-        {
-          "type": "spec_gap",
-          "severity": "warn",
-          "message": "One PR describes throwing a descriptive error when a template question is missing its role tag, rather than falling back to a default — worth confirming against the AC's default-fallback requirement before this merges.",
-          "refs": [
-            "dashboard-api#2091"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11214",
@@ -2641,27 +2214,27 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Not started (score 0); no PRs have been opened and the single tracked story has had no activity in 34 days.",
+      "confidence": "medium",
+      "rationale": "No PR or subtask evidence exists yet; the single tracked story has been untouched for over a month.",
       "daysSinceLastActivity": 34,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "A respondent hitting quota is redirected to another open cell matching their targeting answers",
+          "label": "Quota-fill respondents are redirected to a matching open cell in the same project",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "A respondent falls back to the standard quota-fill page when no suitable cell exists",
+          "label": "Falls back to the standard quota-fill page when no suitable cell exists",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Projects not flagged for cross-cell routing keep the standard quota-fill redirect",
+          "label": "Projects not flagged for cross-cell routing get the standard redirect",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -2681,15 +2254,17 @@
       "callouts": [
         {
           "type": "stalled",
-          "severity": "info",
-          "message": "No PRs and no activity for 34 days on this not-yet-started feature.",
+          "severity": "warn",
+          "message": "No activity for over a month and no PR has been opened yet.",
           "refs": [
             "BOUN-11214"
           ]
         }
       ],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11255",
@@ -2716,14 +2291,14 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "Signed off as Done; both stories shipped with clear PR evidence for age-bracket and employment-exclusivity QC checks and for removing the manual bypass routes they replace.",
+      "rationale": "Both stories are shipped: the age/employment QC methods and the removal of the manual GET-based bypass routes they replace.",
       "daysSinceLastActivity": 15,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Entered age is validated against the selected age bracket and mismatches are removed",
+          "label": "Age is validated against the selected bracket and mismatches are removed",
           "coverage": "covered",
           "evidence": [
             "dashboard-api#2057"
@@ -2747,7 +2322,7 @@
         },
         {
           "id": "ac-4",
-          "label": "The prior manual cleaning step is no longer needed",
+          "label": "The manual step these scripts replace is no longer required",
           "coverage": "covered",
           "evidence": [
             "dashboard-api#2058"
@@ -2777,17 +2352,8 @@
               "updatedAt": "2026-07-29T15:37:21Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -2817,13 +2383,8 @@
               "reviewRequests": [
                 "EmadNazzal"
               ],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -2832,7 +2393,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11340",
@@ -2858,30 +2421,30 @@
         "total": 6
       },
       "scoreOverride": null,
-      "confidence": "low",
-      "rationale": "Underway (score 30) with activity today; all 6 subtasks are in review, but most of their PRs carry no description (template-only), so only titles evidence incremental QC state-store and delta-run work still living in dashboard-api — the planned move to a WPP-specific repo hasn't started.",
+      "confidence": "medium",
+      "rationale": "All six stories have open PRs (several still template-only descriptions) porting QC upload, tokenization, and incremental state/delta/soft-remove work into the WPP repo; none are merged yet.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Monitoring is relocated into the WPP-specific repo with no functional loss",
+          "label": "Monitoring relocation is complete with no functional loss to the Slack bot",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Quality checks run automatically across all markets without manual effort",
+          "label": "Quality checks run automatically across all markets",
           "coverage": "partial",
           "evidence": [
-            "dashboard-api#2079",
-            "dashboard-api#2080"
+            "BOUN-11438",
+            "BOUN-11439"
           ]
         },
         {
           "id": "ac-3",
-          "label": "Slack bot monitoring reflects respondents removed by a quality check",
+          "label": "F1.5's monitoring reflects a respondent removed by a quality check",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -2910,7 +2473,7 @@
               "stackChain": [],
               "reviewRequests": [],
               "reviews": [],
-              "author": "EmadNazzal",
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -2941,7 +2504,7 @@
               ],
               "reviewRequests": [],
               "reviews": [],
-              "author": "EmadNazzal",
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -2973,7 +2536,7 @@
               ],
               "reviewRequests": [],
               "reviews": [],
-              "author": "EmadNazzal",
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3006,7 +2569,7 @@
               ],
               "reviewRequests": [],
               "reviews": [],
-              "author": "EmadNazzal",
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3040,7 +2603,7 @@
               ],
               "reviewRequests": [],
               "reviews": [],
-              "author": "EmadNazzal",
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3077,13 +2640,8 @@
                 "ruzwid",
                 "VivekMurarkaIndIre"
               ],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                }
-              ],
-              "author": "EmadNazzal",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3092,7 +2650,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11341",
@@ -3116,27 +2676,27 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Not started (score 0); no PRs opened and no activity for 21 days on the single tracked story.",
+      "confidence": "medium",
+      "rationale": "No PR or subtask evidence yet; the single story has had no recent activity.",
       "daysSinceLastActivity": 21,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Data delivery code and automation lives in the WPP-specific repository",
+          "label": "Data delivery code lives in the WPP-specific repository",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Data delivery reads a market's Excel file and generates output from its template",
+          "label": "The process reads a market's Excel and generates from its template",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "A user can trigger data delivery for a market from the agreed entry point",
+          "label": "Data delivery can be triggered from the agreed entry point",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3153,18 +2713,11 @@
           "subtasks": []
         }
       ],
-      "callouts": [
-        {
-          "type": "stalled",
-          "severity": "info",
-          "message": "No PRs and no activity for 21 days on this not-yet-started feature.",
-          "refs": [
-            "BOUN-11341"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11423",
@@ -3191,15 +2744,15 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "medium",
-      "rationale": "Shipped today (not yet product-signed-off); the PR generalizes F1.3's bucket-filter helpers to include Completed buckets and auto-checks matches across both sets, though this ticket's first AC bullet still reads like a stale copy of F1.3's active-only wording rather than describing the completed-bucket behaviour this feature actually adds.",
+      "confidence": "high",
+      "rationale": "The single story is shipped: the F1.3 bucket-filter helpers now also cover completed buckets, not just available ones.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Selecting a criteria value auto-checks matching buckets across active and completed",
+          "label": "Selecting one criteria value checks every matching bucket without affecting completed ones",
           "coverage": "partial",
           "evidence": [
             "admin-v2#665"
@@ -3207,36 +2760,32 @@
         },
         {
           "id": "ac-2",
-          "label": "Two values in the same facet are combined with OR",
-          "coverage": "covered",
-          "evidence": [
-            "admin-v2#665"
-          ]
+          "label": "Two values in the same facet are OR'd",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Values across two facets are combined with AND",
-          "coverage": "covered",
-          "evidence": [
-            "admin-v2#665"
-          ]
+          "label": "Values across two facets are AND'd",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Bulk actions apply only to checked buckets",
+          "label": "Bulk action applies only to checked buckets",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-5",
-          "label": "Clear resets both the criteria selection and bucket checkboxes",
+          "label": "Clear resets both filter selections and checkboxes",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-6",
-          "label": "Any configured balance criteria beyond gender/age appear as filterable facets",
-          "coverage": "partial",
+          "label": "Extends the filter to Completed targeting buckets specifically",
+          "coverage": "covered",
           "evidence": [
             "admin-v2#665"
           ]
@@ -3252,33 +2801,6 @@
           "updatedAt": "2026-08-13T14:02:53.425Z",
           "prs": [
             {
-              "repo": "admin-api",
-              "number": 1145,
-              "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
-              "url": "https://github.com/bounceinsights/admin-api/pull/1145",
-              "state": "MERGED",
-              "isDraft": false,
-              "baseRef": "master",
-              "headRef": "BOUN-11423",
-              "shippedToDefault": true,
-              "mergedAt": "2026-08-13T15:08:47Z",
-              "updatedAt": "2026-08-13T15:08:48Z",
-              "stackChain": [],
-              "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
-              "filesTouched": []
-            },
-            {
               "repo": "admin-v2",
               "number": 665,
               "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
@@ -3292,35 +2814,37 @@
               "updatedAt": "2026-08-13T15:08:45Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1145,
+              "title": "[BOUN-11423] - Extend bucket filters to Completed targeting buckets",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1145",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11423",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T15:08:47Z",
+              "updatedAt": "2026-08-13T15:08:48Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
           "subtasks": []
         }
       ],
-      "callouts": [
-        {
-          "type": "spec_gap",
-          "severity": "warn",
-          "message": "This ticket's first AC bullet still describes the old active-only exclusion of completed buckets, which reads as inconsistent with this feature's stated purpose of extending the filter to include Completed buckets.",
-          "refs": [
-            "admin-v2#665"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11496",
@@ -3347,14 +2871,14 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "Signed off as Done; the single shipped PR directly matches the one AC — WPP validation error copy now uses the same font size as question copy.",
+      "rationale": "The single story is shipped: WPP validation error text now matches question copy size.",
       "daysSinceLastActivity": 3,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Survey error text renders at the same size as the question copy",
+          "label": "Error text renders at the same size as question copy",
           "coverage": "covered",
           "evidence": [
             "web-surveys#572"
@@ -3384,17 +2908,8 @@
               "updatedAt": "2026-08-10T14:10:07Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3403,7 +2918,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11514",
@@ -3433,46 +2950,42 @@
       },
       "scoreOverride": null,
       "confidence": "medium",
-      "rationale": "Underway (score 30) with activity today; the in-review PR adds an optional per-criterion grid-columns field seeded to 1, threaded through publish and the web survey's targeting-question path, though there's no explicit evidence yet that column distribution reuses question-option layout logic unchanged or that already-live surveys are unaffected.",
+      "rationale": "The single story has four open, coordinated PRs (ts-types, api-core, dashboard, api) adding an optional gridColumns field end to end; not yet merged.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "An RL sees a control for the number of grid columns",
-          "coverage": "covered",
+          "label": "A column-count control appears when a targeting criteria is selected",
+          "coverage": "partial",
           "evidence": [
             "dashboard#3845"
           ]
         },
         {
           "id": "ac-2",
-          "label": "Chosen column count distributes options identically to question options, no new layout logic",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard#3845"
-          ]
+          "label": "Options distribute across columns the same way question options do",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Setting a column count on one targeting question doesn't affect others",
-          "coverage": "partial",
-          "evidence": [
-            "dashboard#3845"
-          ]
+          "label": "Setting a column count on one question doesn't affect others",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Targeting question renders as today when no column count is set",
-          "coverage": "covered",
+          "label": "No column count set renders exactly as today",
+          "coverage": "partial",
           "evidence": [
             "dashboard#3845"
           ]
         },
         {
           "id": "ac-5",
-          "label": "Already-live surveys keep today's default behaviour unless changed",
+          "label": "Already-live surveys are unaffected by default",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3484,33 +2997,24 @@
           "jiraStatus": "Code Review",
           "status": "in_review",
           "assignee": "Tomer Gelbhart",
-          "updatedAt": "2026-08-13T17:35:39.138Z",
+          "updatedAt": "2026-08-13T16:32:08.633Z",
           "prs": [
             {
-              "repo": "api",
-              "number": 1533,
+              "repo": "ts-types",
+              "number": 646,
               "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-              "url": "https://github.com/bounceinsights/api/pull/1533",
+              "url": "https://github.com/bounceinsights/ts-types/pull/646",
               "state": "OPEN",
               "isDraft": false,
               "baseRef": "master",
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-13T17:36:34Z",
+              "updatedAt": "2026-08-13T16:47:59Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
@@ -3524,47 +3028,29 @@
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-13T17:36:31Z",
+              "updatedAt": "2026-08-13T16:48:05Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
-              "repo": "ts-types",
-              "number": 646,
+              "repo": "api",
+              "number": 1533,
               "title": "[BOUN-11514] - Allow grid columns for targeting question options",
-              "url": "https://github.com/bounceinsights/ts-types/pull/646",
+              "url": "https://github.com/bounceinsights/api/pull/1533",
               "state": "OPEN",
               "isDraft": false,
               "baseRef": "master",
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-13T17:36:29Z",
+              "updatedAt": "2026-08-13T16:48:08Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "gelbh",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
@@ -3578,14 +3064,14 @@
               "headRef": "BOUN-11514",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-13T17:36:58Z",
+              "updatedAt": "2026-08-13T16:48:12Z",
               "stackChain": [],
               "reviewRequests": [
                 "ruzwid",
                 "Madjda"
               ],
               "reviews": [],
-              "author": "gelbh",
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3594,7 +3080,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11291",
@@ -3619,26 +3107,26 @@
       },
       "scoreOverride": null,
       "confidence": "low",
-      "rationale": "Early (score 15); the story is marked in_progress but no PRs are recorded yet, so there's no evidence toward CI layer-boundary enforcement, JWT gateway auth, the cell registry, or the emulator/LocalStack integration harness.",
+      "rationale": "The platform-foundation story is in progress with no PR opened yet.",
       "daysSinceLastActivity": 9,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "CI enforces build/lint/test and layer-boundary import rules",
+          "label": "CI enforces build/lint/tests and layer-boundary import rules",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Requests without a valid Firebase JWT/scope are rejected at the gateway",
+          "label": "Requests without a valid Firebase JWT/scope are rejected",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "The cell registry is seeded from today's constants and refresh requires wpp:admin",
+          "label": "Cell registry reader returns identical data; refresh requires wpp:admin",
           "coverage": "no_signal",
           "evidence": []
         },
@@ -3661,18 +3149,11 @@
           "subtasks": []
         }
       ],
-      "callouts": [
-        {
-          "type": "stalled",
-          "severity": "info",
-          "message": "Marked in_progress with no associated PRs yet recorded.",
-          "refs": [
-            "BOUN-11291"
-          ]
-        }
-      ],
+      "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11292",
@@ -3696,33 +3177,33 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Not started (score 0); the ticket itself was touched a day ago but no PRs exist yet for the endpoint migration, output parity, SQS idempotency, or the presigned-download reauth requirements.",
+      "confidence": "medium",
+      "rationale": "No PR or subtask evidence yet; the single story is still todo.",
       "daysSinceLastActivity": 1,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Migrated endpoints produce identical output to the old ones",
+          "label": "Moved endpoints produce identical output to the originals",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-2",
-          "label": "Exactly one artifact is produced despite crashes or redelivery",
+          "label": "Crash or redelivery produces exactly one artifact, no duplicate transitions",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "A non-admin token gets 403 on an admin-only route",
+          "label": "A wpp:user token calling an admin-only route gets 403",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "Downloads re-check authorization and never buffer large files locally",
+          "label": "Download re-checks authorization and returns a presigned URL, no local disk/buffer streaming",
           "coverage": "no_signal",
           "evidence": []
         }
@@ -3741,7 +3222,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11293",
@@ -3768,49 +3251,45 @@
         "total": 15
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Nearly done (score 75) with activity today; 11 of 15 subtasks shipped covering the versioned metrics schema, an S3 store with a monotonic computedAt guard, and fail-closed QC-gate wiring, while the stale-badging/alarm mechanics and the hourly Step Functions schedule remain todo, and export-builder porting hasn't started.",
+      "confidence": "medium",
+      "rationale": "Most of the fieldwork-processing platform (domain core, metrics aggregation, QC contracts, export/infra plumbing, repositories, handlers, discover task, metrics compute, S3 auth) is shipped; the QC-runner port is still in review, and export builders plus the Step Functions schedule remain todo.",
       "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
         {
           "id": "ac-1",
-          "label": "Dashboard polls a per-market snapshot with computedAt and no per-viewer Firestore fan-out",
-          "coverage": "covered",
+          "label": "The dashboard reads a per-market snapshot instead of fanning out to Firestore",
+          "coverage": "partial",
           "evidence": [
-            "fieldwork-processing#20"
+            "BOUN-11442"
           ]
         },
         {
           "id": "ac-2",
-          "label": "A failed compute preserves the last-known-good snapshot, badges it stale with error/attempt detail, and alarms after 3 missed cycles",
+          "label": "A failed market compute preserves the last-known-good snapshot, badged stale",
           "coverage": "no_signal",
           "evidence": []
         },
         {
           "id": "ac-3",
-          "label": "Delayed or duplicate writes cannot overwrite a newer snapshot",
-          "coverage": "partial",
-          "evidence": [
-            "fieldwork-processing#11"
-          ]
+          "label": "ETag-conditional writes prevent a delayed run overwriting a newer snapshot",
+          "coverage": "no_signal",
+          "evidence": []
         },
         {
           "id": "ac-4",
-          "label": "The snapshot validates against a versioned, aggregate-only schema with no PII",
+          "label": "The snapshot validates against a versioned, aggregate-only schema",
           "coverage": "covered",
           "evidence": [
-            "fieldwork-processing#8"
+            "BOUN-11411"
           ]
         },
         {
           "id": "ac-5",
-          "label": "A QC failure fail-closes the cycle, leaving the existing snapshot untouched",
-          "coverage": "covered",
-          "evidence": [
-            "fieldwork-processing#29"
-          ]
+          "label": "A QC failure fails the workflow closed, leaving the existing snapshot untouched",
+          "coverage": "no_signal",
+          "evidence": []
         }
       ],
       "stories": [
@@ -3838,25 +3317,8 @@
               "reviewRequests": [
                 "EmadNazzal"
               ],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3884,25 +3346,8 @@
               "updatedAt": "2026-08-06T09:03:33Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3930,25 +3375,8 @@
               "updatedAt": "2026-08-07T08:25:44Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -3976,29 +3404,8 @@
               "updatedAt": "2026-08-07T08:26:17Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4026,25 +3433,8 @@
               "updatedAt": "2026-08-07T08:26:45Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "Madjda",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "EmadNazzal",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4074,21 +3464,8 @@
               "reviewRequests": [
                 "gelbh"
               ],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4116,25 +3493,8 @@
               "updatedAt": "2026-08-07T12:01:53Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4171,25 +3531,8 @@
                   "updatedAt": "2026-08-13T11:16:41Z",
                   "stackChain": [],
                   "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "Madjda",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "chatgpt-codex-connector",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "EmadNazzal",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "TonyCasey",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -4218,21 +3561,8 @@
                   "reviewRequests": [
                     "EmadNazzal"
                   ],
-                  "reviews": [
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "chatgpt-codex-connector",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "Madjda",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "TonyCasey",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -4256,22 +3586,13 @@
                   "headRef": "BOUN-11457",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-13T17:57:51Z",
+                  "updatedAt": "2026-08-13T14:53:27Z",
                   "stackChain": [
                     24
                   ],
                   "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "chatgpt-codex-connector",
-                      "state": "COMMENTED"
-                    }
-                  ],
-                  "author": "TonyCasey",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -4304,17 +3625,8 @@
                     "Madjda",
                     "EmadNazzal"
                   ],
-                  "reviews": [
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "chatgpt-codex-connector",
-                      "state": "COMMENTED"
-                    }
-                  ],
-                  "author": "TonyCasey",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -4322,35 +3634,11 @@
             {
               "key": "BOUN-11459",
               "summary": "Wire the quality-control worker: audit records, fail-closed gate, idempotency",
-              "jiraStatus": "Code Review",
-              "status": "in_review",
+              "jiraStatus": "To Do",
+              "status": "todo",
               "assignee": "Tony Casey",
-              "updatedAt": "2026-08-13T17:59:09.560Z",
-              "prs": [
-                {
-                  "repo": "fieldwork-processing",
-                  "number": 29,
-                  "title": "[BOUN-11459] - Wire the quality-control worker: audit records, fail-closed gate, idempotency",
-                  "url": "https://github.com/bounceinsights/fieldwork-processing/pull/29",
-                  "state": "OPEN",
-                  "isDraft": true,
-                  "baseRef": "BOUN-11536",
-                  "headRef": "BOUN-11459",
-                  "shippedToDefault": false,
-                  "mergedAt": null,
-                  "updatedAt": "2026-08-13T17:58:37Z",
-                  "stackChain": [
-                    28,
-                    27,
-                    26,
-                    24
-                  ],
-                  "reviewRequests": [],
-                  "reviews": [],
-                  "author": "TonyCasey",
-                  "filesTouched": []
-                }
-              ]
+              "updatedAt": "2026-08-13T16:03:45.001Z",
+              "prs": []
             },
             {
               "key": "BOUN-11460",
@@ -4396,17 +3684,8 @@
                     24
                   ],
                   "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "copilot-pull-request-reviewer",
-                      "state": "COMMENTED"
-                    },
-                    {
-                      "reviewer": "chatgpt-codex-connector",
-                      "state": "COMMENTED"
-                    }
-                  ],
-                  "author": "TonyCasey",
+                  "reviews": [],
+                  "author": null,
                   "filesTouched": []
                 }
               ]
@@ -4435,17 +3714,8 @@
               "updatedAt": "2026-08-11T15:27:19Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             },
             {
@@ -4465,21 +3735,8 @@
                 "EmadNazzal",
                 "VivekMurarkaIndIre"
               ],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4527,21 +3784,8 @@
               "updatedAt": "2026-08-07T14:08:09Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "ruzwid",
-                  "state": "APPROVED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4581,21 +3825,8 @@
               "reviewRequests": [
                 "gelbh"
               ],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "VivekMurarkaIndIre",
-                  "state": "APPROVED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4623,17 +3854,8 @@
               "updatedAt": "2026-08-13T09:13:03Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4642,7 +3864,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11294",
@@ -4666,37 +3890,12 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Not started (score 0); no PRs yet for repointing frontend traffic, deleting the moved WPP routes/utilities, or the one-off migration cleanup — expected, since this depends on F3.1–F3.3 landing first.",
+      "confidence": "medium",
+      "rationale": "No PR or subtask evidence yet; the single cutover story is still todo, consistent with it depending on F3.2/F3.3 landing first.",
       "daysSinceLastActivity": 17,
       "daysInStaged": null,
       "releaseGate": null,
-      "acCoverage": [
-        {
-          "id": "ac-1",
-          "label": "All WPP traffic reaches fieldwork-api with no error-rate regression",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-2",
-          "label": "The moved WPP routes/utils and mounts are removed from dashboard-api after parity is confirmed",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-3",
-          "label": "dashboard-api's surveys/sourceCells still compile and pass tests after cleanup",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-4",
-          "label": "The one-off question-name migration route is deleted once spent, not ported",
-          "coverage": "no_signal",
-          "evidence": []
-        }
-      ],
+      "acCoverage": [],
       "stories": [
         {
           "key": "BOUN-11294",
@@ -4711,7 +3910,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11465",
@@ -4737,67 +3938,12 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Shipped (score 100, not yet product-signed-off); the dashboard app landed in one large PR covering schema-typed snapshot polling, the v1 content blocks (quota meters, LOI, daily completes), client-side derived values, and demo-QC fixtures with matching unit/component tests; no explicit evidence yet for an unknown-schema-version state or the bold-font UI direction specifically.",
+      "confidence": "medium",
+      "rationale": "The single story shipped: a static fieldwork command-centre dashboard reading the per-market MetricsSnapshot JSON, with market switching, quota meters, and daily-completes charts.",
       "daysSinceLastActivity": 2,
       "daysInStaged": null,
       "releaseGate": null,
-      "acCoverage": [
-        {
-          "id": "ac-1",
-          "label": "App is typed against the versioned snapshot schema, with a clear state for unknown versions",
-          "coverage": "partial",
-          "evidence": [
-            "fieldwork-dashboard#1"
-          ]
-        },
-        {
-          "id": "ac-2",
-          "label": "Clean, minimal UI with bold/emphasis fonts",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-3",
-          "label": "Polls the market snapshot roughly every 60s with no per-request recompute or direct Firestore access",
-          "coverage": "covered",
-          "evidence": [
-            "fieldwork-dashboard#1"
-          ]
-        },
-        {
-          "id": "ac-4",
-          "label": "Renders the v1 content blocks (completes, funnel, screen-outs, QC counts, RD counts, quota fill, LOI, daily completes, grade/region)",
-          "coverage": "covered",
-          "evidence": [
-            "fieldwork-dashboard#1"
-          ]
-        },
-        {
-          "id": "ac-5",
-          "label": "Derived values are computed client-side rather than stored",
-          "coverage": "covered",
-          "evidence": [
-            "fieldwork-dashboard#1"
-          ]
-        },
-        {
-          "id": "ac-6",
-          "label": "Works against demo-QC snapshots so UI work isn't blocked on the QC port",
-          "coverage": "covered",
-          "evidence": [
-            "fieldwork-dashboard#1"
-          ]
-        },
-        {
-          "id": "ac-7",
-          "label": "Unit tests for derived values and a schema-parsed fixture drive component tests",
-          "coverage": "covered",
-          "evidence": [
-            "fieldwork-dashboard#1"
-          ]
-        }
-      ],
+      "acCoverage": [],
       "stories": [
         {
           "key": "BOUN-11465",
@@ -4821,17 +3967,8 @@
               "updatedAt": "2026-08-11T10:37:45Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -4840,7 +3977,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11466",
@@ -4864,43 +4003,12 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Not started (score 0); no PRs yet for the shared CloudFront distribution, cache policy, access-control decision, or the Terraform-owned infra split.",
+      "confidence": "medium",
+      "rationale": "No PR or subtask evidence yet; hosting/CDN/access-control is still todo.",
       "daysSinceLastActivity": 7,
       "daysInStaged": null,
       "releaseGate": null,
-      "acCoverage": [
-        {
-          "id": "ac-1",
-          "label": "One CloudFront distribution serves both private dashboard assets and snapshot JSON",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-2",
-          "label": "Long-lived caching for static assets, short TTL for latest.json",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-3",
-          "label": "Access control for WPP stakeholders is decided and implemented",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-4",
-          "label": "Terraform owns the stateful infra, not SAM",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-5",
-          "label": "A runbook entry covers invalidation and freshness verification",
-          "coverage": "no_signal",
-          "evidence": []
-        }
-      ],
+      "acCoverage": [],
       "stories": [
         {
           "key": "BOUN-11466",
@@ -4915,7 +4023,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11467",
@@ -4939,43 +4049,12 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Not started (score 0); no PRs yet for the per-cell drill-down view, deep-linking, or attention-flag thresholds.",
+      "confidence": "medium",
+      "rationale": "No PR or subtask evidence yet; per-cell drill-down is still todo.",
       "daysSinceLastActivity": 7,
       "daysInStaged": null,
       "releaseGate": null,
-      "acCoverage": [
-        {
-          "id": "ac-1",
-          "label": "Each cell opens a drill-down from the same snapshot document with no extra requests",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-2",
-          "label": "Drill-down shows the cell's funnel, quota fill, grade/region, QC counts, and section LOI",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-3",
-          "label": "Cells needing attention are visually flagged against agreed thresholds",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-4",
-          "label": "A drill-down is deep-linkable by market and cell",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-5",
-          "label": "Component tests are driven by the shared schema-parsed fixture",
-          "coverage": "no_signal",
-          "evidence": []
-        }
-      ],
+      "acCoverage": [],
       "stories": [
         {
           "key": "BOUN-11467",
@@ -4990,7 +4069,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11468",
@@ -5014,55 +4095,12 @@
         "total": 1
       },
       "scoreOverride": null,
-      "confidence": "high",
-      "rationale": "Not started (score 0); no PRs yet for last-sync display, stale/degraded banners, silent-staleness detection, or the demo-QC labelling this depends on from F3.3.",
+      "confidence": "medium",
+      "rationale": "No PR or subtask evidence yet; staleness badging/data-status UX is still todo.",
       "daysSinceLastActivity": 7,
       "daysInStaged": null,
       "releaseGate": null,
-      "acCoverage": [
-        {
-          "id": "ac-1",
-          "label": "computedAt renders as a visible last-sync timestamp on every view",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-2",
-          "label": "A stale-flagged snapshot shows a degraded banner while keeping last-known-good data visible",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-3",
-          "label": "A silently stale snapshot (no flag, but old) shows the same degraded banner client-side",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-4",
-          "label": "Date-derived v2 panels stay hidden rather than zero-filled",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-5",
-          "label": "QC panels carry a demo-data marker while QC runs in demo mode",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-6",
-          "label": "A failed poll keeps last-rendered data with a connection-lost indicator",
-          "coverage": "no_signal",
-          "evidence": []
-        },
-        {
-          "id": "ac-7",
-          "label": "Component tests cover each freshness state",
-          "coverage": "no_signal",
-          "evidence": []
-        }
-      ],
+      "acCoverage": [],
       "stories": [
         {
           "key": "BOUN-11468",
@@ -5077,7 +4115,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     },
     {
       "key": "BOUN-11516",
@@ -5104,7 +4144,7 @@
       },
       "scoreOverride": null,
       "confidence": "high",
-      "rationale": "Shipped; the market dropdown was swapped from Germany to Italy and Saudi Arabia, plus an incidental CI test-environment fix — this ticket carries no acceptance-criteria bullets.",
+      "rationale": "The single story shipped: the fieldwork dashboard's market dropdown now offers UK/FR/IT/SA in place of Germany.",
       "daysSinceLastActivity": 2,
       "daysInStaged": null,
       "releaseGate": null,
@@ -5132,17 +4172,8 @@
               "updatedAt": "2026-08-11T14:38:07Z",
               "stackChain": [],
               "reviewRequests": [],
-              "reviews": [
-                {
-                  "reviewer": "copilot-pull-request-reviewer",
-                  "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "chatgpt-codex-connector",
-                  "state": "COMMENTED"
-                }
-              ],
-              "author": "TonyCasey",
+              "reviews": [],
+              "author": null,
               "filesTouched": []
             }
           ],
@@ -5151,7 +4182,9 @@
       ],
       "callouts": [],
       "override": null,
-      "dataOk": true
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
     }
   ],
   "reviewQueue": [
@@ -5163,29 +4196,26 @@
         "url": "https://github.com/bounceinsights/dashboard-api/pull/2089",
         "state": "OPEN",
         "isDraft": false,
-        "baseRef": "master",
+        "baseRef": "BOUN-11497",
         "headRef": "BOUN-11498",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T16:55:26Z",
-        "stackChain": [],
+        "updatedAt": "2026-08-11T15:58:18Z",
+        "stackChain": [
+          2088
+        ],
         "reviewRequests": [
           "EmadNazzal",
           "VivekMurarkaIndIre"
         ],
-        "reviews": [
-          {
-            "reviewer": "copilot-pull-request-reviewer",
-            "state": "COMMENTED"
-          }
-        ],
-        "author": "gelbh",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11212",
       "reviewer": "EmadNazzal",
-      "requestedAt": "2026-08-13T16:55:26Z",
-      "ageDays": 0
+      "requestedAt": "2026-08-11T15:58:18Z",
+      "ageDays": 3
     },
     {
       "pr": {
@@ -5195,29 +4225,26 @@
         "url": "https://github.com/bounceinsights/dashboard-api/pull/2089",
         "state": "OPEN",
         "isDraft": false,
-        "baseRef": "master",
+        "baseRef": "BOUN-11497",
         "headRef": "BOUN-11498",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T16:55:26Z",
-        "stackChain": [],
+        "updatedAt": "2026-08-11T15:58:18Z",
+        "stackChain": [
+          2088
+        ],
         "reviewRequests": [
           "EmadNazzal",
           "VivekMurarkaIndIre"
         ],
-        "reviews": [
-          {
-            "reviewer": "copilot-pull-request-reviewer",
-            "state": "COMMENTED"
-          }
-        ],
-        "author": "gelbh",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11212",
       "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-13T16:55:26Z",
-      "ageDays": 0
+      "requestedAt": "2026-08-11T15:58:18Z",
+      "ageDays": 3
     },
     {
       "pr": {
@@ -5231,26 +4258,22 @@
         "headRef": "BOUN-11499",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T17:07:27Z",
+        "updatedAt": "2026-08-11T16:30:37Z",
         "stackChain": [
-          2089
+          2089,
+          2088
         ],
         "reviewRequests": [
           "EmadNazzal"
         ],
-        "reviews": [
-          {
-            "reviewer": "VivekMurarkaIndIre",
-            "state": "APPROVED"
-          }
-        ],
-        "author": "gelbh",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11212",
       "reviewer": "EmadNazzal",
-      "requestedAt": "2026-08-13T17:07:27Z",
-      "ageDays": 0
+      "requestedAt": "2026-08-11T16:30:37Z",
+      "ageDays": 3
     },
     {
       "pr": {
@@ -5276,19 +4299,14 @@
           "ruzwid",
           "VivekMurarkaIndIre"
         ],
-        "reviews": [
-          {
-            "reviewer": "copilot-pull-request-reviewer",
-            "state": "COMMENTED"
-          }
-        ],
-        "author": "EmadNazzal",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11340",
       "reviewer": "ruzwid",
       "requestedAt": "2026-08-13T09:06:11Z",
-      "ageDays": 0
+      "ageDays": 1
     },
     {
       "pr": {
@@ -5314,19 +4332,14 @@
           "ruzwid",
           "VivekMurarkaIndIre"
         ],
-        "reviews": [
-          {
-            "reviewer": "copilot-pull-request-reviewer",
-            "state": "COMMENTED"
-          }
-        ],
-        "author": "EmadNazzal",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11340",
       "reviewer": "VivekMurarkaIndIre",
       "requestedAt": "2026-08-13T09:06:11Z",
-      "ageDays": 0
+      "ageDays": 1
     },
     {
       "pr": {
@@ -5340,20 +4353,20 @@
         "headRef": "BOUN-11514",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T17:36:58Z",
+        "updatedAt": "2026-08-13T16:48:12Z",
         "stackChain": [],
         "reviewRequests": [
           "ruzwid",
           "Madjda"
         ],
         "reviews": [],
-        "author": "gelbh",
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11514",
       "reviewer": "ruzwid",
-      "requestedAt": "2026-08-13T17:36:58Z",
-      "ageDays": 0
+      "requestedAt": "2026-08-13T16:48:12Z",
+      "ageDays": 1
     },
     {
       "pr": {
@@ -5367,20 +4380,20 @@
         "headRef": "BOUN-11514",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-13T17:36:58Z",
+        "updatedAt": "2026-08-13T16:48:12Z",
         "stackChain": [],
         "reviewRequests": [
           "ruzwid",
           "Madjda"
         ],
         "reviews": [],
-        "author": "gelbh",
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11514",
       "reviewer": "Madjda",
-      "requestedAt": "2026-08-13T17:36:58Z",
-      "ageDays": 0
+      "requestedAt": "2026-08-13T16:48:12Z",
+      "ageDays": 1
     },
     {
       "pr": {
@@ -5399,27 +4412,14 @@
         "reviewRequests": [
           "EmadNazzal"
         ],
-        "reviews": [
-          {
-            "reviewer": "copilot-pull-request-reviewer",
-            "state": "COMMENTED"
-          },
-          {
-            "reviewer": "chatgpt-codex-connector",
-            "state": "COMMENTED"
-          },
-          {
-            "reviewer": "Madjda",
-            "state": "APPROVED"
-          }
-        ],
-        "author": "TonyCasey",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11293",
       "reviewer": "EmadNazzal",
       "requestedAt": "2026-08-13T11:46:50Z",
-      "ageDays": 0
+      "ageDays": 1
     },
     {
       "pr": {
@@ -5442,23 +4442,14 @@
           "Madjda",
           "EmadNazzal"
         ],
-        "reviews": [
-          {
-            "reviewer": "copilot-pull-request-reviewer",
-            "state": "COMMENTED"
-          },
-          {
-            "reviewer": "chatgpt-codex-connector",
-            "state": "COMMENTED"
-          }
-        ],
-        "author": "TonyCasey",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11293",
       "reviewer": "Madjda",
       "requestedAt": "2026-08-13T15:33:28Z",
-      "ageDays": 0
+      "ageDays": 1
     },
     {
       "pr": {
@@ -5481,23 +4472,14 @@
           "Madjda",
           "EmadNazzal"
         ],
-        "reviews": [
-          {
-            "reviewer": "copilot-pull-request-reviewer",
-            "state": "COMMENTED"
-          },
-          {
-            "reviewer": "chatgpt-codex-connector",
-            "state": "COMMENTED"
-          }
-        ],
-        "author": "TonyCasey",
+        "reviews": [],
+        "author": null,
         "filesTouched": []
       },
       "featureKey": "BOUN-11293",
       "reviewer": "EmadNazzal",
       "requestedAt": "2026-08-13T15:33:28Z",
-      "ageDays": 0
+      "ageDays": 1
     }
   ],
   "collectionErrors": []

@@ -38,6 +38,21 @@ export const JiraConfig = z.object({
   /** raw JIRA status name -> WorkStatus. Unmapped names fall back to
    *  "todo" with a console warning at collection time. */
   statusMap: z.record(z.string(), WorkStatus).default({}),
+  /** The status a feature ticket sits in while it waits for product to
+   *  approve it. Entering it emails the product manager; approval moves
+   *  the ticket straight to one of `signedOffStatuses`, rejection sends
+   *  it back to In Progress. Null disables the whole notion. */
+  productReviewStatus: z.string().nullable().default("Product Review"),
+  /** Feature-ticket statuses that mean product has approved the work.
+   *  Epic work can only reach these by passing through
+   *  `productReviewStatus`, so landing here *is* the sign-off. */
+  signedOffStatuses: z.array(z.string()).default(["Done"]),
+  /** Legacy: the "Product Approval" custom field that used to gate Done
+   *  before the Product Review status replaced it. Its automations are
+   *  off, so it only still matters for tickets signed off under the old
+   *  flow — read as a fallback, never as the primary signal. Null skips
+   *  fetching it entirely. */
+  productSignOffField: z.string().nullable().default(null),
 });
 
 export const GithubConfig = z.object({

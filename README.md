@@ -148,9 +148,20 @@ the raw unweighted counts for display, never back-derived from the score.
 
 `done` additionally requires *every* story shipped to the default branch —
 a feature that hits 100 on weight alone while stories sit staged stays
-`nearly_done`. Overriding all of it: JIRA's **Product Sign Off = Approved**
-field forces `done`, because a human's out-of-band approval outranks both
-the score and the GitHub check.
+`nearly_done`. Overriding all of it: **product sign-off** forces `done`,
+because a human's out-of-band approval outranks both the score and the
+GitHub check.
+
+Sign-off is read from the feature ticket's own JIRA status. Moving an
+epic/milestone/feature ticket to **Product Review** emails its product
+manager; approval sends it straight to Done, rejection back to In
+Progress — so for epic work, reaching Done *is* the sign-off. Both statuses
+are named in `config.yaml` (`jira.productReviewStatus`,
+`jira.signedOffStatuses`), and a feature sitting in review is published as
+`awaitingSignOff` so the dashboard can show what product currently owes a
+decision on. The retired "Product Approval" custom field is still read as a
+fallback (`jira.productSignOffField`) for tickets approved under the old
+flow; a live Product Review always outranks a stale label.
 
 ---
 

@@ -19,6 +19,9 @@ const CONFIG: Config = {
   jira: {
     projectKey: "TEST",
     statusMap: { Done: "shipped", "Code Review": "in_review", "In Progress": "in_progress", "To Do": "todo" },
+    productReviewStatus: "Product Review",
+    signedOffStatuses: ["Done"],
+    productSignOffField: "customfield_10698",
   },
   github: { org: "test-org", excludeRepos: [], includeRepos: [] },
   timezone: "Europe/Dublin",
@@ -371,35 +374,55 @@ describe("collectFeature", () => {
     ]);
   });
 
-  it("marks the feature signedOff when JIRA's Product Sign Off field is Approved", async () => {
-    const getIssue = vi.fn().mockResolvedValue({
-      key: "TEST-10",
-      fields: { description: null, customfield_10698: { value: "Approved" } },
-    });
-    const d = deps({ getIssue });
-    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
-    expect(feature.signedOff).toBe(true);
-    // Guards against the field-list argument being trimmed or reverted —
-    // without customfield_10698 in the request, JIRA simply stops sending
-    // the field and every test here would still pass against a mock that
-    // returns canned data regardless of what was actually requested.
-    expect(getIssue).toHaveBeenCalledWith("TEST-10", expect.arrayContaining(["customfield_10698"]));
-  });
-
-  it("is not signedOff when Product Sign Off is Pending", async () => {
+  it("marks the feature signedOff when its own ticket has reached Done", async () => {
     const d = deps({
       getIssue: vi.fn().mockResolvedValue({
         key: "TEST-10",
-        fields: { description: null, customfield_10698: { value: "Pending" } },
+        fields: { description: null, status: { name: "Done" } },
       }),
     });
     const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
+    expect(feature.featureStatus).toBe("Done");
+    expect(feature.signedOff).toBe(true);
+    expect(feature.awaitingSignOff).toBe(false);
+  });
+
+  it("marks the feature awaitingSignOff while its ticket sits in Product Review", async () => {
+    const d = deps({
+      getIssue: vi.fn().mockResolvedValue({
+        key: "TEST-10",
+        fields: { description: null, status: { name: "Product Review" } },
+      }),
+    });
+    const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));
+    expect(feature.awaitingSignOff).toBe(true);
     expect(feature.signedOff).toBe(false);
   });
 
-  it("is not signedOff when the field is missing entirely", async () => {
+  it("still honours the retired Product Approval field for tickets signed off under the old flow", async () => {
+    const getIssue = vi.fn().mockResolvedValue({
+      key: "TEST-10",
+      fields: { description: null, status: { name: "In Progress" }, customfield_10698: { value: "Approved" } },
+    });
+    const { feature } = await collectFeature(target(), CONFIG, NOW, deps({ getIssue }), index([]));
+    expect(feature.signedOff).toBe(true);
+    // Guards against the field-list argument being trimmed — without the
+    // legacy field in the request JIRA simply stops sending it, and a mock
+    // returning canned data regardless would hide that.
+    expect(getIssue).toHaveBeenCalledWith("TEST-10", expect.arrayContaining(["customfield_10698"]));
+  });
+
+  it("does not request the legacy field when config leaves it unset", async () => {
+    const getIssue = vi.fn().mockResolvedValue({ key: "TEST-10", fields: { description: null } });
+    const config = { ...CONFIG, jira: { ...CONFIG.jira, productSignOffField: null } };
+    await collectFeature(target(), config, NOW, deps({ getIssue }), index([]));
+    expect(getIssue).toHaveBeenCalledWith("TEST-10", expect.not.arrayContaining(["customfield_10698"]));
+  });
+
+  it("is neither signed off nor awaiting when the ticket is mid-flight", async () => {
     const { feature } = await collectFeature(target(), CONFIG, NOW, deps(), index([]));
     expect(feature.signedOff).toBe(false);
+    expect(feature.awaitingSignOff).toBe(false);
   });
 
   it("becomes stage 'done' when signedOff, even with an unshipped story", async () => {
@@ -407,7 +430,7 @@ describe("collectFeature", () => {
       searchChildren: childrenBy({ "TEST-10": [jiraIssue("TEST-11", "To Do")] }),
       getIssue: vi.fn().mockResolvedValue({
         key: "TEST-10",
-        fields: { description: null, customfield_10698: { value: "Approved" } },
+        fields: { description: null, status: { name: "Done" } },
       }),
     });
     const { feature } = await collectFeature(target(), CONFIG, NOW, d, index([]));

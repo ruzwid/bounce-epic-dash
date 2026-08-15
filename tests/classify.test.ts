@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   classifyPr,
+  deriveSignOff,
   deriveWorkStatus,
   findReleaseGate,
   isAutomatedReleasePr,
@@ -159,5 +160,48 @@ describe("deriveWorkStatus", () => {
       mergedAt: "2026-01-01T00:00:00.000Z",
     });
     expect(deriveWorkStatus("In Progress", statusMap, [pr], DEFAULT_BRANCH)).toBe("staged");
+  });
+});
+
+describe("deriveSignOff", () => {
+  const config = { productReviewStatus: "Product Review", signedOffStatuses: ["Done"] };
+
+  it("treats reaching Done as the sign-off — epic work can only get there via Product Review", () => {
+    expect(deriveSignOff("Done", config)).toEqual({ signedOff: true, awaitingSignOff: false });
+  });
+
+  it("is awaiting, not signed off, while the ticket sits in Product Review", () => {
+    expect(deriveSignOff("Product Review", config)).toEqual({ signedOff: false, awaitingSignOff: true });
+  });
+
+  it("is neither for a ticket still in flight", () => {
+    expect(deriveSignOff("In Progress", config)).toEqual({ signedOff: false, awaitingSignOff: false });
+  });
+
+  it("is neither when the status is missing entirely", () => {
+    expect(deriveSignOff(null, config)).toEqual({ signedOff: false, awaitingSignOff: false });
+  });
+
+  it("accepts the legacy Approved field for tickets signed off before the flow changed", () => {
+    expect(deriveSignOff("In Progress", config, true)).toEqual({ signedOff: true, awaitingSignOff: false });
+  });
+
+  it("lets a live Product Review out-vote a stale Approved label", () => {
+    // The label's automations are off, so an old "Approved" can linger on a
+    // ticket that has since been sent back round for review. The live
+    // status is the truth; the dead field must never override it.
+    expect(deriveSignOff("Product Review", config, true)).toEqual({ signedOff: false, awaitingSignOff: true });
+  });
+
+  it("never reports both states at once", () => {
+    for (const status of ["Done", "Product Review", "In Progress", null]) {
+      const state = deriveSignOff(status, config, true);
+      expect(state.signedOff && state.awaitingSignOff).toBe(false);
+    }
+  });
+
+  it("disables the waiting state entirely when no review status is configured", () => {
+    const noReview = { productReviewStatus: null, signedOffStatuses: ["Done"] };
+    expect(deriveSignOff("Product Review", noReview)).toEqual({ signedOff: false, awaitingSignOff: false });
   });
 });

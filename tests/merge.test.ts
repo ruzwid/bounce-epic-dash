@@ -162,7 +162,9 @@ function makeRawFeature(overrides: Partial<RawFeature> = {}): RawFeature {
       },
     ],
     dataOk: true,
+    featureStatus: null,
     signedOff: false,
+    awaitingSignOff: false,
     ...overrides,
   };
 }
