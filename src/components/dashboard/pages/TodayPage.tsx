@@ -1,11 +1,17 @@
 import { ChevronRight } from "lucide-react"
+import type { z } from "zod"
+import type { StatusSnapshot as StatusSnapshotSchema } from "@/lib/schema"
+import type { HistoryPoint } from "@/lib/dashboard/snapshots"
 import { computeChanges, formatSinceLabel } from "@/lib/dashboard/diff"
 import { buildBurnUpSeries } from "@/lib/dashboard/burnup"
+import { computeVelocity, resolveTargetDate } from "@/lib/dashboard/velocity"
+import { scopeDelta, storyTotals } from "@/lib/dashboard/totals"
 import { groupMatchesMilestoneFilter, matchesFilters } from "@/lib/dashboard/search"
 import { milestoneProgress, sidebarGroups } from "@/lib/dashboard/nav"
 import { useShell } from "../shell/ShellContext"
 import { SectionHeading } from "../SectionHeading"
-import { StatStrip } from "../StatStrip"
+import { StatStrip, type Stat } from "../StatStrip"
+import { StatusPill } from "../StatusPill"
 import { StaleBanner } from "../StaleBanner"
 import { Callout } from "../Callout"
 import { Hero } from "../Hero"
@@ -18,6 +24,8 @@ import { BurnUpChart } from "../BurnUpChart"
 import { MethodologyFooter } from "../MethodologyFooter"
 import { MilestoneGroupHeading } from "../MilestoneGroupHeading"
 
+type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
+
 /**
  * The landing page answers "what changed, and where does that leave us" in
  * that order — the change feed sits above the totals deliberately, because
@@ -25,18 +33,25 @@ import { MilestoneGroupHeading } from "../MilestoneGroupHeading"
  * dashboard to find out.
  */
 export function TodayPage() {
-  const { snapshot, previous, history, search, onSearchChange, now } = useShell()
+  const { snapshot, previous, history, search, onSearchChange, now, asOf } = useShell()
 
   const changes = computeChanges(snapshot, previous)
   const sinceLabel = previous ? formatSinceLabel(previous.date, snapshot.date) : null
   const engineers = [...new Set(snapshot.features.map((f) => f.owner))].sort()
-  const burnUp = buildBurnUpSeries(history, history[0]?.date ?? snapshot.date, snapshot.epic.targetDate)
+  // Summed from the features, not read off snapshot.kpis: the published
+  // KPI object grew a field at a time, so only this is complete for every
+  // snapshot version. See src/lib/dashboard/totals.ts.
+  const totals = storyTotals(snapshot.features)
+  const scope = scopeDelta(snapshot, previous)
+  const targetDate = resolveTargetDate(snapshot)
+  const velocity = computeVelocity(history, snapshot, targetDate)
+  const burnUp = buildBurnUpSeries(history, history[0]?.date ?? snapshot.date, targetDate, velocity)
   // Groups the milestone filter excludes don't render at all — rendering
   // them with an empty, filtered-down feature list is the exact bug this
   // replaced (picking "M1" left M2/M3/M4 on the page, just empty).
   const groups = sidebarGroups(snapshot).filter((g) => groupMatchesMilestoneFilter(g.milestoneIds, search))
   const visibleFeatureCount = groups.reduce(
-    (n, g) => n + g.features.filter((f) => matchesFilters(f, search, now)).length,
+    (n, g) => n + g.features.filter((f) => matchesFilters(f, search, asOf)).length,
     0,
   )
 
@@ -74,30 +89,10 @@ export function TodayPage() {
         )}
       </section>
 
-      <StatStrip
-        stats={[
-          {
-            label: "Features tracked",
-            value: snapshot.kpis.featuresTracked,
-            sublabel:
-              snapshot.kpis.lightTierMilestones > 0 ? `${snapshot.kpis.lightTierMilestones} light tier` : undefined,
-          },
-          { label: "Stories tracked", value: snapshot.kpis.storiesTracked },
-          { label: "Shipped to master", value: snapshot.kpis.shipped, color: "var(--pr-shipped)" },
-          {
-            label: "Done, unverified",
-            value: snapshot.kpis.doneUnverified,
-            color: "var(--status-done-unverified)",
-          },
-          { label: "Staged, not shipped", value: snapshot.kpis.staged, color: "var(--status-staged)" },
-          { label: "Stories in review", value: snapshot.kpis.inReview, color: "var(--status-in-review)" },
-          {
-            label: "Blocked or to do",
-            value: snapshot.kpis.blockedOrTodo,
-            color: snapshot.kpis.blockedOrTodo > 0 ? "var(--status-blocked)" : undefined,
-          },
-        ]}
-      />
+      <div className="flex flex-col gap-2">
+        <StatStrip stats={buildStats(snapshot, totals, scope)} />
+        <ScopeNote snapshot={snapshot} scope={scope} sinceLabel={sinceLabel} historyStart={history[0] ?? null} />
+      </div>
 
       <section className="flex flex-col gap-5">
         <SectionHeading
@@ -114,13 +109,14 @@ export function TodayPage() {
           <EmptyState message="No milestone matches the current filters." />
         ) : (
           groups.map((group) => {
-            const visible = group.features.filter((f) => matchesFilters(f, search, now))
+            const visible = group.features.filter((f) => matchesFilters(f, search, asOf))
             // Done milestones collapse by default — nothing left to act on
             // — but the boolean is stable across re-renders (search text,
             // filters) so a reader who expands one anyway never has it
             // snap shut on them mid-session. See the note on <details> in
             // FeatureCard for the same pattern.
-            const isDone = milestoneProgress(group.features).stage === "done"
+            const progress = milestoneProgress(group.features)
+            const isDone = progress.stage === "done"
             return (
               <details
                 key={group.id}
@@ -136,6 +132,13 @@ export function TodayPage() {
                       />
                       <MilestoneGroupHeading group={group} className="hover-fill no-underline" />
                     </h3>
+                    {/* A done milestone collapses, so the heading is all
+                        there is to read — the pill is how a closed section
+                        still says where it stands rather than only that it
+                        exists. Shown open too: the same fact is worth having
+                        either way, and a badge that appeared on collapse
+                        would read as a state change. */}
+                    <StatusPill status={progress.stage} className="self-center" />
                     <span className="text-xs text-muted-foreground">
                       {group.features.length} feature{group.features.length === 1 ? "" : "s"}
                     </span>
@@ -160,9 +163,99 @@ export function TodayPage() {
       </section>
 
       <StoryStatusMixChart features={snapshot.features} />
-      <BurnUpChart series={burnUp} targetDate={snapshot.epic.targetDate} />
+      <BurnUpChart series={burnUp} targetDate={targetDate} velocity={velocity} />
       <MethodologyFooter snapshot={snapshot} />
     </div>
+  )
+}
+
+/**
+ * The KPI row.
+ *
+ * Every story is in exactly one of these figures, and the seven story
+ * counts add up to "Stories tracked" — the previous row printed
+ * shipped/done-unverified/staged/in-review/blocked-or-to-do, which left
+ * in-progress stories in no column at all and fused "someone needs help"
+ * with "nobody has started". Blocked gets its own card only when something
+ * actually is blocked, so the alarm figure exists when there's an alarm
+ * rather than sitting at a permanent zero.
+ */
+function buildStats(
+  snapshot: StatusSnapshotT,
+  totals: ReturnType<typeof storyTotals>,
+  scope: ReturnType<typeof scopeDelta>,
+): Stat[] {
+  const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`)
+
+  return [
+    {
+      label: "Features tracked",
+      value: snapshot.features.length,
+      sublabel:
+        scope && scope.features !== 0
+          ? `${signed(scope.features)} since last`
+          : snapshot.kpis.lightTierMilestones > 0
+            ? `${snapshot.kpis.lightTierMilestones} light tier`
+            : undefined,
+    },
+    {
+      label: "Stories tracked",
+      value: totals.total,
+      sublabel: scope && scope.stories !== 0 ? `${signed(scope.stories)} since last` : undefined,
+    },
+    { label: "Shipped to master", value: totals.shipped, color: "var(--pr-shipped)" },
+    { label: "Done, unverified", value: totals.doneUnverified, color: "var(--status-done-unverified)" },
+    { label: "Staged, not shipped", value: totals.staged, color: "var(--status-staged)" },
+    { label: "Stories in review", value: totals.inReview, color: "var(--status-in-review)" },
+    { label: "In progress", value: totals.inProgress, color: "var(--status-in-progress)" },
+    { label: "To do", value: totals.todo, color: "var(--status-todo)" },
+    ...(totals.blocked > 0
+      ? [{ label: "Blocked", value: totals.blocked, color: "var(--status-blocked)" } satisfies Stat]
+      : []),
+  ]
+}
+
+/**
+ * Why the percentage moved when nobody shipped anything.
+ *
+ * Scope is the denominator of every figure above, and it moves: this epic
+ * went from 47 stories to 74 in three days, which dropped completion from
+ * 79% to 62% without a single piece of work going backwards. Renders only
+ * when scope actually changed — on a steady day it would be noise.
+ */
+function ScopeNote({
+  snapshot,
+  scope,
+  sinceLabel,
+  historyStart,
+}: {
+  snapshot: StatusSnapshotT
+  scope: ReturnType<typeof scopeDelta>
+  sinceLabel: string | null
+  historyStart: HistoryPoint | null
+}) {
+  const sinceStart =
+    historyStart && historyStart.date !== snapshot.date
+      ? storyTotals(snapshot.features).total - historyStart.kpis.storiesTracked
+      : 0
+  if ((!scope || scope.stories === 0) && sinceStart === 0) return null
+
+  const stories = (n: number) => `${Math.abs(n)} ${Math.abs(n) === 1 ? "story" : "stories"}`
+
+  const parts: string[] = []
+  if (scope && scope.stories !== 0) {
+    parts.push(
+      `${scope.stories > 0 ? "grew by" : "shrank by"} ${stories(scope.stories)} ${sinceLabel ?? "since the previous snapshot"}`,
+    )
+  }
+  if (sinceStart !== 0 && historyStart) {
+    parts.push(`${sinceStart > 0 ? "up" : "down"} ${stories(sinceStart)} since ${historyStart.date}`)
+  }
+
+  return (
+    <p className="m-0 text-xs leading-relaxed text-muted-foreground">
+      Scope {parts.join(", ")}. Percentages move with the denominator, not only with work finishing.
+    </p>
   )
 }
 

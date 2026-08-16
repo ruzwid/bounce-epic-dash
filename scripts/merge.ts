@@ -126,6 +126,7 @@ function sanitizePrRef(pr: RawPrRecord): PrRefT {
     shippedToDefault: pr.shippedToDefault,
     mergedAt: pr.mergedAt,
     updatedAt: pr.updatedAt,
+    createdAt: pr.createdAt ?? null,
     stackChain: pr.stackChain,
     reviewRequests: pr.reviewRequests,
     reviews: pr.reviews,
@@ -256,7 +257,12 @@ export function buildSnapshot(params: {
             // GitHub's GraphQL API doesn't expose a review-request timestamp
             // directly; the PR's updatedAt is the closest available proxy.
             requestedAt: p.updatedAt,
-            ageDays: daysBetween(new Date(p.updatedAt), now),
+            // Aged from the PR's open date, not updatedAt: a reviewer's own
+            // "any updates?" comment bumps updatedAt, which reset every
+            // entry in this queue to 0d and made the whole ageing signal —
+            // and the >2d attention rule that reads it — inert.
+            ageDays: daysBetween(new Date(p.createdAt ?? p.updatedAt), now),
+            ageFromOpen: p.createdAt != null,
           })),
         ),
     ),
@@ -284,6 +290,9 @@ export function buildSnapshot(params: {
       doneUnverified: features.reduce((sum, f) => sum + f.scoreBasis.doneUnverified, 0),
       staged: features.reduce((sum, f) => sum + f.scoreBasis.staged, 0),
       inReview: features.reduce((sum, f) => sum + f.scoreBasis.inReview, 0),
+      inProgress: features.reduce((sum, f) => sum + f.scoreBasis.inProgress, 0),
+      blocked: features.reduce((sum, f) => sum + f.scoreBasis.blocked, 0),
+      todo: features.reduce((sum, f) => sum + f.scoreBasis.todo, 0),
       blockedOrTodo: features.reduce((sum, f) => sum + f.scoreBasis.blocked + f.scoreBasis.todo, 0),
     },
     features,

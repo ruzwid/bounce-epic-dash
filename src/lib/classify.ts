@@ -23,6 +23,11 @@ export type RawPr = {
   headRefName: string;
   mergedAt: string | null;
   updatedAt: string;
+  /** When the PR was opened. The only timestamp on a PR that never moves:
+   *  updatedAt is reset by any comment, label or push, which makes it
+   *  useless for "how long has this been waiting". Ages are measured from
+   *  here — see ReviewRequest.ageDays in src/lib/schema.ts. */
+  createdAt: string;
   reviewRequests: string[];
   /** One entry per reviewer who's submitted a review, latest state only. */
   reviews: { reviewer: string; state: "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" }[];

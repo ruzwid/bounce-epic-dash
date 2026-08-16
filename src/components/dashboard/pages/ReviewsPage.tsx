@@ -3,7 +3,7 @@ import { Copy, ChevronDown } from "lucide-react"
 import type { ReviewerStatus, StoryReviewGroup, TicketReviewGroup } from "@/lib/dashboard/nav"
 import { featureSlug, reviewsByStory } from "@/lib/dashboard/nav"
 import { storyPrs } from "@/lib/stories"
-import { loginForJiraAssignee } from "@/lib/dashboard/appConfig"
+import { displayNameForLogin, loginForJiraAssignee } from "@/lib/dashboard/appConfig"
 import {
   buildReviewerSections,
   filterGroupByAuthor,
@@ -13,21 +13,18 @@ import {
   toSlack,
 } from "@/lib/dashboard/reviewExport"
 import { cn } from "@/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
 import { SectionHeading } from "../SectionHeading"
+import { FilterMenu } from "../FilterMenu"
 import { PrChip } from "../PrChip"
-import { PersonChip } from "../PersonChip"
-import { ReviewerChip } from "../ReviewerChip"
+import { ReviewerChip, orderReviewers } from "../ReviewerChip"
+import { firstName, PersonTip } from "../PersonTip"
 import { Avatar } from "../Avatar"
 import { IssueTitle, JiraLink } from "../JiraLink"
 import { EmptyState } from "../EmptyState"
-
-const ALL_REVIEWERS = "__all__"
-const ALL_AUTHORS = "__all__"
 
 /**
  * One card per story, not per pull request or even per ticket: a story
@@ -84,42 +81,22 @@ export function ReviewsPage() {
             reviewers.length > 0 || authors.length > 0 ? (
               <>
                 {reviewers.length > 0 ? (
-                  <Select
-                    items={{ [ALL_REVIEWERS]: "All reviewers", ...Object.fromEntries(reviewers.map((r) => [r, r])) }}
-                    value={reviewer ?? ALL_REVIEWERS}
-                    onValueChange={(value) => setReviewer(value === ALL_REVIEWERS ? null : (value as string))}
-                  >
-                    <SelectTrigger size="sm" aria-label="Filter by reviewer">
-                      <SelectValue placeholder="All reviewers" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ALL_REVIEWERS}>All reviewers</SelectItem>
-                      {reviewers.map((r) => (
-                        <SelectItem key={r} value={r}>
-                          {r}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FilterMenu
+                    label="All reviewers"
+                    value={reviewer}
+                    options={reviewers}
+                    onChange={setReviewer}
+                    ariaLabel="Filter by reviewer"
+                  />
                 ) : null}
                 {authors.length > 0 ? (
-                  <Select
-                    items={{ [ALL_AUTHORS]: "All authors", ...Object.fromEntries(authors.map((a) => [a, a])) }}
-                    value={author ?? ALL_AUTHORS}
-                    onValueChange={(value) => setAuthor(value === ALL_AUTHORS ? null : (value as string))}
-                  >
-                    <SelectTrigger size="sm" aria-label="Filter by author">
-                      <SelectValue placeholder="All authors" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ALL_AUTHORS}>All authors</SelectItem>
-                      {authors.map((a) => (
-                        <SelectItem key={a} value={a}>
-                          {a}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FilterMenu
+                    label="All authors"
+                    value={author}
+                    options={authors}
+                    onChange={setAuthor}
+                    ariaLabel="Filter by author"
+                  />
                 ) : null}
                 <CopyMenu allGroups={allGroups} reviewers={reviewers} activeReviewer={reviewer} activeAuthor={author} />
               </>
@@ -249,11 +226,16 @@ function CopyMenu({
 }
 
 /**
- * Who's carrying the review queue, at a glance — one bar per reviewer,
- * longest queue first, using the same track/fill shape as a feature's
- * ScoreBar so it reads as the same visual language. Doubles as a filter:
- * clicking a row is the fast path to "show me just Vivek's queue", the
- * same state the dropdown above sets.
+ * Who's carrying the review queue, at a glance — one tile per reviewer,
+ * longest queue first, drawn as the same figure tiles every other page
+ * opens with (label and glyph on top, the number beneath). A reviewer's
+ * queue length is a headline figure like any other, and giving it the
+ * headline shape means a reader arriving from Today already knows how to
+ * read it.
+ *
+ * Unlike those tiles these are buttons: pressing one is the fast path to
+ * "show me just Vivek's queue", the same state the dropdown below sets,
+ * and pressing it again clears it.
  */
 function ReviewerLoad({
   reviewQueue,
@@ -266,38 +248,43 @@ function ReviewerLoad({
 }) {
   const counts = new Map<string, number>()
   for (const request of reviewQueue) counts.set(request.reviewer, (counts.get(request.reviewer) ?? 0) + 1)
-  const entries = [...counts.entries()].sort((a, b) => b[1] - a[1])
+  const entries = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
   if (entries.length === 0) return null
-  const max = entries[0]![1]
 
   return (
     <section className="flex flex-col gap-3">
-      <SectionHeading note="open review requests per person">Review load</SectionHeading>
-      <ul className="surface-card m-0 flex list-none flex-col gap-1 rounded-4xl border border-border bg-card px-3 py-3">
+      <SectionHeading note="open review requests per person · press one to filter">Review load</SectionHeading>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {entries.map(([login, count]) => {
           const isSelected = selected === login
           return (
-            <li key={login}>
-              <button
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => onSelect(isSelected ? null : login)}
-                className="hover-fill flex w-full items-center gap-3 rounded-4xl px-2 py-1.5 text-left"
-                style={isSelected ? { background: "color-mix(in oklch, var(--status-in-review) 14%, transparent)" } : undefined}
-              >
-                <PersonChip login={login} className="w-40 shrink-0" />
-                <div className="h-2.5 flex-1 overflow-hidden rounded-[3px] bg-muted">
-                  <div
-                    className="h-full rounded-[3px]"
-                    style={{ width: `${(count / max) * 100}%`, background: "var(--status-in-review)" }}
-                  />
-                </div>
-                <span className="font-mono-data w-6 shrink-0 text-right text-sm font-semibold">{count}</span>
-              </button>
-            </li>
+            <button
+              key={login}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => onSelect(isSelected ? null : login)}
+              title={isSelected ? "Show every reviewer again" : `Show only ${login}'s queue`}
+              className={cn(
+                "flex cursor-pointer flex-col gap-2 rounded-4xl px-4 py-3.5 text-left transition-colors duration-150 ease-[var(--ease-out)]",
+                isSelected ? "bg-muted" : "bg-muted/60 hover:bg-muted",
+              )}
+              // The pressed tile is outlined rather than merely tinted: a
+              // filter that changes what the rest of the page contains has
+              // to be unmistakable, and a second shade of the same grey
+              // isn't.
+              style={isSelected ? { outline: "1px solid var(--status-in-review)", outlineOffset: "-1px" } : undefined}
+            >
+              <span className="flex w-full items-start justify-between gap-2">
+                <span className="truncate text-xs leading-snug text-muted-foreground">
+                  {displayNameForLogin(login) ?? login}
+                </span>
+                <Avatar login={login} name={displayNameForLogin(login) ?? login} size={18} />
+              </span>
+              <span className="font-display font-mono-data text-[20px] leading-none">{count}</span>
+            </button>
           )
         })}
-      </ul>
+      </div>
     </section>
   )
 }
@@ -327,7 +314,9 @@ function ReviewGroupCard({ group }: { group: StoryReviewGroup }) {
             {feature.code}
           </ShellLink>
           {story.assignee ? (
-            <Avatar login={loginForJiraAssignee(story.assignee)} name={story.assignee} size={20} />
+            <PersonTip label={firstName(story.assignee)}>
+              <Avatar login={loginForJiraAssignee(story.assignee)} name={story.assignee} size={20} />
+            </PersonTip>
           ) : null}
         </div>
       </div>
@@ -386,12 +375,9 @@ function TicketPrList({
             <IssueTitle issueKey={ticket.key} title={ticket.summary} />
           </JiraLink>
           {showAssignee && ticket.assignee ? (
-            <Avatar
-              login={loginForJiraAssignee(ticket.assignee)}
-              name={ticket.assignee}
-              size={20}
-              className="ml-auto shrink-0"
-            />
+            <PersonTip label={firstName(ticket.assignee)} className="ml-auto shrink-0">
+              <Avatar login={loginForJiraAssignee(ticket.assignee)} name={ticket.assignee} size={20} />
+            </PersonTip>
           ) : null}
         </div>
       ) : null}
@@ -416,7 +402,9 @@ function TicketPrList({
             ) : null}
             <span className="min-w-0 flex-1 truncate text-sm">{pr.title}</span>
             {!showTicketHeader && showAssignee && ticket.assignee ? (
-              <Avatar login={loginForJiraAssignee(ticket.assignee)} name={ticket.assignee} size={20} className="shrink-0" />
+              <PersonTip label={firstName(ticket.assignee)} className="shrink-0">
+                <Avatar login={loginForJiraAssignee(ticket.assignee)} name={ticket.assignee} size={20} />
+              </PersonTip>
             ) : null}
             <ReviewerStatusRow reviewers={reviewers} />
           </li>
@@ -437,17 +425,23 @@ function ReviewerStatusRow({ reviewers }: { reviewers: ReviewerStatus[] }) {
 
   const pending = reviewers.filter((r) => r.state === "requested" && r.ageDays !== null)
   const oldest = pending.length > 0 ? Math.max(...pending.map((r) => r.ageDays!)) : null
+  const ordered = orderReviewers(reviewers)
   return (
     <div className="flex shrink-0 items-center gap-2">
-      {reviewers.map((r) => (
-        <ReviewerChip key={r.reviewer} status={r} />
+      {ordered.map((r) => (
+        <ReviewerChip key={r.reviewer} status={r} avatarOnly />
       ))}
       {oldest !== null ? (
+        // "open Nd", not a bare age: this counts from the PR's open date
+        // (see ReviewRequest.ageDays), which is a longer, more honest
+        // number than the last-touched one it replaced — worth labelling
+        // so nobody reads it as "untouched for N days".
         <span
-          className="font-mono-data text-xs"
+          className="font-mono-data text-xs whitespace-nowrap"
+          title="Days this pull request has been open"
           style={{ color: oldest > 2 ? "var(--status-in-progress)" : "var(--muted-foreground)" }}
         >
-          {oldest}d
+          open {oldest}d
         </span>
       ) : null}
     </div>

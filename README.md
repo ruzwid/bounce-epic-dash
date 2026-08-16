@@ -380,9 +380,16 @@ brew install gitleaks
 
 ## Known limitations
 
-- **Review-request timestamps are approximate.** GitHub's GraphQL API
-  doesn't expose a review-request timestamp, so `reviewQueue[].requestedAt`
-  uses the PR's `updatedAt` as the closest available proxy.
+- **Review ages are PR ages.** GitHub's GraphQL API exposes no
+  review-request timestamp, so there is no way to say how long a specific
+  reviewer has been sitting on something. `reviewQueue[].ageDays` reports
+  how long the PR has been *open* (from `createdAt`) instead — an
+  overstatement of the individual wait, but a stable one. It replaced an
+  age measured from `updatedAt`, which any comment or push reset to zero
+  and which therefore reported every queue entry as `0d`.
+  `requestedAt` still carries the last-activity timestamp, and
+  `ageFromOpen` is false on snapshots collected before `createdAt` was
+  published, where the old proxy is still the only thing available.
 - **A feature only sees the repos it lists.** `config.yaml`'s feature
   `repos` lists are provisional in places (flagged in that file's comments).
   A feature spanning an unlisted repo will silently miss those PRs rather

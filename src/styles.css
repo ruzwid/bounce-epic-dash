@@ -28,7 +28,7 @@
      the content without needing a heavy border. */
   --background: #fcfcf8;
   --foreground: #292929;
-  --card: #ffffff;
+  --card: #fcfcf8;
   --card-foreground: var(--foreground);
   --popover: #ffffff;
   --popover-foreground: var(--foreground);
@@ -78,10 +78,10 @@
      (sign-off happened) but not the finish line (GitHub can't confirm
      it), and must never be mistaken for either at a glance. */
   --status-shipped: var(--primary);
-  --status-done-unverified: #b08d3f;
+  --status-done-unverified: oklch(66.6% 0.179 58.318);
   --status-staged: #9a7b4f;
-  --status-in-review: #5f6b7a;
-  --status-in-progress: #b5654a;
+  --status-in-review: #7E9DDB;
+  --status-in-progress: oklch(64.6% 0.222 41.116);
   --status-blocked: #d32f2f;
   --status-todo: #a9a89f;
   --destructive: var(--status-blocked);
@@ -99,7 +99,7 @@
      page. */
   --background: #1a1917;
   --foreground: #edebe3;
-  --card: #211f1c;
+  --card: #211F1CC7;
   --card-foreground: var(--foreground);
   --popover: #211f1c;
   --popover-foreground: var(--foreground);

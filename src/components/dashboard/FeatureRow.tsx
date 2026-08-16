@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Box } from "lucide-react"
 import type { z } from "zod"
 import type { Feature as FeatureSchema } from "@/lib/schema"
 import { featureSlug } from "@/lib/dashboard/nav"
@@ -25,7 +25,7 @@ export function FeatureRow({ feature }: { feature: FeatureT }) {
         code={featureSlug(feature.code)}
         className="surface-card group flex items-center gap-4 rounded-4xl border border-border bg-card px-5 py-3.5 no-underline"
       >
-        <span aria-hidden="true" data-status-dot={feature.stage} className="size-2 shrink-0 rounded-full" />
+        <Box aria-hidden="true" data-status-icon={feature.stage} className="size-5 shrink-0" />
 
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           {/* feature.title already starts with the code ("F1.1 — ..."),

@@ -30,6 +30,8 @@ const CONFIG: Config = {
   people: {},
   jiraAssignees: {},
   peopleColors: {},
+  jiraAccounts: {},
+  slackIds: {},
 };
 
 function target(overrides: Partial<FeatureTarget> = {}): FeatureTarget {

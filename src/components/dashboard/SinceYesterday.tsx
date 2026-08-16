@@ -4,7 +4,7 @@ import type { z } from "zod"
 import type { PrRef as PrRefSchema, Story as StorySchema } from "@/lib/schema"
 import type { ChangeItem } from "@/lib/dashboard/diff"
 import { groupChanges } from "@/lib/dashboard/diff"
-import { featureSlug } from "@/lib/dashboard/nav"
+import { featureSlug, featureTitleWithoutCode, isFeatureTicket } from "@/lib/dashboard/nav"
 import { loginForDisplayName } from "@/lib/dashboard/appConfig"
 import { statusLabel } from "@/lib/dashboard/statusLabels"
 import { ShellLink } from "./shell/ShellLink"
@@ -97,9 +97,10 @@ function ChangeLine({ change, status }: { change: ChangeItem; status: string }) 
   // a feature with no child tickets carries its own: collect.ts records
   // that as a "story" whose key IS the feature's key. Nesting it would
   // draw a level that doesn't exist and invent a story that was never
-  // written — so its evidence hangs off the feature line itself.
-  const ownTicket = rows.filter((row) => row.story.key === change.feature.key)
-  const childStories = rows.filter((row) => row.story.key !== change.feature.key)
+  // written — so its evidence hangs off the feature line itself. Same
+  // rule, same helper, as the People page's in-flight tree.
+  const ownTicket = rows.filter((row) => isFeatureTicket(row.story, change.feature))
+  const childStories = rows.filter((row) => !isFeatureTicket(row.story, change.feature))
 
   return (
     <li className="flex flex-col gap-1">
@@ -112,7 +113,7 @@ function ChangeLine({ change, status }: { change: ChangeItem; status: string }) 
           <Package aria-hidden="true" data-status-icon={status} className="size-3.5 shrink-0" />
           <span className="font-mono-data text-[13px] font-medium">{change.feature.code}</span>
         </ShellLink>
-        <span className="min-w-0 truncate text-sm">{titleWithoutCode(change.feature)}</span>
+        <span className="min-w-0 truncate text-sm">{featureTitleWithoutCode(change.feature)}</span>
         <PersonChip login={loginForDisplayName(change.feature.owner)} name={change.feature.owner} />
         {ownTicket.map((row) => (
           <span
@@ -252,21 +253,12 @@ function changeBody(change: ChangeItem, status: string): ChangeBody {
   }
 }
 
-/** Feature titles come out of JIRA already prefixed with their own code,
- *  in whichever of three punctuations the author happened to use
- *  ("F2.7 - x", "F2.8 x", "F1.1 — x"). Every row here is already labelled
- *  with the code, so strip it rather than printing "F2.7  F2.7 - x". */
-function titleWithoutCode(feature: ChangeItem["feature"]): string {
-  const stripped = feature.title.replace(feature.code, "").replace(/^\s*[—–-]?\s*/, "")
-  return stripped.length > 0 ? stripped : feature.title
-}
-
 /** A single-story feature usually names its story after itself, so the
  *  nested row would repeat the title one line below the feature. Empty in
  *  that case: the key alone is the useful part. */
 function summaryFor(story: StoryT, feature: ChangeItem["feature"]): string {
   const summary = story.summary.replace(feature.code, "").replace(/^\s*[—–-]?\s*/, "").trim()
-  return summary === titleWithoutCode(feature) ? "" : summary
+  return summary === featureTitleWithoutCode(feature) ? "" : summary
 }
 
 function Branch({ name }: { name: string }) {

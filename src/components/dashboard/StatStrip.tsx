@@ -1,15 +1,23 @@
 import type { ReactNode } from "react"
 import {
   Package,
+  PackageCheck,
+  CalendarCheck,
   CircleAlert,
+  CircleCheck,
   CircleDashed,
+  CircleDotDashed,
   ClipboardCheck,
   Clock,
   FileText,
+  Gauge,
   GitBranch,
   GitMerge,
   GitPullRequest,
+  GitPullRequestArrow,
   Hourglass,
+  OctagonX,
+  Ruler,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -37,11 +45,26 @@ const STAT_ICONS: Record<string, LucideIcon> = {
   "Done, unverified": CircleAlert,
   "Staged, not shipped": GitBranch,
   "Stories in review": GitPullRequest,
-  "Blocked or to do": CircleDashed,
+  "In progress": CircleDotDashed,
+  "To do": CircleDashed,
+  Blocked: OctagonX,
   "Since last activity": Clock,
   "Oldest staged work": Hourglass,
   "Acceptance criteria covered": ClipboardCheck,
   "PRs open": GitPullRequest,
+  // People
+  "Features owned": Package,
+  "Features shipped": PackageCheck,
+  Stories: FileText,
+  "Stories shipped": GitMerge,
+  "Reviews owed": GitPullRequestArrow,
+  "Own PRs open": GitPullRequest,
+  "Last shipped": CalendarCheck,
+  // This week
+  "Stories shipped to master": GitMerge,
+  "Finished, counting Done-unverified": CircleCheck,
+  "Stories in scope": Ruler,
+  "Epic complete": Gauge,
 }
 
 /**
@@ -74,7 +97,7 @@ export function StatStrip({ stats, className }: { stats: Stat[]; className?: str
                 />
               ) : null}
             </div>
-            <dd className="font-display font-mono-data m-0 text-[26px] leading-none">{stat.value}</dd>
+            <dd className="font-display font-mono-data m-0 text-[20px] leading-none">{stat.value}</dd>
           </div>
         )
       })}

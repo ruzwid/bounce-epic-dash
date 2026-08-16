@@ -1,7 +1,9 @@
 import { Clock, Check, X, MessageSquare } from "lucide-react"
 import type { ReviewerState, ReviewerStatus } from "@/lib/dashboard/nav"
 import { cn } from "@/lib/utils"
+import { displayNameForLogin } from "@/lib/dashboard/appConfig"
 import { PersonChip } from "./PersonChip"
+import { firstName, PersonTip } from "./PersonTip"
 import { BOT_ICONS } from "./Avatar"
 
 /** requested: still being waited on. approved / changes_requested /
@@ -29,6 +31,18 @@ const REVIEWER_STATE_LABEL: Record<ReviewerState, string> = {
   commented: "commented",
 }
 
+/** Bots first, then alphabetical: reviewer order in the underlying data is
+ *  whatever order requests/reviews landed in on that specific PR, so two
+ *  PRs with the same two reviewers could otherwise show them swapped. A
+ *  fixed sort key makes the same person land in the same slot on every row
+ *  of every page that draws these badges. */
+export function orderReviewers<T extends { reviewer: string }>(reviewers: T[]): T[] {
+  return [...reviewers].sort((a, b) => {
+    const botDiff = Number(!(a.reviewer in BOT_ICONS)) - Number(!(b.reviewer in BOT_ICONS))
+    return botDiff !== 0 ? botDiff : a.reviewer.localeCompare(b.reviewer)
+  })
+}
+
 /** A PersonChip carrying its review-state icon — shared by the Reviews
  *  page and every story card, so a reviewer's state reads the same
  *  wherever a PR shows up.
@@ -40,20 +54,38 @@ const REVIEWER_STATE_LABEL: Record<ReviewerState, string> = {
  *  next to, the icon can just fill the same pill the named chips use,
  *  rendered bigger than the 11px it'd get squeezed into inside a 19px
  *  circle. */
-export function ReviewerChip({ status, className }: { status: ReviewerStatus; className?: string }) {
+export function ReviewerChip({
+  status,
+  avatarOnly,
+  className,
+}: {
+  status: ReviewerStatus
+  /** Treat a person the way a bot is always treated: face and state icon,
+   *  no name. For dense rows — the People page's standup view puts a
+   *  ticket, a PR and its whole reviewer list on one line. */
+  avatarOnly?: boolean
+  className?: string
+}) {
   const Icon = REVIEWER_STATE_ICON[status.state]
-  const title = `${status.reviewer} — ${REVIEWER_STATE_LABEL[status.state]}`
+  // The hover label reads as a person, not as a GitHub account:
+  // "Tomer — approved", not "gelbh — approved". Bots have no config.yaml
+  // entry and keep their login, which is the only name they have.
+  const who = firstName(displayNameForLogin(status.reviewer) ?? status.reviewer)
+  const title = `${who} — ${REVIEWER_STATE_LABEL[status.state]}`
   const BotIcon = BOT_ICONS[status.reviewer]
 
   if (BotIcon) {
     return (
-      <span
-        title={title}
-        className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-4xl bg-muted px-2 py-1.5", className)}
-      >
-        <BotIcon aria-hidden="true" size={16} />
-        <Icon aria-hidden="true" className="size-3.5 shrink-0" style={{ color: REVIEWER_STATE_COLOR[status.state] }} />
-      </span>
+      <PersonTip label={title}>
+        <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-4xl bg-muted px-2 py-1.5", className)}>
+          <BotIcon aria-hidden="true" size={16} />
+          <Icon
+            aria-hidden="true"
+            className="size-3.5 shrink-0"
+            style={{ color: REVIEWER_STATE_COLOR[status.state] }}
+          />
+        </span>
+      </PersonTip>
     )
   }
 
@@ -61,6 +93,7 @@ export function ReviewerChip({ status, className }: { status: ReviewerStatus; cl
     <PersonChip
       login={status.reviewer}
       title={title}
+      hideName={avatarOnly}
       className={className}
       icon={
         <Icon aria-hidden="true" className="size-3.5 shrink-0" style={{ color: REVIEWER_STATE_COLOR[status.state] }} />

@@ -74,6 +74,19 @@ export function loginForDisplayName(displayName: string): string | null {
   return loginsByDisplayName.get(displayName) ?? null;
 }
 
+/** The short display name config.yaml's `people` block gives a GitHub
+ *  login ("ruzwid" -> "Ruzzell"), or null when it lists none — review-only
+ *  logins and bots have no entry, and a caller showing one falls back to
+ *  the login itself rather than inventing a name.
+ *
+ *  The forward direction of loginForDisplayName above, reading the same
+ *  map directly for the same reason. */
+export function displayNameForLogin(login: string): string | null {
+  const people = (appConfig as { people?: Record<string, unknown> } | null)?.people ?? {};
+  const name = people[login];
+  return typeof name === "string" ? name : null;
+}
+
 /** The GitHub login behind a JIRA assignee's `displayName`, or null if
  *  config.yaml's `jiraAssignees` doesn't map one.
  *
@@ -87,6 +100,32 @@ export function loginForJiraAssignee(displayName: string): string | null {
   const jiraAssignees = (appConfig as { jiraAssignees?: Record<string, unknown> } | null)?.jiraAssignees ?? {};
   const login = jiraAssignees[displayName];
   return typeof login === "string" ? login : null;
+}
+
+/** The reader-facing places a person exists outside this dashboard.
+ *
+ *  Neither can be derived: JIRA Cloud dropped username/displayName from
+ *  JQL, and nothing collected knows anyone's Slack identity, so both come
+ *  from config.yaml's `jiraAccounts` / `slackIds` maps and are simply
+ *  absent until somebody fills them in. A missing link is a missing
+ *  button; never a guessed URL that lands on an error page. */
+export type PersonLinks = { jira: string | null; slack: string | null };
+
+export function personLinks(login: string): PersonLinks {
+  const config = appConfig as { jiraAccounts?: Record<string, unknown>; slackIds?: Record<string, unknown> } | null;
+  const accountId = config?.jiraAccounts?.[login];
+  const slackId = config?.slackIds?.[login];
+
+  return {
+    jira:
+      jiraBaseUrl && typeof accountId === "string"
+        ? `${jiraBaseUrl}/jira/people/${encodeURIComponent(accountId)}`
+        : null,
+    // app_redirect rather than the slack:// scheme: it opens the desktop
+    // app when it's installed and the web client when it isn't, instead of
+    // failing silently in a browser that has no handler for the scheme.
+    slack: typeof slackId === "string" ? `https://slack.com/app_redirect?channel=${encodeURIComponent(slackId)}` : null,
+  };
 }
 
 let colorsByLogin: Map<string, string> | null = null;

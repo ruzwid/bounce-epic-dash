@@ -14,11 +14,19 @@ import { Route as ShellRouteImport } from './routes/_shell'
 import { Route as DateIndexRouteImport } from './routes/$date.index'
 import { Route as DateAttentionRouteImport } from './routes/$date.attention'
 import { Route as DateConfigRouteImport } from './routes/$date.config'
+import { Route as DatePeopleRouteImport } from './routes/$date.people'
 import { Route as DateReviewsRouteImport } from './routes/$date.reviews'
+import { Route as DateScopeRouteImport } from './routes/$date.scope'
+import { Route as DateSignoffRouteImport } from './routes/$date.signoff'
+import { Route as DateWeekRouteImport } from './routes/$date.week'
 import { Route as ShellIndexRouteImport } from './routes/_shell.index'
 import { Route as ShellAttentionRouteImport } from './routes/_shell.attention'
 import { Route as ShellConfigRouteImport } from './routes/_shell.config'
+import { Route as ShellPeopleRouteImport } from './routes/_shell.people'
 import { Route as ShellReviewsRouteImport } from './routes/_shell.reviews'
+import { Route as ShellScopeRouteImport } from './routes/_shell.scope'
+import { Route as ShellSignoffRouteImport } from './routes/_shell.signoff'
+import { Route as ShellWeekRouteImport } from './routes/_shell.week'
 import { Route as DateFCodeRouteImport } from './routes/$date.f.$code'
 import { Route as DateMIdRouteImport } from './routes/$date.m.$id'
 import { Route as ShellFCodeRouteImport } from './routes/_shell.f.$code'
@@ -48,9 +56,29 @@ const DateConfigRoute = DateConfigRouteImport.update({
   path: '/config',
   getParentRoute: () => DateRoute,
 } as any)
+const DatePeopleRoute = DatePeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => DateRoute,
+} as any)
 const DateReviewsRoute = DateReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
+  getParentRoute: () => DateRoute,
+} as any)
+const DateScopeRoute = DateScopeRouteImport.update({
+  id: '/scope',
+  path: '/scope',
+  getParentRoute: () => DateRoute,
+} as any)
+const DateSignoffRoute = DateSignoffRouteImport.update({
+  id: '/signoff',
+  path: '/signoff',
+  getParentRoute: () => DateRoute,
+} as any)
+const DateWeekRoute = DateWeekRouteImport.update({
+  id: '/week',
+  path: '/week',
   getParentRoute: () => DateRoute,
 } as any)
 const ShellIndexRoute = ShellIndexRouteImport.update({
@@ -68,9 +96,29 @@ const ShellConfigRoute = ShellConfigRouteImport.update({
   path: '/config',
   getParentRoute: () => ShellRoute,
 } as any)
+const ShellPeopleRoute = ShellPeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => ShellRoute,
+} as any)
 const ShellReviewsRoute = ShellReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellScopeRoute = ShellScopeRouteImport.update({
+  id: '/scope',
+  path: '/scope',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellSignoffRoute = ShellSignoffRouteImport.update({
+  id: '/signoff',
+  path: '/signoff',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellWeekRoute = ShellWeekRouteImport.update({
+  id: '/week',
+  path: '/week',
   getParentRoute: () => ShellRoute,
 } as any)
 const DateFCodeRoute = DateFCodeRouteImport.update({
@@ -99,10 +147,18 @@ export interface FileRoutesByFullPath {
   '/': typeof ShellIndexRoute
   '/$date/attention': typeof DateAttentionRoute
   '/$date/config': typeof DateConfigRoute
+  '/$date/people': typeof DatePeopleRoute
   '/$date/reviews': typeof DateReviewsRoute
+  '/$date/scope': typeof DateScopeRoute
+  '/$date/signoff': typeof DateSignoffRoute
+  '/$date/week': typeof DateWeekRoute
   '/attention': typeof ShellAttentionRoute
   '/config': typeof ShellConfigRoute
+  '/people': typeof ShellPeopleRoute
   '/reviews': typeof ShellReviewsRoute
+  '/scope': typeof ShellScopeRoute
+  '/signoff': typeof ShellSignoffRoute
+  '/week': typeof ShellWeekRoute
   '/$date/': typeof DateIndexRoute
   '/$date/f/$code': typeof DateFCodeRoute
   '/$date/m/$id': typeof DateMIdRoute
@@ -112,10 +168,18 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/$date/attention': typeof DateAttentionRoute
   '/$date/config': typeof DateConfigRoute
+  '/$date/people': typeof DatePeopleRoute
   '/$date/reviews': typeof DateReviewsRoute
+  '/$date/scope': typeof DateScopeRoute
+  '/$date/signoff': typeof DateSignoffRoute
+  '/$date/week': typeof DateWeekRoute
   '/attention': typeof ShellAttentionRoute
   '/config': typeof ShellConfigRoute
+  '/people': typeof ShellPeopleRoute
   '/reviews': typeof ShellReviewsRoute
+  '/scope': typeof ShellScopeRoute
+  '/signoff': typeof ShellSignoffRoute
+  '/week': typeof ShellWeekRoute
   '/$date': typeof DateIndexRoute
   '/': typeof ShellIndexRoute
   '/$date/f/$code': typeof DateFCodeRoute
@@ -129,10 +193,18 @@ export interface FileRoutesById {
   '/_shell': typeof ShellRouteWithChildren
   '/$date/attention': typeof DateAttentionRoute
   '/$date/config': typeof DateConfigRoute
+  '/$date/people': typeof DatePeopleRoute
   '/$date/reviews': typeof DateReviewsRoute
+  '/$date/scope': typeof DateScopeRoute
+  '/$date/signoff': typeof DateSignoffRoute
+  '/$date/week': typeof DateWeekRoute
   '/_shell/attention': typeof ShellAttentionRoute
   '/_shell/config': typeof ShellConfigRoute
+  '/_shell/people': typeof ShellPeopleRoute
   '/_shell/reviews': typeof ShellReviewsRoute
+  '/_shell/scope': typeof ShellScopeRoute
+  '/_shell/signoff': typeof ShellSignoffRoute
+  '/_shell/week': typeof ShellWeekRoute
   '/$date/': typeof DateIndexRoute
   '/_shell/': typeof ShellIndexRoute
   '/$date/f/$code': typeof DateFCodeRoute
@@ -147,10 +219,18 @@ export interface FileRouteTypes {
     | '/'
     | '/$date/attention'
     | '/$date/config'
+    | '/$date/people'
     | '/$date/reviews'
+    | '/$date/scope'
+    | '/$date/signoff'
+    | '/$date/week'
     | '/attention'
     | '/config'
+    | '/people'
     | '/reviews'
+    | '/scope'
+    | '/signoff'
+    | '/week'
     | '/$date/'
     | '/$date/f/$code'
     | '/$date/m/$id'
@@ -160,10 +240,18 @@ export interface FileRouteTypes {
   to:
     | '/$date/attention'
     | '/$date/config'
+    | '/$date/people'
     | '/$date/reviews'
+    | '/$date/scope'
+    | '/$date/signoff'
+    | '/$date/week'
     | '/attention'
     | '/config'
+    | '/people'
     | '/reviews'
+    | '/scope'
+    | '/signoff'
+    | '/week'
     | '/$date'
     | '/'
     | '/$date/f/$code'
@@ -176,10 +264,18 @@ export interface FileRouteTypes {
     | '/_shell'
     | '/$date/attention'
     | '/$date/config'
+    | '/$date/people'
     | '/$date/reviews'
+    | '/$date/scope'
+    | '/$date/signoff'
+    | '/$date/week'
     | '/_shell/attention'
     | '/_shell/config'
+    | '/_shell/people'
     | '/_shell/reviews'
+    | '/_shell/scope'
+    | '/_shell/signoff'
+    | '/_shell/week'
     | '/$date/'
     | '/_shell/'
     | '/$date/f/$code'
@@ -230,11 +326,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DateConfigRouteImport
       parentRoute: typeof DateRoute
     }
+    '/$date/people': {
+      id: '/$date/people'
+      path: '/people'
+      fullPath: '/$date/people'
+      preLoaderRoute: typeof DatePeopleRouteImport
+      parentRoute: typeof DateRoute
+    }
     '/$date/reviews': {
       id: '/$date/reviews'
       path: '/reviews'
       fullPath: '/$date/reviews'
       preLoaderRoute: typeof DateReviewsRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/$date/scope': {
+      id: '/$date/scope'
+      path: '/scope'
+      fullPath: '/$date/scope'
+      preLoaderRoute: typeof DateScopeRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/$date/signoff': {
+      id: '/$date/signoff'
+      path: '/signoff'
+      fullPath: '/$date/signoff'
+      preLoaderRoute: typeof DateSignoffRouteImport
+      parentRoute: typeof DateRoute
+    }
+    '/$date/week': {
+      id: '/$date/week'
+      path: '/week'
+      fullPath: '/$date/week'
+      preLoaderRoute: typeof DateWeekRouteImport
       parentRoute: typeof DateRoute
     }
     '/_shell/': {
@@ -258,11 +382,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShellConfigRouteImport
       parentRoute: typeof ShellRoute
     }
+    '/_shell/people': {
+      id: '/_shell/people'
+      path: '/people'
+      fullPath: '/people'
+      preLoaderRoute: typeof ShellPeopleRouteImport
+      parentRoute: typeof ShellRoute
+    }
     '/_shell/reviews': {
       id: '/_shell/reviews'
       path: '/reviews'
       fullPath: '/reviews'
       preLoaderRoute: typeof ShellReviewsRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/scope': {
+      id: '/_shell/scope'
+      path: '/scope'
+      fullPath: '/scope'
+      preLoaderRoute: typeof ShellScopeRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/signoff': {
+      id: '/_shell/signoff'
+      path: '/signoff'
+      fullPath: '/signoff'
+      preLoaderRoute: typeof ShellSignoffRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/week': {
+      id: '/_shell/week'
+      path: '/week'
+      fullPath: '/week'
+      preLoaderRoute: typeof ShellWeekRouteImport
       parentRoute: typeof ShellRoute
     }
     '/$date/f/$code': {
@@ -299,7 +451,11 @@ declare module '@tanstack/react-router' {
 interface DateRouteChildren {
   DateAttentionRoute: typeof DateAttentionRoute
   DateConfigRoute: typeof DateConfigRoute
+  DatePeopleRoute: typeof DatePeopleRoute
   DateReviewsRoute: typeof DateReviewsRoute
+  DateScopeRoute: typeof DateScopeRoute
+  DateSignoffRoute: typeof DateSignoffRoute
+  DateWeekRoute: typeof DateWeekRoute
   DateIndexRoute: typeof DateIndexRoute
   DateFCodeRoute: typeof DateFCodeRoute
   DateMIdRoute: typeof DateMIdRoute
@@ -308,7 +464,11 @@ interface DateRouteChildren {
 const DateRouteChildren: DateRouteChildren = {
   DateAttentionRoute: DateAttentionRoute,
   DateConfigRoute: DateConfigRoute,
+  DatePeopleRoute: DatePeopleRoute,
   DateReviewsRoute: DateReviewsRoute,
+  DateScopeRoute: DateScopeRoute,
+  DateSignoffRoute: DateSignoffRoute,
+  DateWeekRoute: DateWeekRoute,
   DateIndexRoute: DateIndexRoute,
   DateFCodeRoute: DateFCodeRoute,
   DateMIdRoute: DateMIdRoute,
@@ -319,7 +479,11 @@ const DateRouteWithChildren = DateRoute._addFileChildren(DateRouteChildren)
 interface ShellRouteChildren {
   ShellAttentionRoute: typeof ShellAttentionRoute
   ShellConfigRoute: typeof ShellConfigRoute
+  ShellPeopleRoute: typeof ShellPeopleRoute
   ShellReviewsRoute: typeof ShellReviewsRoute
+  ShellScopeRoute: typeof ShellScopeRoute
+  ShellSignoffRoute: typeof ShellSignoffRoute
+  ShellWeekRoute: typeof ShellWeekRoute
   ShellIndexRoute: typeof ShellIndexRoute
   ShellFCodeRoute: typeof ShellFCodeRoute
   ShellMIdRoute: typeof ShellMIdRoute
@@ -328,7 +492,11 @@ interface ShellRouteChildren {
 const ShellRouteChildren: ShellRouteChildren = {
   ShellAttentionRoute: ShellAttentionRoute,
   ShellConfigRoute: ShellConfigRoute,
+  ShellPeopleRoute: ShellPeopleRoute,
   ShellReviewsRoute: ShellReviewsRoute,
+  ShellScopeRoute: ShellScopeRoute,
+  ShellSignoffRoute: ShellSignoffRoute,
+  ShellWeekRoute: ShellWeekRoute,
   ShellIndexRoute: ShellIndexRoute,
   ShellFCodeRoute: ShellFCodeRoute,
   ShellMIdRoute: ShellMIdRoute,

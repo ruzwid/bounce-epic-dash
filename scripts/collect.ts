@@ -55,6 +55,9 @@ export type RawPrRecord = {
   shippedToDefault: boolean;
   mergedAt: string | null;
   updatedAt: string;
+  /** When the PR was opened — the stable timestamp ages are measured from.
+   *  See the note on RawPr.createdAt in src/lib/classify.ts. */
+  createdAt: string;
   stackChain: number[];
   reviewRequests: string[];
   reviews: { reviewer: string; state: "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" }[];
@@ -290,6 +293,7 @@ function toPrRecord(pr: RawPr, org: string, defaultBranch: string, allPrsInRepo:
     shippedToDefault: classifyPr(pr, defaultBranch).shippedToDefault,
     mergedAt: pr.mergedAt,
     updatedAt: pr.updatedAt,
+    createdAt: pr.createdAt,
     stackChain: traceStackChain(pr, allPrsInRepo, defaultBranch),
     reviewRequests: pr.reviewRequests,
     reviews: pr.reviews,

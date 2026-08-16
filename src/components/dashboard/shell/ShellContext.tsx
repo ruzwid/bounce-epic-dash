@@ -14,8 +14,20 @@ export type ShellValue = {
    *  Every link in the shell branches on this so a reader browsing an old
    *  snapshot stays inside that snapshot as they navigate. */
   date: string | null
-  /** Fixed once per shell mount so SSR and hydration agree on staleness. */
+  /** The reader's own clock, fixed once per shell mount so SSR and
+   *  hydration agree. Used for exactly one thing: how old this snapshot
+   *  is (the stale banner). Never for ageing the data inside it — see
+   *  `asOf`. */
   now: Date
+  /** The instant the snapshot was collected. Every age the dashboard
+   *  reports — days idle, days a review has been waiting, whether a
+   *  feature needs attention — is measured against this, not the reader's
+   *  clock, because the snapshot is a record of one moment. Measuring
+   *  against `now` meant a three-week-old snapshot claimed a PR had been
+   *  waiting three weeks when the record it came from said two days, and
+   *  the same page served to two people at different times disagreed
+   *  about how many features needed attention. */
+  asOf: Date
   search: DashboardSearch
   onSearchChange: (updates: Partial<DashboardSearch>) => void
 }

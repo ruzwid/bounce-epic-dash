@@ -1,36 +1,18 @@
-import { ChevronRight, CircleAlert, Clock, GitPullRequestArrow, OctagonX } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import type { z } from "zod"
 import type { Feature as FeatureSchema } from "@/lib/schema"
-import {
-  attentionFeatures,
-  attentionReasons,
-  featureSlug,
-  signedOffUnverifiedStories,
-  type AttentionReason,
-} from "@/lib/dashboard/nav"
+import { attentionFeatures, attentionReasons, featureSlug, signedOffUnverifiedStories } from "@/lib/dashboard/nav"
 import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
 import { SectionHeading } from "../SectionHeading"
+import { FilterMenu } from "../FilterMenu"
 import { StatusPill } from "../StatusPill"
 import { OwnerLabel } from "../OwnerLabel"
 import { EmptyState } from "../EmptyState"
 import { JiraLink } from "../JiraLink"
+import { AttentionReasonList } from "../AttentionReasonList"
 
 type FeatureT = z.infer<typeof FeatureSchema>
-
-const REASON_ICON = {
-  blocked: OctagonX,
-  stalled: Clock,
-  review_wait: GitPullRequestArrow,
-  callout: CircleAlert,
-} as const
-
-const REASON_STATUS: Record<AttentionReason["kind"], string> = {
-  blocked: "blocked",
-  stalled: "in_progress",
-  review_wait: "in_review",
-  callout: "in_progress",
-}
 
 /**
  * Everything the "needs attention" rule caught, with the reason spelled
@@ -38,9 +20,18 @@ const REASON_STATUS: Record<AttentionReason["kind"], string> = {
  * the reader open all of them; saying *what* is wrong lets them open one.
  */
 export function AttentionPage() {
-  const { snapshot, now } = useShell()
-  const features = attentionFeatures(snapshot, now)
-  const signedOffItems = signedOffUnverifiedStories(snapshot)
+  const { snapshot, asOf, search, onSearchChange } = useShell()
+  const flagged = attentionFeatures(snapshot, asOf)
+  // Owners of flagged features, not every owner in the epic: an engineer
+  // with nothing wrong shouldn't be an option that filters the page to
+  // empty. Shared with the People page's "N features flagged" link, which
+  // arrives here with `engineer` already set to one of these names.
+  const owners = [...new Set(flagged.map((feature) => feature.owner))].sort()
+  const owner = search.engineer
+  const features = owner ? flagged.filter((feature) => feature.owner === owner) : flagged
+  const signedOffItems = signedOffUnverifiedStories(snapshot).filter(
+    (item) => !owner || item.feature.owner === owner,
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -52,16 +43,39 @@ export function AttentionPage() {
         </p>
       </header>
 
-      {features.length === 0 && signedOffItems.length === 0 ? (
+      {flagged.length === 0 && signedOffItems.length === 0 ? (
         <EmptyState message="Nothing needs attention in this snapshot." />
-      ) : features.length === 0 ? null : (
+      ) : flagged.length === 0 ? null : (
         <section className="flex flex-col gap-3">
-          <SectionHeading note={`${features.length} of ${snapshot.features.length} features`}>Flagged</SectionHeading>
-          <ul className="m-0 flex list-none flex-col gap-3 p-0">
-            {features.map((feature) => (
-              <AttentionCard key={feature.key} feature={feature} now={now} />
-            ))}
-          </ul>
+          <SectionHeading
+            note={
+              owner
+                ? `${features.length} of ${flagged.length} flagged features`
+                : `${flagged.length} of ${snapshot.features.length} features`
+            }
+            actions={
+              owners.length > 1 ? (
+                <FilterMenu
+                  label="All engineers"
+                  value={owner}
+                  options={owners}
+                  onChange={(engineer) => onSearchChange({ engineer })}
+                  ariaLabel="Filter by engineer"
+                />
+              ) : undefined
+            }
+          >
+            Flagged
+          </SectionHeading>
+          {features.length === 0 ? (
+            <EmptyState message={`Nothing flagged for ${owner} in this snapshot.`} />
+          ) : (
+            <ul className="m-0 flex list-none flex-col gap-3 p-0">
+              {features.map((feature) => (
+                <AttentionCard key={feature.key} feature={feature} asOf={asOf} />
+              ))}
+            </ul>
+          )}
         </section>
       )}
 
@@ -119,9 +133,7 @@ function SignedOffUnverifiedSection({ items }: { items: ReturnType<typeof signed
   )
 }
 
-function AttentionCard({ feature, now }: { feature: FeatureT; now: Date }) {
-  const reasons = attentionReasons(feature, now)
-
+function AttentionCard({ feature, asOf }: { feature: FeatureT; asOf: Date }) {
   return (
     <li className="surface-card flex list-none flex-col gap-3 rounded-4xl border border-border bg-card px-5 py-4">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -151,23 +163,7 @@ function AttentionCard({ feature, now }: { feature: FeatureT; now: Date }) {
         </div>
       </div>
 
-      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-        {reasons.map((reason, i) => {
-          const Icon = REASON_ICON[reason.kind]
-          return (
-            <li key={i} className="flex items-start gap-2.5 text-[13.5px] leading-relaxed">
-              <span
-                aria-hidden="true"
-                data-status={REASON_STATUS[reason.kind]}
-                className="mt-px flex size-5 shrink-0 items-center justify-center rounded-4xl"
-              >
-                <Icon className="size-3" />
-              </span>
-              <span>{reason.detail}</span>
-            </li>
-          )
-        })}
-      </ul>
+      <AttentionReasonList reasons={attentionReasons(feature, asOf)} />
     </li>
   )
 }

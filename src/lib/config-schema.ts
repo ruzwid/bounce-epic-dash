@@ -94,6 +94,15 @@ export const Config = z.object({
   /** login -> hex, the average colour of their GitHub avatar. Precomputed
    *  (see scripts/avatar-colors.mjs), not derived at runtime. */
   peopleColors: z.record(z.string(), z.string()).default({}),
+  /** login -> JIRA accountId, for the per-person link on the People page.
+   *  Optional, and deliberately not guessed: JIRA Cloud dropped username
+   *  and displayName from JQL, so a link built from a name is a link to an
+   *  error page. No entry, no button. */
+  jiraAccounts: z.record(z.string(), z.string()).default({}),
+  /** login -> Slack member ID ("U01ABCDEF"), for the DM link on the People
+   *  page. Optional for the same reason as jiraAccounts: nothing in the
+   *  collected data knows a person's Slack identity. */
+  slackIds: z.record(z.string(), z.string()).default({}),
 });
 
 export type Config = z.infer<typeof Config>;

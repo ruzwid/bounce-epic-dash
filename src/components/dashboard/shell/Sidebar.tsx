@@ -1,7 +1,22 @@
-import { ChevronRight, GitPullRequestArrow, LayoutGrid, Settings2, TriangleAlert } from "lucide-react"
-import type { z } from "zod"
-import type { Feature as FeatureSchema } from "@/lib/schema"
-import { attentionFeatures, epicStage, featureSlug, milestoneProgress, sidebarGroups } from "@/lib/dashboard/nav"
+import {
+  BadgeCheck,
+  CalendarRange,
+  ChevronRight,
+  GitPullRequestArrow,
+  LayoutGrid,
+  Ruler,
+  Settings2,
+  TriangleAlert,
+  Users,
+} from "lucide-react"
+import {
+  attentionFeatures,
+  epicStage,
+  featureSlug,
+  featureTitleWithoutCode,
+  milestoneProgress,
+  sidebarGroups,
+} from "@/lib/dashboard/nav"
 import { cn } from "@/lib/utils"
 import ThemeToggle from "@/components/ThemeToggle"
 import { MilestoneGroupHeading } from "../MilestoneGroupHeading"
@@ -9,23 +24,16 @@ import { JiraLink } from "../JiraLink"
 import { useShell } from "./ShellContext"
 import { ShellLink } from "./ShellLink"
 
-type FeatureT = z.infer<typeof FeatureSchema>
-
 const ACTIVE = { "data-active": "true" }
 
-/** Feature titles arrive from JIRA already prefixed with their own code
- *  ("F1.1 — Excel Template…"). The rail shows the code in its own column,
- *  so strip the duplicate rather than rendering it twice in 264px. */
-function titleWithoutCode(feature: FeatureT): string {
-  const escaped = feature.code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  return feature.title.replace(new RegExp(`^\\s*${escaped}\\s*[—–:-]?\\s*`), "").trim() || feature.title
-}
-
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { snapshot, now } = useShell()
+  const { snapshot, asOf } = useShell()
   const groups = sidebarGroups(snapshot)
-  const attentionCount = attentionFeatures(snapshot, now).length
+  const attentionCount = attentionFeatures(snapshot, asOf).length
   const reviewCount = snapshot.reviewQueue.length
+  // Only the count that means somebody owes an answer right now —
+  // signed-off features are history, not a queue.
+  const awaitingCount = snapshot.features.filter((f) => f.awaitingSignOff).length
 
   return (
     // onClick lives on the container, not on each link: it closes the
@@ -74,6 +82,38 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             {reviewCount > 0 ? <CountBadge value={reviewCount} tone="neutral" /> : null}
           </ShellLink>
         </li>
+        <li>
+          <ShellLink page="people" className={rowClass} activeProps={ACTIVE}>
+            <Users aria-hidden="true" className="size-[15px] shrink-0 opacity-70" />
+            <span className="flex-1 truncate">People</span>
+          </ShellLink>
+        </li>
+        <li>
+          <ShellLink page="signoff" className={rowClass} activeProps={ACTIVE}>
+            <BadgeCheck aria-hidden="true" className="size-[15px] shrink-0 opacity-70" />
+            <span className="flex-1 truncate">Sign-off</span>
+            {awaitingCount > 0 ? <CountBadge value={awaitingCount} tone="neutral" /> : null}
+          </ShellLink>
+        </li>
+      </ul>
+
+      {/* A second group, ruled off: the three pages above answer "what is
+          happening now", these two answer "what happened over time". The
+          rule is the only thing saying so — labelling the groups would
+          cost two more lines of chrome in a 264px rail. */}
+      <ul className="mt-1 flex list-none flex-col gap-0.5 border-t border-border-soft px-3 pt-2.5 pb-2.5">
+        <li>
+          <ShellLink page="week" className={rowClass} activeProps={ACTIVE}>
+            <CalendarRange aria-hidden="true" className="size-[15px] shrink-0 opacity-70" />
+            <span className="flex-1 truncate">This week</span>
+          </ShellLink>
+        </li>
+        <li>
+          <ShellLink page="scope" className={rowClass} activeProps={ACTIVE}>
+            <Ruler aria-hidden="true" className="size-[15px] shrink-0 opacity-70" />
+            <span className="flex-1 truncate">Scope</span>
+          </ShellLink>
+        </li>
       </ul>
 
       {groups.map((group) => {
@@ -107,7 +147,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                       className="size-3.5 shrink-0 rounded-full"
                     />
                     <span className="font-mono-data shrink-0 text-xs text-muted-foreground">{feature.code}</span>
-                    <span className="flex-1 truncate">{titleWithoutCode(feature)}</span>
+                    <span className="flex-1 truncate">{featureTitleWithoutCode(feature)}</span>
                     <span className="font-mono-data shrink-0 text-[11.5px] text-muted-foreground">
                       {feature.dataOk ? `${feature.score}%` : "—"}
                     </span>

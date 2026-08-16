@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { PanelLeft } from "lucide-react"
 import { epicProgress } from "@/lib/dashboard/nav"
+import { resolveTargetDate } from "@/lib/dashboard/velocity"
 import { buildSlackSummary } from "@/lib/dashboard/slack"
 import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
 import { Button } from "@/components/ui/button"
@@ -17,8 +18,11 @@ export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const { snapshot, previous } = useShell()
   const [copied, setCopied] = useState(false)
 
-  const progress = epicProgress(snapshot.kpis)
-  const previousPercent = previous ? epicProgress(previous.kpis).percent : null
+  // Falls back to config.yaml's current target for snapshots collected
+  // before one was set — see resolveTargetDate.
+  const targetDate = resolveTargetDate(snapshot)
+  const progress = epicProgress(snapshot.features)
+  const previousPercent = previous ? epicProgress(previous.features).percent : null
   const delta = previousPercent === null ? null : progress.percent - previousPercent
 
   async function copySlackSummary() {
@@ -86,7 +90,7 @@ export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
         <div className="ml-auto flex flex-none items-center gap-4 border-l border-border-soft pl-7">
           <div className="hidden flex-col gap-1 text-right text-[11.5px] text-muted-foreground sm:flex">
             <span className="flex h-5 items-center justify-end whitespace-nowrap">
-              {snapshot.epic.targetDate ? `Target ${snapshot.epic.targetDate}` : "No target date set"}
+              {targetDate ? `Target ${targetDate}` : "No target date set"}
             </span>
             <span className="font-mono-data flex h-4 items-center justify-end leading-4 whitespace-nowrap">
               Generated {formatGeneratedAt(snapshot.generatedAt)}
@@ -144,7 +148,7 @@ const SEGMENTS = [
 function SegmentedProgress({ progress }: { progress: ReturnType<typeof epicProgress> }) {
   return (
     <div
-      className="tick-marks relative flex h-2.5 w-full overflow-hidden rounded-[3px] bg-muted"
+      className="tick-marks relative flex h-2.5 w-full overflow-hidden rounded-md bg-muted"
       role="img"
       aria-label={`${progress.percent}% complete: ${SEGMENTS.map(
         (s) => `${Math.round(progress[s.key])}% ${s.label.toLowerCase()}`,

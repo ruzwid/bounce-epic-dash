@@ -42,7 +42,7 @@ export function ReviewQueueTable({ reviewQueue }: ReviewQueueTableProps) {
               </td>
               <td data-label="Feature" className="font-mono-data py-1.5 pr-3">{review.featureKey ?? "—"}</td>
               <td data-label="Reviewer" className="py-1.5 pr-3">{review.reviewer}</td>
-              <td data-label="Age" className="font-mono-data py-1.5">{review.ageDays}d</td>
+              <td data-label="Open for" className="font-mono-data py-1.5">{review.ageDays}d</td>
             </tr>
           ))}
         </tbody>

@@ -43,6 +43,17 @@ function daysBetween(earlier: string, later: Date): number {
   return (later.getTime() - new Date(earlier).getTime()) / (1000 * 60 * 60 * 24);
 }
 
+/** How long an open PR has been open, in days, as of the snapshot's own
+ *  instant. Measured from createdAt: updatedAt moves every time anyone
+ *  comments, labels or pushes, so a reviewer asking "any updates?" reset
+ *  the age to zero and this check — the ">2 days waiting on review" rule —
+ *  effectively never fired. Falls back to updatedAt on snapshots written
+ *  before createdAt was published, which understates the wait rather than
+ *  inventing one. */
+export function prOpenDays(pr: { createdAt?: string | null; updatedAt: string }, asOf: Date): number {
+  return daysBetween(pr.createdAt ?? pr.updatedAt, asOf);
+}
+
 /** blocked, stalled >7d (and not already done), a PR waiting on review
  *  >2d, or any open callout. Matches the goal's "Needs attention only"
  *  toggle definition exactly. A feature already stage "done" — whether by
@@ -52,7 +63,7 @@ function daysBetween(earlier: string, later: Date): number {
  *  without needing a separate check at either level. Any residual
  *  drift (e.g. done_unverified stories under a signed-off feature) has
  *  its own lower-priority home — see signedOffUnverifiedStories. */
-export function needsAttention(feature: FeatureT, now: Date): boolean {
+export function needsAttention(feature: FeatureT, asOf: Date): boolean {
   if (feature.stage === "done") return false;
   if (feature.scoreBasis.blocked > 0) return true;
   if (feature.daysSinceLastActivity !== null && feature.daysSinceLastActivity > STALL_DAYS) {
@@ -62,7 +73,7 @@ export function needsAttention(feature: FeatureT, now: Date): boolean {
 
   const waitingOnReview = feature.stories.some((story) =>
     storyPrs(story).some(
-      (pr) => pr.state === "OPEN" && pr.reviewRequests.length > 0 && daysBetween(pr.updatedAt, now) > REVIEW_WAIT_DAYS,
+      (pr) => pr.state === "OPEN" && pr.reviewRequests.length > 0 && prOpenDays(pr, asOf) > REVIEW_WAIT_DAYS,
     ),
   );
   return waitingOnReview;

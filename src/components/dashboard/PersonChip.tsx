@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { colorForLogin } from "@/lib/dashboard/appConfig"
 import { cn } from "@/lib/utils"
 import { Avatar } from "./Avatar"
+import { firstName, PersonTip } from "./PersonTip"
 
 type PersonChipProps = {
   /** GitHub login, when known. Review requests are logins already; an
@@ -12,8 +13,15 @@ type PersonChipProps = {
   /** Trailing glyph — e.g. the Reviews page's review-state icon. Colored
    *  by the caller; this component only places it. */
   icon?: ReactNode
-  /** Native tooltip for the whole pill, e.g. "who — review state". */
+  /** Tooltip for the whole pill, e.g. "Tomer — approved". Native `title`
+   *  on a named chip, a real hover card on a nameless one. */
   title?: string
+  /** Drop the name and keep the avatar — for rows that carry several
+   *  people at once (a PR's reviewers), where five spelled-out logins is
+   *  a paragraph and five faces is a glance. The face then has to answer
+   *  "who?" on hover, so this variant gets a PersonTip rather than a
+   *  browser tooltip. */
+  hideName?: boolean
   className?: string
 }
 
@@ -25,23 +33,28 @@ type PersonChipProps = {
  * key the reader has to learn. Falls back to the flat `bg-muted` any other
  * chip uses when the login has no known colour.
  */
-export function PersonChip({ login, name, icon, title, className }: PersonChipProps) {
+export function PersonChip({ login, name, icon, title, hideName, className }: PersonChipProps) {
   const label = name ?? login ?? "Unknown"
   const color = login ? colorForLogin(login) : null
 
-  return (
+  const chip = (
     <span
-      title={title}
+      title={hideName ? undefined : title}
       className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded-4xl py-1 pr-2.5 pl-1 text-xs",
+        "inline-flex max-w-full items-center gap-1.5 rounded-4xl py-1 pl-1 text-xs",
+        hideName ? "pr-1.5" : "pr-2",
         !color && "bg-muted",
         className,
       )}
       style={color ? { background: `color-mix(in oklch, ${color} 14%, var(--card))` } : undefined}
     >
       <Avatar login={login} name={label} size={19} />
-      <span className="truncate">{label}</span>
+      {hideName ? null : <span className="truncate">{label}</span>}
       {icon}
     </span>
   )
+
+  // PersonTip carries the sr-only name for the nameless variant, so the
+  // chip itself doesn't repeat it.
+  return hideName ? <PersonTip label={title ?? firstName(label)}>{chip}</PersonTip> : chip
 }

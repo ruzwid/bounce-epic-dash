@@ -31,6 +31,12 @@ export const PrRef = z.object({
   shippedToDefault: z.boolean(),
   mergedAt: z.string().datetime().nullable(),
   updatedAt: z.string().datetime(),
+  /** When the PR was opened — the timestamp every age in this dashboard is
+   *  measured from. updatedAt moves on any comment, label or push, so a PR
+   *  nobody has reviewed in a fortnight can report an age of hours; this
+   *  one never moves. Null for snapshots written before it was published,
+   *  where consumers fall back to updatedAt and say so. */
+  createdAt: z.string().datetime().nullable().default(null),
   /** stack chain from this PR down to the master-based PR, if traced */
   stackChain: z.array(z.number()).default([]),
   reviewRequests: z.array(z.string()).default([]),
@@ -179,8 +185,19 @@ export const ReviewRequest = z.object({
   pr: PrRef,
   featureKey: z.string().nullable(),
   reviewer: z.string(),
+  /** GitHub's GraphQL API exposes no review-request timestamp, so this is
+   *  the PR's last-activity time — kept because "last touched" is worth
+   *  showing, but never used as an age: see ageDays. */
   requestedAt: z.string().datetime(),
+  /** How long the PR has been open, measured from PrRef.createdAt against
+   *  the snapshot's own generatedAt — not from requestedAt, which any
+   *  comment resets, and not against the reader's clock, which would age a
+   *  historical snapshot every time someone opened it. Falls back to
+   *  requestedAt for snapshots written before createdAt was published. */
   ageDays: z.number(),
+  /** Whether ageDays could be measured from the PR's real open date. False
+   *  means it fell back to requestedAt and understates the wait. */
+  ageFromOpen: z.boolean().default(false),
 });
 
 export const CollectionError = z.object({
@@ -243,6 +260,17 @@ export const StatusSnapshot = z.object({
     doneUnverified: z.number().default(0),
     staged: z.number(),
     inReview: z.number(),
+    /** Split out from blockedOrTodo below, which fused the one status that
+     *  means "someone needs help" with the one that means "not started".
+     *  Defaulted for snapshots written before the split — read them through
+     *  storyTotals() (src/lib/dashboard/totals.ts), which sums the features
+     *  and is therefore right for every schema version. */
+    inProgress: z.number().default(0),
+    blocked: z.number().default(0),
+    todo: z.number().default(0),
+    /** Kept so older snapshots keep parsing, and because "not shipped and
+     *  not moving" is still a figure worth having. Never rendered on its
+     *  own any more. */
     blockedOrTodo: z.number(),
   })),
 

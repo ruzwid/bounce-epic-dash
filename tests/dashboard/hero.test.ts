@@ -56,6 +56,7 @@ describe("buildHeroSummary", () => {
         reviewer,
         requestedAt: "2026-08-10T00:00:00.000Z",
         ageDays: 1,
+        ageFromOpen: true,
       })),
     };
     const reviews = buildHeroSummary(withQueue, []).standing.find((c) => c.noun.includes("review"));

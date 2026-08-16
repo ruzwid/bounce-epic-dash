@@ -67,6 +67,7 @@ function DateShellRoute() {
         history,
         date,
         now,
+        asOf: new Date(snapshot.generatedAt),
         search,
         onSearchChange: (updates) => navigate({ to: '.', search: (prev) => ({ ...prev, ...updates }) }),
       }}

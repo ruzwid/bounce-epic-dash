@@ -53,6 +53,7 @@ function ShellRoute() {
         history,
         date: null,
         now,
+        asOf: new Date(snapshot.generatedAt),
         search,
         // `to: '.'` keeps the reader on whichever child page they're on;
         // filters are URL state and must survive navigation between pages.

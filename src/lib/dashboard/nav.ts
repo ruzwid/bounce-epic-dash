@@ -10,9 +10,10 @@ import type {
   Story as StorySchema,
 } from "../schema.ts";
 import { deriveStage } from "../score.ts";
-import { loadAppConfig } from "./appConfig.ts";
+import { storyTotals, weightedPercent } from "./totals.ts";
 import { featureAnchorId } from "./anchors.ts";
-import { needsAttention } from "./search.ts";
+import { needsAttention, prOpenDays } from "./search.ts";
+import { storyPrs } from "../stories.ts";
 
 type FeatureT = z.infer<typeof FeatureSchema>;
 type StoryT = z.infer<typeof StorySchema>;
@@ -23,6 +24,43 @@ type StageT = z.infer<typeof StageSchema>;
 /** "F1.1" -> "f1-1", "DF4.1.1" -> "df4-1-1". Shared with the in-page
  *  anchor ids so a feature has exactly one slug in the whole app. */
 export { featureAnchorId as featureSlug } from "./anchors.ts";
+
+/**
+ * A feature's title with its own code stripped off the front.
+ *
+ * Titles arrive from JIRA already prefixed with the code, in whichever of
+ * three punctuations the author used ("F1.1 — x", "F2.7 - x", "F2.8 x").
+ * Every row that shows the code in its own column strips it here rather
+ * than printing "F2.7  F2.7 - x". Anchored and regex-escaped: a code that
+ * appears *inside* a title is part of the sentence, not a prefix.
+ *
+ * Falls back to the untouched title when stripping would leave nothing —
+ * a feature whose title is only its code still needs something to show.
+ */
+export function featureTitleWithoutCode(feature: { title: string; code: string }): string {
+  const escaped = feature.code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return feature.title.replace(new RegExp(`^\\s*${escaped}\\s*[—–:-]?\\s*`), "").trim() || feature.title;
+}
+
+/**
+ * True when a "story" is really the feature's own ticket standing in for
+ * one.
+ *
+ * A feature with no child Stories in JIRA — its pull requests hang off the
+ * feature ticket directly — is collected with the parent ticket as a
+ * single story-equivalent, matching PRs against the feature's own key (see
+ * scripts/collect.ts). It therefore carries the feature's key, title and
+ * status.
+ *
+ * Any view that nests stories under their feature has to skip that rung,
+ * or the feature prints twice: once properly, and once as a child row
+ * whose title — stripped of the duplicated feature title — is empty. The
+ * work belongs directly under the feature, because that is where JIRA
+ * put it.
+ */
+export function isFeatureTicket(story: { key: string }, feature: { key: string }): boolean {
+  return story.key === feature.key;
+}
 
 /** The feature a `/f/:code` URL refers to, or null. Matched on the slug,
  *  never on array position — snapshots reorder between days. */
@@ -189,30 +227,8 @@ export type MilestoneProgress = {
  *  epic's KPIs — so "M1 is 80% done" and "F1.1 is 80% done" never disagree
  *  about what "done" means. */
 export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
-  const totals = features.reduce(
-    (acc, f) => ({
-      shipped: acc.shipped + f.scoreBasis.shipped,
-      doneUnverified: acc.doneUnverified + f.scoreBasis.doneUnverified,
-      staged: acc.staged + f.scoreBasis.staged,
-      inReview: acc.inReview + f.scoreBasis.inReview,
-      inProgress: acc.inProgress + f.scoreBasis.inProgress,
-      blocked: acc.blocked + f.scoreBasis.blocked,
-      todo: acc.todo + f.scoreBasis.todo,
-      total: acc.total + f.scoreBasis.total,
-    }),
-    { shipped: 0, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 0, total: 0 },
-  );
-
-  const weights = loadAppConfig().scoreWeights;
-  const weighted =
-    totals.shipped * weights.shipped +
-    totals.doneUnverified * weights.done_unverified +
-    totals.staged * weights.staged +
-    totals.inReview * weights.in_review +
-    totals.inProgress * weights.in_progress +
-    totals.blocked * weights.blocked +
-    totals.todo * weights.todo;
-  const score = totals.total === 0 ? 0 : Math.max(0, Math.min(100, Math.round((weighted / totals.total) * 100)));
+  const totals = storyTotals(features);
+  const score = weightedPercent(totals);
   const allDone = features.length > 0 && features.every((f) => f.stage === "done");
 
   return {
@@ -251,14 +267,10 @@ export type AttentionReason = { kind: "blocked" | "stalled" | "review_wait" | "c
 const STALL_DAYS = 7;
 const REVIEW_WAIT_DAYS = 2;
 
-function daysBetween(earlier: string, later: Date): number {
-  return (later.getTime() - new Date(earlier).getTime()) / (1000 * 60 * 60 * 24);
-}
-
 /** Why a feature is on the attention list, spelled out. needsAttention()
  *  answers yes/no; this answers "because of what", using the same
  *  thresholds so the two can never disagree. */
-export function attentionReasons(feature: FeatureT, now: Date): AttentionReason[] {
+export function attentionReasons(feature: FeatureT, asOf: Date): AttentionReason[] {
   const reasons: AttentionReason[] = [];
 
   if (feature.scoreBasis.blocked > 0) {
@@ -272,16 +284,19 @@ export function attentionReasons(feature: FeatureT, now: Date): AttentionReason[
     reasons.push({ kind: "stalled", detail: `No activity for ${feature.daysSinceLastActivity} days` });
   }
 
+  // storyPrs, not story.prs: needsAttention() counts a sub-task's PRs too,
+  // and this function's whole contract is that it explains that decision
+  // rather than reaching a different one.
   const waiting = feature.stories.flatMap((story) =>
-    story.prs.filter(
-      (pr) => pr.state === "OPEN" && pr.reviewRequests.length > 0 && daysBetween(pr.updatedAt, now) > REVIEW_WAIT_DAYS,
+    storyPrs(story).filter(
+      (pr) => pr.state === "OPEN" && pr.reviewRequests.length > 0 && prOpenDays(pr, asOf) > REVIEW_WAIT_DAYS,
     ),
   );
   if (waiting.length > 0) {
-    const oldest = Math.max(...waiting.map((pr) => Math.floor(daysBetween(pr.updatedAt, now))));
+    const oldest = Math.max(...waiting.map((pr) => Math.floor(prOpenDays(pr, asOf))));
     reasons.push({
       kind: "review_wait",
-      detail: `${waiting.length} PR${waiting.length === 1 ? "" : "s"} waiting on review, oldest ${oldest}d`,
+      detail: `${waiting.length} PR${waiting.length === 1 ? "" : "s"} open for review, oldest ${oldest}d`,
     });
   }
 
@@ -316,23 +331,26 @@ export type EpicProgress = {
   inReviewShare: number;
 };
 
-/** Epic-level completion, derived from the published KPI counts using the
- *  same weights as a single feature's score (src/lib/score.ts): shipped
- *  and done_unverified both count full, staged half, in review a third.
+/** Epic-level completion across every tracked story, on config.yaml's own
+ *  scoreWeights — the same weights as a single feature's score
+ *  (src/lib/score.ts), so editing a weight moves the header figure and the
+ *  feature bars underneath it together. It used to hardcode 1/1/0.5/0.3
+ *  here and omit in_progress entirely, which meant this number quietly
+ *  ignored config and disagreed with every bar on the page below it.
+ *
  *  Deliberately *not* the mean of feature scores — that would weight a
  *  one-story feature the same as a fourteen-story one. */
-export function epicProgress(kpis: StatusSnapshotT["kpis"]): EpicProgress {
-  const total = kpis.storiesTracked;
-  if (total === 0) {
+export function epicProgress(features: FeatureT[]): EpicProgress {
+  const totals = storyTotals(features);
+  if (totals.total === 0) {
     return { percent: 0, shippedShare: 0, doneUnverifiedShare: 0, stagedShare: 0, inReviewShare: 0 };
   }
-  const weighted = kpis.shipped * 1 + kpis.doneUnverified * 1 + kpis.staged * 0.5 + kpis.inReview * 0.3;
   return {
-    percent: Math.round((weighted / total) * 100),
-    shippedShare: (kpis.shipped / total) * 100,
-    doneUnverifiedShare: (kpis.doneUnverified / total) * 100,
-    stagedShare: (kpis.staged / total) * 100,
-    inReviewShare: (kpis.inReview / total) * 100,
+    percent: weightedPercent(totals),
+    shippedShare: (totals.shipped / totals.total) * 100,
+    doneUnverifiedShare: (totals.doneUnverified / totals.total) * 100,
+    stagedShare: (totals.staged / totals.total) * 100,
+    inReviewShare: (totals.inReview / totals.total) * 100,
   };
 }
 
@@ -341,7 +359,7 @@ export function epicProgress(kpis: StatusSnapshotT["kpis"]): EpicProgress {
  *  the epic's Jira link icon (Sidebar) reads the same six-hue language as
  *  everything nested under it. */
 export function epicStage(snapshot: StatusSnapshotT): StageT {
-  const { percent } = epicProgress(snapshot.kpis);
+  const { percent } = epicProgress(snapshot.features);
   const allDone = snapshot.features.length > 0 && snapshot.features.every((f) => f.stage === "done");
   // Same reasoning as milestoneProgress() above: allDone doubles as the
   // signed-off override so a signed-off feature's "done" status can carry
@@ -374,8 +392,11 @@ export type ReviewerState = "requested" | "approved" | "changes_requested" | "co
 export type ReviewerStatus = {
   reviewer: string;
   state: ReviewerState;
-  /** Days since GitHub's request — only meaningful when state is
-   *  "requested"; a submitted review has no tracked age. */
+  /** How long the PR has been open, in days — only meaningful when state
+   *  is "requested"; a submitted review has no tracked age. Not "days
+   *  since the request": GitHub exposes no such timestamp, and the
+   *  last-activity proxy that stood in for one reset to zero on every
+   *  comment. See ReviewRequest.ageDays in src/lib/schema.ts. */
   ageDays: number | null;
 };
 

@@ -189,6 +189,7 @@ function toRawPr(repo: string, node: PrNode): RawPr {
     headRefName: node.headRefName,
     mergedAt: node.mergedAt,
     updatedAt: node.updatedAt,
+    createdAt: node.createdAt,
     body: node.body,
     author: node.author?.login ?? null,
     reviewRequests: node.reviewRequests.nodes
