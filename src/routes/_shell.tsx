@@ -1,8 +1,24 @@
 import { useState } from 'react'
-import { Outlet, createFileRoute, stripSearchParams, useNavigate } from '@tanstack/react-router'
+import {
+  Outlet,
+  createFileRoute,
+  stripSearchParams,
+  useNavigate,
+  type SearchMiddleware,
+} from '@tanstack/react-router'
 import { loadHistory, loadLatestSnapshot, loadPreviousSnapshot } from '@/lib/dashboard/snapshots'
-import { DASHBOARD_SEARCH_DEFAULTS, dashboardSearchSchema } from '@/lib/dashboard/search'
+import { DASHBOARD_SEARCH_DEFAULTS, dashboardSearchSchema, type DashboardSearch } from '@/lib/dashboard/search'
 import { AppShell } from '@/components/dashboard/shell/AppShell'
+
+// Wrapped in a function rather than passed as
+// stripSearchParams(DASHBOARD_SEARCH_DEFAULTS) directly: the SSR bundle
+// splits this route's config into a chunk that circularly imports the
+// chunk defining DASHBOARD_SEARCH_DEFAULTS, so a module-eval-time read
+// races the cycle and sees it as undefined. A deferred read (first real
+// navigation, after the whole module graph has finished loading) sees it
+// defined either way.
+const stripDashboardDefaults: SearchMiddleware<DashboardSearch> = (ctx) =>
+  stripSearchParams<DashboardSearch>(DASHBOARD_SEARCH_DEFAULTS)(ctx)
 
 // Pathless layout for the "latest snapshot" half of the app: it owns the
 // sidebar, the epic header, and the loaded snapshot, so every page under
@@ -13,7 +29,8 @@ export const Route = createFileRoute('/_shell')({
   // Keeps default filter values out of the URL — without it every page
   // load rewrites "/" to "/?milestone=all&engineer=null&…", which makes
   // shared links noisy and costs a redirect before the prerendered HTML.
-  search: { middlewares: [stripSearchParams(DASHBOARD_SEARCH_DEFAULTS)] },
+  // See the note on stripDashboardDefaults above for why it's wrapped.
+  search: { middlewares: [stripDashboardDefaults] },
   loader: async () => {
     const snapshot = await loadLatestSnapshot()
     const [previous, history] = await Promise.all([

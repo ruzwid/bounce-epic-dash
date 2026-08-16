@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 import type { StatusSnapshot as StatusSnapshotSchema } from "../../src/lib/schema.ts";
-import { peopleLoad, workInFlight } from "../../src/lib/dashboard/people.ts";
+import { peopleLoad, scopeToActiveMilestones, workInFlight } from "../../src/lib/dashboard/people.ts";
 
 type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>;
 
@@ -44,7 +44,12 @@ function story(key: string, status: string, prs: ReturnType<typeof pr>[] = []) {
   return { key, summary: `${key} summary`, status, assignee: null, prs, subtasks: [] };
 }
 
-function feature(code: string, owner: string, stories: ReturnType<typeof story>[]) {
+function feature(
+  code: string,
+  owner: string,
+  stories: ReturnType<typeof story>[],
+  overrides: Record<string, unknown> = {},
+) {
   return {
     key: `BOUN-${code}`,
     code,
@@ -67,6 +72,7 @@ function feature(code: string, owner: string, stories: ReturnType<typeof story>[
       todo: stories.length,
       total: stories.length,
     },
+    ...overrides,
   };
 }
 
@@ -152,5 +158,53 @@ describe("workInFlight", () => {
 
     expect(work[0]!.stories[0]!.prs[0]!.openDays).toBe(3);
     expect(work[0]!.stories[0]!.prs[0]!.reviewers).toEqual([]);
+  });
+});
+
+describe("scopeToActiveMilestones", () => {
+  it("drops every feature under a milestone whose features are all stage 'done'", () => {
+    const snap = snapshot([
+      feature("F1.1", RUZZELL.name, [story("S-1", "shipped")], { milestone: "M1", stage: "done" }),
+      feature("F2.1", TOMER.name, [story("S-2", "in_progress")], { milestone: "M2", stage: "underway" }),
+    ]);
+
+    const scoped = scopeToActiveMilestones(snap);
+
+    expect(scoped.features.map((f) => f.code)).toEqual(["F2.1"]);
+  });
+
+  it("keeps a review request with no featureKey, since it isn't attributable to a finished milestone", () => {
+    const waiting = pr(1, RUZZELL.login);
+    const snap = snapshot(
+      [feature("F1.1", RUZZELL.name, [story("S-1", "shipped")], { milestone: "M1", stage: "done" })],
+      [{ pr: waiting, featureKey: null, reviewer: TOMER.login, requestedAt: "2026-08-10T08:00:00Z", ageDays: 4 }],
+    );
+
+    const scoped = scopeToActiveMilestones(snap);
+
+    expect(scoped.reviewQueue).toHaveLength(1);
+  });
+
+  it("drops a review request keyed to a feature under a finished milestone", () => {
+    const waiting = pr(1, RUZZELL.login);
+    const snap = snapshot(
+      [feature("F1.1", RUZZELL.name, [story("S-1", "shipped")], { milestone: "M1", stage: "done" })],
+      [{ pr: waiting, featureKey: "BOUN-F1.1", reviewer: TOMER.login, requestedAt: "2026-08-10T08:00:00Z", ageDays: 4 }],
+    );
+
+    const scoped = scopeToActiveMilestones(snap);
+
+    expect(scoped.reviewQueue).toHaveLength(0);
+  });
+
+  it("removes a person entirely from peopleLoad when everything of theirs was under a finished milestone", () => {
+    const snap = snapshot([
+      feature("F1.1", RUZZELL.name, [story("S-1", "shipped")], { milestone: "M1", stage: "done" }),
+      feature("F2.1", TOMER.name, [story("S-2", "in_progress")], { milestone: "M2", stage: "underway" }),
+    ]);
+
+    const people = peopleLoad(scopeToActiveMilestones(snap), AS_OF);
+
+    expect(people.map((p) => p.login)).toEqual([TOMER.login]);
   });
 });

@@ -1,16 +1,35 @@
 import { useState } from 'react'
-import { Link, Outlet, createFileRoute, notFound, stripSearchParams, useNavigate } from '@tanstack/react-router'
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  notFound,
+  stripSearchParams,
+  useNavigate,
+  type SearchMiddleware,
+} from '@tanstack/react-router'
 import { loadHistory, loadPreviousSnapshot, loadSnapshot } from '@/lib/dashboard/snapshots'
-import { DASHBOARD_SEARCH_DEFAULTS, dashboardSearchSchema } from '@/lib/dashboard/search'
+import { DASHBOARD_SEARCH_DEFAULTS, dashboardSearchSchema, type DashboardSearch } from '@/lib/dashboard/search'
 import { AppShell } from '@/components/dashboard/shell/AppShell'
+
+// Wrapped in a function rather than passed as
+// stripSearchParams(DASHBOARD_SEARCH_DEFAULTS) directly: the SSR bundle
+// splits this route's config into a chunk that circularly imports the
+// chunk defining DASHBOARD_SEARCH_DEFAULTS, so a module-eval-time read
+// races the cycle and sees it as undefined. A deferred read (first real
+// navigation, after the whole module graph has finished loading) sees it
+// defined either way.
+const stripDashboardDefaults: SearchMiddleware<DashboardSearch> = (ctx) =>
+  stripSearchParams<DashboardSearch>(DASHBOARD_SEARCH_DEFAULTS)(ctx)
 
 // The historical mirror of /_shell: same shell, same pages, one specific
 // snapshot. Every link the shell renders carries the date forward, so
 // browsing an old snapshot never silently drops you back onto today's.
 export const Route = createFileRoute('/$date')({
   validateSearch: dashboardSearchSchema,
-  // See the note on the same option in _shell.tsx.
-  search: { middlewares: [stripSearchParams(DASHBOARD_SEARCH_DEFAULTS)] },
+  // See the note on stripDashboardDefaults above, and the same option in
+  // _shell.tsx.
+  search: { middlewares: [stripDashboardDefaults] },
   loader: async ({ params }) => {
     const snapshot = await loadSnapshot(params.date)
     if (!snapshot) throw notFound()

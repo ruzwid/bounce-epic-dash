@@ -20,7 +20,7 @@ import type {
 } from "../schema.ts";
 import { storyPrs } from "../stories.ts";
 import { loginForDisplayName } from "./appConfig.ts";
-import { reviewersForPr, type ReviewerStatus } from "./nav.ts";
+import { activeMilestones, reviewersForPr, type ReviewerStatus } from "./nav.ts";
 import { needsAttention, prOpenDays } from "./search.ts";
 import { storyTotals, type StoryTotals } from "./totals.ts";
 
@@ -76,6 +76,25 @@ function allPrs(snapshot: StatusSnapshotT): PrRefT[] {
     }
   }
   return [...byId.values()];
+}
+
+/**
+ * A snapshot restricted to features under still-active milestones (see
+ * activeMilestones in nav.ts) — reviewQueue is filtered the same way, by
+ * featureKey, so a finished milestone's stray review request can't sneak a
+ * person's name back onto a card the "active only" toggle was meant to
+ * clear. A request with no featureKey is kept: it isn't attributable to a
+ * finished milestone, so there's nothing to filter it on.
+ */
+export function scopeToActiveMilestones(snapshot: StatusSnapshotT): StatusSnapshotT {
+  const active = activeMilestones(snapshot);
+  const features = snapshot.features.filter((f) => active.has(f.milestone));
+  const featureKeys = new Set(features.map((f) => f.key));
+  return {
+    ...snapshot,
+    features,
+    reviewQueue: snapshot.reviewQueue.filter((r) => r.featureKey === null || featureKeys.has(r.featureKey)),
+  };
 }
 
 /**

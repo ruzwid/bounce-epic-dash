@@ -3,13 +3,21 @@ import { CircleDotDashed, FileText, GitPullRequestArrow, ListTree, Package, Rows
 import { SiJira } from "react-icons/si"
 import { FaSlack } from "react-icons/fa6"
 import type { z } from "zod"
-import type { Feature as FeatureSchema, PrRef as PrRefSchema } from "@/lib/schema"
-import { workInFlight, peopleLoad, type FeatureWork, type PersonLoad, type PrWork } from "@/lib/dashboard/people"
+import type { Feature as FeatureSchema, PrRef as PrRefSchema, StatusSnapshot as StatusSnapshotSchema } from "@/lib/schema"
+import {
+  workInFlight,
+  peopleLoad,
+  scopeToActiveMilestones,
+  type FeatureWork,
+  type PersonLoad,
+  type PrWork,
+} from "@/lib/dashboard/people"
 import { featureSlug, featureTitleWithoutCode, isFeatureTicket, reviewersForPr } from "@/lib/dashboard/nav"
 import { displayNameForLogin, personLinks } from "@/lib/dashboard/appConfig"
 import { firstName, PersonTip } from "../PersonTip"
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
 import { SectionHeading } from "../SectionHeading"
@@ -23,6 +31,7 @@ import { EmptyState } from "../EmptyState"
 
 type FeatureT = z.infer<typeof FeatureSchema>
 type PrRefT = z.infer<typeof PrRefSchema>
+type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
 
 /** How much of each person's work the page spells out. Compact is the
  *  default because six people at full detail is a page nobody scrolls to
@@ -43,8 +52,14 @@ type Density = "compact" | "detailed"
 export function PeoplePage() {
   const { snapshot, asOf } = useShell()
   const [density, setDensity] = useState<Density>("compact")
+  // On by default: a milestone that's fully done (M1, once every F1.x is)
+  // has nothing left for a lead to check on, and left in the mix it pads
+  // every card with a feature nobody needs to look at any more. Off shows
+  // the whole epic, finished milestones included.
+  const [activeOnly, setActiveOnly] = useState(true)
   const detailed = density === "detailed"
-  const people = peopleLoad(snapshot, asOf)
+  const scoped = activeOnly ? scopeToActiveMilestones(snapshot) : snapshot
+  const people = peopleLoad(scoped, asOf)
 
   const busiest = Math.max(1, ...people.map((p) => p.features.length + p.reviewing.length))
 
@@ -59,32 +74,44 @@ export function PeoplePage() {
       </header>
 
       {people.length === 0 ? (
-        <EmptyState message="Nobody is named anywhere in this snapshot." />
+        <EmptyState
+          message={
+            activeOnly
+              ? "Nobody is on an active milestone in this snapshot — turn off “Active milestones only” to see everyone."
+              : "Nobody is named anywhere in this snapshot."
+          }
+        />
       ) : (
         <section className="flex flex-col gap-3">
           <SectionHeading
             note={`${people.length} ${people.length === 1 ? "person" : "people"}`}
             actions={
-              // One button that switches, labelled with what you get from
-              // pressing it rather than with the state you are already in —
-              // the same rule the rest of the interface follows, where a
-              // control says what happens when it is used. The glyph says
-              // the same thing twice over: a tree when the press will nest
-              // stories under their features, flat rows when it will put
-              // them away.
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDensity(detailed ? "compact" : "detailed")}
-                title={detailed ? "Show one line per person" : "Show titles, stories and pull request detail"}
-              >
-                {detailed ? (
-                  <Rows3 aria-hidden="true" className="size-3.5 opacity-70" />
-                ) : (
-                  <ListTree aria-hidden="true" className="size-3.5 opacity-70" />
-                )}
-                {detailed ? "Compact" : "Detailed"}
-              </Button>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Switch checked={activeOnly} onCheckedChange={setActiveOnly} />
+                  Active milestones only
+                </label>
+                {/* One button that switches, labelled with what you get
+                    from pressing it rather than with the state you are
+                    already in — the same rule the rest of the interface
+                    follows, where a control says what happens when it is
+                    used. The glyph says the same thing twice over: a tree
+                    when the press will nest stories under their features,
+                    flat rows when it will put them away. */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDensity(detailed ? "compact" : "detailed")}
+                  title={detailed ? "Show one line per person" : "Show titles, stories and pull request detail"}
+                >
+                  {detailed ? (
+                    <Rows3 aria-hidden="true" className="size-3.5 opacity-70" />
+                  ) : (
+                    <ListTree aria-hidden="true" className="size-3.5 opacity-70" />
+                  )}
+                  {detailed ? "Compact" : "Detailed"}
+                </Button>
+              </div>
             }
           >
             Who is carrying what
@@ -96,6 +123,7 @@ export function PeoplePage() {
                 person={person}
                 busiest={busiest}
                 density={density}
+                snapshot={scoped}
               />
             ))}
           </ul>
@@ -110,8 +138,22 @@ export function PeoplePage() {
  * is wrong with it, what is queued on them, and — last, because it is
  * background rather than news — everything they own.
  */
-function PersonCard({ person, busiest, density }: { person: PersonLoad; busiest: number; density: Density }) {
-  const { snapshot, asOf } = useShell()
+function PersonCard({
+  person,
+  busiest,
+  density,
+  snapshot,
+}: {
+  person: PersonLoad
+  busiest: number
+  density: Density
+  // Passed down rather than read from useShell(): it has to be the same
+  // (possibly milestone-scoped) snapshot peopleLoad built `person` from,
+  // or a finished milestone's in-flight work would reappear here even
+  // with "Active milestones only" on.
+  snapshot: StatusSnapshotT
+}) {
+  const { asOf } = useShell()
   const detailed = density === "detailed"
   const work = workInFlight(person, snapshot, asOf)
   const owed = person.reviewing.length

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { milestoneProgress, signedOffUnverifiedStories } from "../../src/lib/dashboard/nav.ts";
+import { activeMilestones, milestoneProgress, signedOffUnverifiedStories } from "../../src/lib/dashboard/nav.ts";
 import { StatusSnapshot } from "../../src/lib/schema.ts";
 
 const FIXTURES = new URL("./fixtures/snapshots/", import.meta.url);
@@ -90,5 +90,33 @@ describe("milestoneProgress", () => {
     const progress = milestoneProgress([feature]);
     expect(progress.score).toBeLessThan(100);
     expect(progress.stage).toBe("done");
+  });
+});
+
+describe("activeMilestones", () => {
+  it("excludes a milestone only once every one of its features is stage 'done'", () => {
+    const base = loadFixture("2026-08-11.json");
+    const [f1, f2] = base.features;
+    const snapshot = {
+      ...base,
+      features: [
+        { ...f1!, milestone: "M1" as const, stage: "done" as const },
+        { ...f2!, milestone: "M2" as const, stage: "underway" as const },
+      ],
+    };
+    expect(activeMilestones(snapshot)).toEqual(new Set(["M2"]));
+  });
+
+  it("keeps a milestone active while any one of its features isn't done yet", () => {
+    const base = loadFixture("2026-08-11.json");
+    const [f1, f2] = base.features;
+    const snapshot = {
+      ...base,
+      features: [
+        { ...f1!, milestone: "M1" as const, stage: "done" as const },
+        { ...f2!, milestone: "M1" as const, stage: "underway" as const },
+      ],
+    };
+    expect(activeMilestones(snapshot)).toEqual(new Set(["M1"]));
   });
 });

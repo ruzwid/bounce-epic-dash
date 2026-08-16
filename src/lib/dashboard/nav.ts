@@ -249,6 +249,28 @@ export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
   };
 }
 
+/** Milestone ids with anything left to do — every id *except* one whose
+ *  features have all reached stage "done" (the same allDone check
+ *  milestoneProgress uses for its own stage, so this can never disagree
+ *  with a milestone page reading itself as finished). The People page uses
+ *  this to default to hiding a finished milestone's people and work, which
+ *  otherwise pads every card with a feature nobody needs to look at any
+ *  more — M1 fully signed off shouldn't keep printing on everyone's card
+ *  forever. */
+export function activeMilestones(snapshot: StatusSnapshotT): Set<string> {
+  const byMilestone = new Map<string, FeatureT[]>();
+  for (const feature of snapshot.features) {
+    const list = byMilestone.get(feature.milestone) ?? [];
+    list.push(feature);
+    byMilestone.set(feature.milestone, list);
+  }
+  const active = new Set<string>();
+  for (const [id, features] of byMilestone) {
+    if (milestoneProgress(features).stage !== "done") active.add(id);
+  }
+  return active;
+}
+
 /** JIRA milestone summaries are written "M1 — Core Operational Efficiency";
  *  the group label already shows the id, so drop the duplicate. */
 function stripMilestonePrefix(milestone: StatusSnapshotT["milestones"][number]): string {
