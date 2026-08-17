@@ -21,6 +21,13 @@ export const Milestone = z.object({
    *  also empty (see scripts/collect.ts). */
   ticket: z.string().nullable().default(null),
   features: z.array(MilestoneFeature).default([]),
+  /** Milestones sharing a group id render as one sidebar section and one
+   *  milestone-filter chip, instead of one each. WPP at Scale's M3 and M4
+   *  use `group: m3-m4` — one owner, one platform build, always read
+   *  together. This used to be a hardcoded ["M3","M4"] in
+   *  src/lib/dashboard/nav.ts, which no second epic could have inherited.
+   *  Null (the default) means the milestone is its own group. */
+  group: z.string().nullable().default(null),
 });
 
 export const ScoreWeights = z.object({

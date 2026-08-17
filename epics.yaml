@@ -1,0 +1,22 @@
+# Which epics this dashboard tracks.
+#
+# Each slug is three things at once, and deliberately not written down
+# anywhere else: the directory under epics/ holding that epic's
+# config.yaml + overrides.yaml, the sub-directory its snapshots are
+# written to under data/, and its URL segment on the site. Renaming a slug
+# therefore means renaming a directory and moving its snapshots — do it
+# deliberately, not casually.
+#
+# Adding an epic is: create epics/<slug>/config.yaml (copy
+# config.example.yaml), add the slug below, and run
+# `pnpm collect --epic <slug>`. An epic with no snapshots yet is not an
+# error — it simply has nothing to show until its first collection run.
+#
+# `default` is what "/" resolves to, and what `pnpm collect` / `pnpm merge`
+# use when no --epic flag is passed.
+default: wpp-at-scale
+
+# Order here is the order the epic switcher lists them in.
+epics:
+  - wpp-at-scale
+  - research-efficiencies

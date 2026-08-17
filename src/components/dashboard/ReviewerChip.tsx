@@ -5,6 +5,7 @@ import { displayNameForLogin } from "@/lib/dashboard/appConfig"
 import { PersonChip } from "./PersonChip"
 import { firstName, PersonTip } from "./PersonTip"
 import { BOT_ICONS } from "./Avatar"
+import { useShell } from "./shell/ShellContext"
 
 /** requested: still being waited on. approved / changes_requested /
  *  commented: a review has already been submitted — GitHub's own three
@@ -67,10 +68,11 @@ export function ReviewerChip({
   className?: string
 }) {
   const Icon = REVIEWER_STATE_ICON[status.state]
+  const { epic } = useShell()
   // The hover label reads as a person, not as a GitHub account:
   // "Tomer — approved", not "gelbh — approved". Bots have no config.yaml
   // entry and keep their login, which is the only name they have.
-  const who = firstName(displayNameForLogin(status.reviewer) ?? status.reviewer)
+  const who = firstName(displayNameForLogin(epic, status.reviewer) ?? status.reviewer)
   const title = `${who} — ${REVIEWER_STATE_LABEL[status.state]}`
   const BotIcon = BOT_ICONS[status.reviewer]
 

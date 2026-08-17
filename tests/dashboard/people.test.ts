@@ -7,6 +7,13 @@ type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>;
 
 const AS_OF = new Date("2026-08-14T08:00:00Z");
 
+/** The epic these fixtures belong to. loadSnapshot() stamps this on every
+ *  snapshot it returns (the directory a snapshot lives in is what says
+ *  which epic it is), and the derivations under test read it to find that
+ *  epic's people map and score weights — so a hand-built snapshot has to
+ *  carry it too. */
+const EPIC = "wpp-at-scale";
+
 /** config.yaml maps these display names back to logins — peopleLoad joins
  *  a JIRA owner to a GitHub author through that map, so the fixtures have
  *  to use names it actually knows. */
@@ -80,7 +87,7 @@ function snapshot(
   features: ReturnType<typeof feature>[],
   reviewQueue: unknown[] = [],
 ): StatusSnapshotT {
-  return { date: "2026-08-14", features, reviewQueue, milestones: [] } as unknown as StatusSnapshotT;
+  return { date: "2026-08-14", epic: { slug: EPIC }, features, reviewQueue, milestones: [] } as unknown as StatusSnapshotT;
 }
 
 function personIn(snap: StatusSnapshotT, login: string) {

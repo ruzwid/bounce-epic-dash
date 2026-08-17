@@ -147,12 +147,16 @@ export function ReviewsPage() {
                 key={story.key}
                 className="surface flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-4xl border border-dashed border-border px-5 py-3.5"
               >
-                <span className="font-mono-data shrink-0 text-xs text-muted-foreground">{story.key}</span>
-                <span className="min-w-0 flex-1 truncate text-sm">{story.summary}</span>
+                {/* Key and summary as one Jira link — same shape as the
+                    cards above, where the only way to check what a story
+                    actually says is to open it. */}
+                <JiraLink issueKey={story.key} type="story" tone={story.status} className="text-sm">
+                  <IssueTitle issueKey={story.key} title={story.summary} />
+                </JiraLink>
                 <ShellLink
                   page="feature"
                   code={featureSlug(feature.code)}
-                  className="font-mono-data shrink-0 text-xs text-muted-foreground"
+                  className="hover-fill ml-auto font-mono-data shrink-0 text-xs text-muted-foreground no-underline"
                 >
                   {feature.code}
                 </ShellLink>
@@ -246,6 +250,7 @@ function ReviewerLoad({
   selected: string | null
   onSelect: (reviewer: string | null) => void
 }) {
+  const { epic } = useShell()
   const counts = new Map<string, number>()
   for (const request of reviewQueue) counts.set(request.reviewer, (counts.get(request.reviewer) ?? 0) + 1)
   const entries = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
@@ -276,9 +281,9 @@ function ReviewerLoad({
             >
               <span className="flex w-full items-start justify-between gap-2">
                 <span className="truncate text-xs leading-snug text-muted-foreground">
-                  {displayNameForLogin(login) ?? login}
+                  {displayNameForLogin(epic, login) ?? login}
                 </span>
-                <Avatar login={login} name={displayNameForLogin(login) ?? login} size={18} />
+                <Avatar login={login} name={displayNameForLogin(epic, login) ?? login} size={18} />
               </span>
               <span className="font-display font-mono-data text-[20px] leading-none">{count}</span>
             </button>
@@ -297,6 +302,7 @@ function ReviewerLoad({
  * five-PR chain and a single PR read as the same shape.
  */
 function ReviewGroupCard({ group }: { group: StoryReviewGroup }) {
+  const { epic } = useShell()
   const { story, tickets, feature } = group
 
   return (
@@ -315,7 +321,7 @@ function ReviewGroupCard({ group }: { group: StoryReviewGroup }) {
           </ShellLink>
           {story.assignee ? (
             <PersonTip label={firstName(story.assignee)}>
-              <Avatar login={loginForJiraAssignee(story.assignee)} name={story.assignee} size={20} />
+              <Avatar login={loginForJiraAssignee(epic, story.assignee)} name={story.assignee} size={20} />
             </PersonTip>
           ) : null}
         </div>
@@ -328,7 +334,6 @@ function ReviewGroupCard({ group }: { group: StoryReviewGroup }) {
               prs={prs}
               showTicketHeader={ticket.isSubtask || (prs.length > 1 && ticket.key !== story.key)}
               showAssignee={false}
-              parentKey={story.key}
             />
           </li>
         ))}
@@ -348,7 +353,6 @@ function TicketPrList({
   prs,
   showTicketHeader,
   showAssignee = true,
-  parentKey,
 }: {
   ticket: TicketReviewGroup["ticket"]
   prs: TicketReviewGroup["prs"]
@@ -357,11 +361,8 @@ function TicketPrList({
    *  shows an assignee avatar of its own — repeating one per sub-task
    *  would just be noise next to the one that already answers "who". */
   showAssignee?: boolean
-  /** The story key already shown in the card header above this row — when
-   *  this ticket IS that story (the common single-PR case), repeating its
-   *  key on the flat PR row would just duplicate the header a line up. */
-  parentKey?: string
 }) {
+  const { epic } = useShell()
   return (
     <>
       {showTicketHeader ? (
@@ -376,7 +377,7 @@ function TicketPrList({
           </JiraLink>
           {showAssignee && ticket.assignee ? (
             <PersonTip label={firstName(ticket.assignee)} className="ml-auto shrink-0">
-              <Avatar login={loginForJiraAssignee(ticket.assignee)} name={ticket.assignee} size={20} />
+              <Avatar login={loginForJiraAssignee(epic, ticket.assignee)} name={ticket.assignee} size={20} />
             </PersonTip>
           ) : null}
         </div>
@@ -388,25 +389,27 @@ function TicketPrList({
         )}
       >
         {prs.map(({ pr, reviewers }) => (
-          <li key={`${pr.repo}#${pr.number}`} className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <PrChip pr={pr} />
-            {!showTicketHeader && ticket.key !== parentKey ? (
-              <JiraLink
-                issueKey={ticket.key}
-                {...(ticket.isSubtask ? { type: "subtask" as const } : { type: "story" as const })}
-                tone={ticket.status}
-                className="font-mono-data shrink-0 gap-1 text-xs text-muted-foreground"
-              >
-                {ticket.key}
-              </JiraLink>
-            ) : null}
-            <span className="min-w-0 flex-1 truncate text-sm">{pr.title}</span>
-            {!showTicketHeader && showAssignee && ticket.assignee ? (
-              <PersonTip label={firstName(ticket.assignee)} className="shrink-0">
-                <Avatar login={loginForJiraAssignee(ticket.assignee)} name={ticket.assignee} size={20} />
-              </PersonTip>
-            ) : null}
-            <ReviewerStatusRow reviewers={reviewers} />
+          // The whole row is the link, not just the repo chip on the left:
+          // the title, the reviewer faces and the wait are all this one
+          // pull request, so every part of the row opens it. See
+          // `.row-link` — the chip drops its own anchor (a nested one
+          // isn't valid HTML) and lights up with the row instead.
+          <li key={`${pr.repo}#${pr.number}`} className="min-w-0">
+            <a
+              href={pr.url}
+              target="_blank"
+              rel="noreferrer"
+              className="row-link flex flex-wrap items-center gap-x-3 gap-y-1.5 no-underline"
+            >
+              <PrChip pr={pr} asSpan />
+              <span className="min-w-0 flex-1 truncate text-sm">{pr.title}</span>
+              {!showTicketHeader && showAssignee && ticket.assignee ? (
+                <PersonTip label={firstName(ticket.assignee)} className="shrink-0">
+                  <Avatar login={loginForJiraAssignee(epic, ticket.assignee)} name={ticket.assignee} size={20} />
+                </PersonTip>
+              ) : null}
+              <ReviewerStatusRow reviewers={reviewers} />
+            </a>
           </li>
         ))}
       </ul>

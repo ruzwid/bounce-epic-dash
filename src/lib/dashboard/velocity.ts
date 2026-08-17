@@ -32,7 +32,7 @@ const WINDOW_DAYS = 14;
  *  want is measured against today's plan, not the absence of one three
  *  weeks ago. */
 export function resolveTargetDate(snapshot: StatusSnapshotT): string | null {
-  return snapshot.epic.targetDate ?? loadAppConfig().epic.targetDate ?? null;
+  return snapshot.epic.targetDate ?? loadAppConfig(snapshot.epic.slug).epic.targetDate ?? null;
 }
 
 function daysBetween(from: string, to: string): number {

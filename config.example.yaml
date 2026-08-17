@@ -1,5 +1,12 @@
-# Copy this to config.yaml and fill in your own epic/org/milestones.
-# Nothing in this file is real — every value below is a placeholder.
+# Copy this to epics/<your-slug>/config.yaml, fill in your own
+# epic/org/milestones, and add <your-slug> to the `epics:` list in
+# epics.yaml. Nothing in this file is real — every value below is a
+# placeholder.
+#
+# One file per epic. The slug is the directory name, and it is also the
+# epic's URL segment and the sub-directory its data is written to; it is
+# deliberately not repeated inside this file. Collect this epic with
+# `pnpm collect --epic <your-slug>`.
 
 epic:
   key: YOUR-1234
@@ -11,7 +18,9 @@ jira:
   projectKey: YOUR
   # Raw JIRA status name -> shipped | staged | in_review | in_progress |
   # blocked | todo. This is a base hint only — collect.ts upgrades it using
-  # real GitHub PR state. Unmapped names fall back to "todo" with a warning.
+  # real GitHub PR state. Unmapped names fall back to "todo" with a warning;
+  # if you see that warning, add the status here rather than leaving the
+  # fallback to decide for you.
   statusMap:
     Done: shipped
     "Code Review": in_review
@@ -32,6 +41,11 @@ jira:
 
 github:
   org: your-org
+  # Repos are discovered from the org on every run — every non-archived repo
+  # pushed since epic.startDate — never listed per feature. These two are
+  # escape hatches, not the mechanism.
+  excludeRepos: [] # never crawl these (noisy infra, vendored mirrors)
+  includeRepos: [] # always crawl these, even if not pushed since startDate
 
 timezone: Europe/Dublin
 
@@ -45,38 +59,52 @@ scoreWeights:
   todo: 0
 
 milestones:
-  - id: M1
+  - id: M1 # must be "M" followed by a number — it becomes the /m/<id> slug
     title: "Your First Milestone"
     tier: full
     owner: octocat
     ticket: null # this milestone's own JIRA key, if you have one
-    repos: [] # fallback repos, used if a feature below doesn't list its own
     features:
       - key: YOUR-1235
-        code: "F1.1"
+        code: "F1.1" # must be unique within the epic — it becomes the /f/<slug> URL
         owner: octocat
-        repos: [your-repo]
 
   - id: M3
     title: "A Light-Tier Milestone"
     tier: light
     owner: octocat
+    # Optional. Milestones sharing a `group` render as one sidebar section
+    # and one milestone-filter chip instead of one each — for milestones
+    # that are really one body of work under one owner. Omit it and the
+    # milestone stands alone, which is the usual case.
+    group: m3-m4
     # Light-tier milestones can EITHER list child feature tickets (like
     # above) OR track subtasks directly under this one ticket — leave
     # `features` empty and set `ticket` for the latter. If a milestone has
     # neither, collect.ts records a clear collection error and skips it
     # rather than guessing.
     ticket: YOUR-1300
-    repos: [your-other-repo]
     features: []
 
   - id: M4
     title: "Unknown Milestone"
     tier: light
     owner: octocat
+    group: m3-m4 # read together with M3 above
     ticket: null # unknown for now — using it unset is a clear collection error, not a crash
-    repos: []
     features: []
 
+# GitHub login -> short display name. Include anyone who shows up only as a
+# reviewer or PR author too; a login with no entry renders as the bare login.
 people:
   octocat: Octo
+
+# JIRA assignee `displayName` -> GitHub login. Needs its own map because
+# JIRA carries a full name where `people` above maps to a short one.
+jiraAssignees:
+  Octo Cat: octocat
+
+# All optional, all "no entry, no button" — never a guessed URL.
+peopleColors: {} # login -> hex tint behind their PersonChip
+jiraAccounts: {} # login -> JIRA accountId (profile URL ends /jira/people/<id>)
+slackIds: {} # login -> Slack member ID (profile -> ⋮ -> Copy member ID)

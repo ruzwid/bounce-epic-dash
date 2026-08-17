@@ -243,7 +243,10 @@ const SECTION_ORDER: { id: ChangeSectionId; title: string; note?: string; status
     id: "sent_for_sign_off",
     title: "Sent for product review",
     note: "Engineering is done; product has been emailed and owes a decision.",
-    status: "in_review",
+    // The product gate's own pink, not the blue code review wears — they
+    // are two consecutive stages of one flow, so sharing a hue made the
+    // feed look like it was reporting the same event twice.
+    status: "with_product",
   },
   { id: "newly_staged", title: "Merged, not on master", status: "staged" },
   {

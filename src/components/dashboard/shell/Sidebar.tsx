@@ -21,13 +21,14 @@ import { cn } from "@/lib/utils"
 import ThemeToggle from "@/components/ThemeToggle"
 import { MilestoneGroupHeading } from "../MilestoneGroupHeading"
 import { JiraLink } from "../JiraLink"
+import { EpicSwitcher } from "./EpicSwitcher"
 import { useShell } from "./ShellContext"
 import { ShellLink } from "./ShellLink"
 
 const ACTIVE = { "data-active": "true" }
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { snapshot, asOf } = useShell()
+  const { epic, snapshot, asOf } = useShell()
   const groups = sidebarGroups(snapshot)
   const attentionCount = attentionFeatures(snapshot, asOf).length
   const reviewCount = snapshot.reviewQueue.length
@@ -44,21 +45,21 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       onClick={onNavigate}
       className="flex h-full flex-col overflow-y-auto overscroll-contain pb-4"
     >
+      {/* The epic's name is the switcher when there's more than one epic
+          to switch to, and plain text when there isn't. Its Jira link
+          moves down to the key line below, which is where the key —
+          and therefore the thing being linked — actually is. */}
       <div className="flex flex-col gap-1 px-5 pt-5 pb-4">
-        <div className="flex items-center gap-2.5">
-          <JiraLink
-            issueKey={snapshot.epic.key}
-            type="epic"
-            tone={epicStage(snapshot)}
-            className="font-display gap-1.5 truncate text-[17px] text-foreground"
-            iconClassName="size-4"
-          >
-            {snapshot.epic.title}
-          </JiraLink>
-        </div>
-        <span className="font-mono-data text-[11px] text-muted-foreground">
+        <EpicSwitcher />
+        <JiraLink
+          issueKey={snapshot.epic.key}
+          type="epic"
+          tone={epicStage(snapshot)}
+          className="font-mono-data gap-1.5 text-[11px] text-muted-foreground"
+          iconClassName="size-3"
+        >
           {snapshot.epic.key} · epic
-        </span>
+        </JiraLink>
       </div>
 
       <ul className="flex list-none flex-col gap-0.5 px-3 pb-2.5">
@@ -92,7 +93,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <ShellLink page="signoff" className={rowClass} activeProps={ACTIVE}>
             <BadgeCheck aria-hidden="true" className="size-[15px] shrink-0 opacity-70" />
             <span className="flex-1 truncate">Sign-off</span>
-            {awaitingCount > 0 ? <CountBadge value={awaitingCount} tone="neutral" /> : null}
+            {awaitingCount > 0 ? <CountBadge value={awaitingCount} tone="product" /> : null}
           </ShellLink>
         </li>
       </ul>
@@ -121,7 +122,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         // in a done milestone, so it starts collapsed — but the value is
         // stable across re-renders, so expanding one by hand never gets
         // reverted mid-session.
-        const isDone = milestoneProgress(group.features).stage === "done"
+        const isDone = milestoneProgress(epic, group.features).stage === "done"
         return (
           <details key={group.id} className="group flex flex-col" open={!isDone}>
             <summary className="m-0 flex cursor-pointer list-none items-center gap-1.5 px-6 pt-3 pb-1.5 text-[11px] font-normal tracking-[0.09em] text-muted-foreground uppercase select-none [&::-webkit-details-marker]:hidden">
@@ -178,10 +179,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 const rowClass =
   "nav-item flex items-center gap-2.5 rounded-4xl px-2.5 py-2 text-sm text-foreground/85 no-underline"
 
-function CountBadge({ value, tone }: { value: number; tone: "warn" | "neutral" }) {
+/** `neutral` is the plain queue count (reviews waiting). `warn` and
+ *  `product` borrow a status hue: the second so the sign-off queue reads
+ *  as the *product* gate rather than as another engineering one — the
+ *  same pink the Today sentence and the sign-off pipeline use. */
+function CountBadge({ value, tone }: { value: number; tone: "warn" | "neutral" | "product" }) {
   return (
     <span
-      data-status={tone === "warn" ? "in_progress" : undefined}
+      data-status={tone === "warn" ? "in_progress" : tone === "product" ? "with_product" : undefined}
       className={cn(
         "font-mono-data shrink-0 rounded-4xl px-1.5 py-0.5 text-[11px]",
         tone === "neutral" && "bg-muted text-muted-foreground",

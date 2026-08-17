@@ -36,16 +36,28 @@ const TONE_DESCRIPTION: Record<PrTone, string> = {
   closed: "closed without merging",
 }
 
-export function PrChip({ pr, className }: { pr: PrRefT; className?: string }) {
+export function PrChip({
+  pr,
+  className,
+  asSpan,
+}: {
+  pr: PrRefT
+  className?: string
+  /** Draw the chip without its own anchor — for a row that is itself one
+   *  link to this pull request (see `.row-link`), where a second anchor
+   *  nested inside the first isn't valid HTML. The chip still lights up
+   *  on row hover, so the thing a reader used to have to hit exactly
+   *  still reads as the target. */
+  asSpan?: boolean
+}) {
   const tone = prTone(pr)
   const Icon = TONE_ICON[tone]
   const target = tone === "staged" ? ` → ${pr.baseRef}` : ""
+  const Tag = asSpan ? "span" : "a"
 
   return (
-    <a
-      href={pr.url}
-      target="_blank"
-      rel="noreferrer"
+    <Tag
+      {...(asSpan ? {} : ({ href: pr.url, target: "_blank", rel: "noreferrer" } as const))}
       data-pr={tone}
       title={`${pr.title} — ${TONE_DESCRIPTION[tone]}${target}`}
       className={cn(
@@ -57,6 +69,6 @@ export function PrChip({ pr, className }: { pr: PrRefT; className?: string }) {
       <span className="truncate">{pr.repo}</span>
       <span className="font-mono-data pr-number shrink-0">#{pr.number}</span>
       <span className="sr-only"> ({TONE_DESCRIPTION[tone]})</span>
-    </a>
+    </Tag>
   )
 }

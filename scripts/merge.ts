@@ -1,18 +1,28 @@
 #!/usr/bin/env tsx
 // scripts/merge.ts
-// The trust boundary. data/judgment/<date>.json is written by a Claude Code
-// routine (.claude/skills/judge/SKILL.md) — treat it as untrusted input.
-// This script validates it strictly against that day's pending file (the
-// judge's own input, so it's the whitelist of everything the judge was
-// allowed to reference), merges in non-expired overrides.yaml entries, and
-// writes a schema-valid, publication-safe snapshot. Any validation failure
-// exits non-zero and writes nothing — never a partial/silent snapshot.
+// The trust boundary. data/judgment/<epic>/<date>.json is written by a
+// Claude Code routine (.claude/skills/judge/SKILL.md) — treat it as
+// untrusted input. This script validates it strictly against that day's
+// pending file (the judge's own input, so it's the whitelist of everything
+// the judge was allowed to reference), merges in non-expired
+// epics/<epic>/overrides.yaml entries, and writes a schema-valid,
+// publication-safe snapshot. Any validation failure exits non-zero and
+// writes nothing — never a partial/silent snapshot.
+//
+// Scoped to one epic per run, same as collect: `pnpm merge --epic <slug>`.
 import { readFileSync } from "node:fs";
 import { config as loadEnv } from "dotenv";
 loadEnv({ path: ".env.local" });
 
 import type { z } from "zod";
 import { loadConfig, loadOverrides, logicalDate } from "../src/lib/config.ts";
+import {
+  epicConfigPath,
+  epicDataPath,
+  epicFlag,
+  epicOverridesPath,
+  resolveEpicSlug,
+} from "../src/lib/epics.ts";
 import type { Config, OverridesFile } from "../src/lib/config-schema.ts";
 import { writeJsonAtomic } from "../src/lib/io.ts";
 import { deriveStage } from "../src/lib/score.ts";
@@ -145,7 +155,7 @@ function isExpired(expires: string, timezone: string, now: Date): boolean {
 
 export function buildSnapshot(params: {
   date: string;
-  epic: { key: string; title: string; targetDate: string | null; overview?: string };
+  epic: { key: string; title: string; targetDate: string | null; overview?: string; slug?: string };
   /** Defaulted so a raw file written before milestones were collected
    *  still merges — the snapshot simply publishes an empty list. */
   milestones?: RawMilestone[];
@@ -156,8 +166,12 @@ export function buildSnapshot(params: {
   timezone: string;
   collectionErrors: CollectionErrorT[];
   people: Record<string, string>;
+  /** The epics.yaml slug this snapshot belongs to. Takes precedence over
+   *  anything in `epic` — the caller knows which epic it was asked to
+   *  merge, the raw file is just a record of it. */
+  epicSlug: string;
 }): z.infer<typeof StatusSnapshot> {
-  const { date, epic, milestones = [], rawFeatures, judgment, overrides, now, timezone, collectionErrors, people } = params;
+  const { date, epic, milestones = [], rawFeatures, judgment, overrides, now, timezone, collectionErrors, people, epicSlug } = params;
   const judgmentByKey = new Map(judgment.features.map((f) => [f.featureKey, f]));
 
   const features: FeatureT[] = rawFeatures.map((raw) => {
@@ -269,12 +283,13 @@ export function buildSnapshot(params: {
   );
 
   return {
-    // 3: Feature.signedOff / awaitingSignOff are published. Snapshots
-    // written at 1 and 2 still parse — see renameLegacy in schema.ts.
-    schemaVersion: 3,
+    // 4: epic.slug and MilestoneSummary.group are published. Snapshots
+    // written at 1-3 still parse — see renameLegacy and the defaulted
+    // fields in schema.ts.
+    schemaVersion: 4,
     date,
     generatedAt: now.toISOString(),
-    epic: { ...epic, overview: epic.overview ?? "" },
+    epic: { ...epic, overview: epic.overview ?? "", slug: epicSlug },
     // Only milestones that actually have tracked features are published —
     // a milestone configured but not yet expanded would otherwise render as
     // an empty group in the sidebar.
@@ -328,24 +343,32 @@ export const defaultMergeDeps: MergeDeps = {
 };
 
 export async function runMerge(
+  epic: string,
   date: string,
   config: Config,
   deps: MergeDeps = defaultMergeDeps,
 ): Promise<{ ok: true; snapshot: z.infer<typeof StatusSnapshot> } | { ok: false; reason: string }> {
+  const rawPath = epicDataPath("raw", epic, date);
+  const pendingPath = epicDataPath("pending", epic, date);
+  const judgmentPath = epicDataPath("judgment", epic, date);
+
   let raw: RawFile;
   let pending: PendingFile;
   try {
-    raw = deps.readJsonFile(`data/raw/${date}.json`) as RawFile;
-    pending = deps.readJsonFile(`data/pending/${date}.json`) as PendingFile;
+    raw = deps.readJsonFile(rawPath) as RawFile;
+    pending = deps.readJsonFile(pendingPath) as PendingFile;
   } catch (err) {
-    return { ok: false, reason: `Missing collect.ts output for ${date} — run "pnpm collect" first. (${(err as Error).message})` };
+    return {
+      ok: false,
+      reason: `Missing collect.ts output for ${epic} on ${date} — run "pnpm collect --epic ${epic}" first. (${(err as Error).message})`,
+    };
   }
 
   let judgmentRaw: unknown;
   try {
-    judgmentRaw = deps.readJsonFile(`data/judgment/${date}.json`);
+    judgmentRaw = deps.readJsonFile(judgmentPath);
   } catch (err) {
-    return { ok: false, reason: `data/judgment/${date}.json is missing — run the judge skill before merge. (${(err as Error).message})` };
+    return { ok: false, reason: `${judgmentPath} is missing — run the judge skill for ${epic} before merge. (${(err as Error).message})` };
   }
 
   const validated = validateJudgment(judgmentRaw, pending);
@@ -353,11 +376,12 @@ export async function runMerge(
     return validated;
   }
 
-  const overrides = deps.loadOverrides();
+  const overrides = deps.loadOverrides(epicOverridesPath(epic));
 
   const snapshot = buildSnapshot({
     date,
     epic: raw.epic,
+    epicSlug: epic,
     milestones: raw.milestones,
     rawFeatures: raw.features,
     judgment: validated.value,
@@ -378,21 +402,22 @@ export async function runMerge(
     };
   }
 
-  deps.writeJsonAtomic(`data/snapshots/${date}.json`, finalCheck.data);
+  deps.writeJsonAtomic(epicDataPath("snapshots", epic, date), finalCheck.data);
   return { ok: true, snapshot: finalCheck.data };
 }
 
 async function main() {
-  const config = loadConfig();
+  const epic = resolveEpicSlug(epicFlag(process.argv.slice(2)));
+  const config = loadConfig(epicConfigPath(epic));
   const date = logicalDate(config.timezone);
-  const result = await runMerge(date, config);
+  const result = await runMerge(epic, date, config);
 
   if (!result.ok) {
-    console.error(`\nmerge failed for ${date}:\n  ${result.reason}\n`);
+    console.error(`\nmerge failed for ${epic} on ${date}:\n  ${result.reason}\n`);
     process.exit(1);
   }
 
-  console.log(`\nWrote data/snapshots/${date}.json`);
+  console.log(`\nWrote ${epicDataPath("snapshots", epic, date)}`);
   console.log(`  ${result.snapshot.features.length} feature(s), headline: ${result.snapshot.headline.sentence}`);
 }
 

@@ -139,7 +139,7 @@ export function peopleLoad(snapshot: StatusSnapshotT, asOf: Date): PersonLoad[] 
   };
 
   for (const feature of snapshot.features) {
-    const login = loginForDisplayName(feature.owner);
+    const login = loginForDisplayName(snapshot.epic.slug, feature.owner);
     if (login) displayNameByLogin.set(login, feature.owner);
     const person = row(login, feature.owner);
     person.features.push(feature);

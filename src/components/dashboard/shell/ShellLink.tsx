@@ -41,7 +41,7 @@ type ShellLinkProps = {
  * throw away the type checking that makes a typo a build error.
  */
 export function ShellLink({ page, code, id, className, activeProps, search, title, children }: ShellLinkProps) {
-  const { date } = useShell()
+  const { epic, date } = useShell()
   const shared = {
     className,
     activeProps,
@@ -58,61 +58,61 @@ export function ShellLink({ page, code, id, className, activeProps, search, titl
     switch (page) {
       case "today":
         return (
-          <Link to="/$date" params={{ date }} activeOptions={{ exact: true }} {...shared}>
+          <Link to="/$epic/$date" params={{ epic, date }} activeOptions={{ exact: true }} {...shared}>
             {children}
           </Link>
         )
       case "attention":
         return (
-          <Link to="/$date/attention" params={{ date }} {...shared}>
+          <Link to="/$epic/$date/attention" params={{ epic, date }} {...shared}>
             {children}
           </Link>
         )
       case "reviews":
         return (
-          <Link to="/$date/reviews" params={{ date }} {...shared}>
+          <Link to="/$epic/$date/reviews" params={{ epic, date }} {...shared}>
             {children}
           </Link>
         )
       case "week":
         return (
-          <Link to="/$date/week" params={{ date }} {...shared}>
+          <Link to="/$epic/$date/week" params={{ epic, date }} {...shared}>
             {children}
           </Link>
         )
       case "people":
         return (
-          <Link to="/$date/people" params={{ date }} {...shared}>
+          <Link to="/$epic/$date/people" params={{ epic, date }} {...shared}>
             {children}
           </Link>
         )
       case "signoff":
         return (
-          <Link to="/$date/signoff" params={{ date }} {...shared}>
+          <Link to="/$epic/$date/signoff" params={{ epic, date }} {...shared}>
             {children}
           </Link>
         )
       case "scope":
         return (
-          <Link to="/$date/scope" params={{ date }} {...shared}>
+          <Link to="/$epic/$date/scope" params={{ epic, date }} {...shared}>
             {children}
           </Link>
         )
       case "config":
         return (
-          <Link to="/$date/config" params={{ date }} {...shared}>
+          <Link to="/$epic/$date/config" params={{ epic, date }} {...shared}>
             {children}
           </Link>
         )
       case "feature":
         return (
-          <Link to="/$date/f/$code" params={{ date, code: code! }} {...shared}>
+          <Link to="/$epic/$date/f/$code" params={{ epic, date, code: code! }} {...shared}>
             {children}
           </Link>
         )
       case "milestone":
         return (
-          <Link to="/$date/m/$id" params={{ date, id: id! }} {...shared}>
+          <Link to="/$epic/$date/m/$id" params={{ epic, date, id: id! }} {...shared}>
             {children}
           </Link>
         )
@@ -122,61 +122,61 @@ export function ShellLink({ page, code, id, className, activeProps, search, titl
   switch (page) {
     case "today":
       return (
-        <Link to="/" activeOptions={{ exact: true }} {...shared}>
+        <Link to="/$epic" params={{ epic }} activeOptions={{ exact: true }} {...shared}>
           {children}
         </Link>
       )
     case "attention":
       return (
-        <Link to="/attention" {...shared}>
+        <Link to="/$epic/attention" params={{ epic }} {...shared}>
           {children}
         </Link>
       )
     case "reviews":
       return (
-        <Link to="/reviews" {...shared}>
+        <Link to="/$epic/reviews" params={{ epic }} {...shared}>
           {children}
         </Link>
       )
     case "week":
       return (
-        <Link to="/week" {...shared}>
+        <Link to="/$epic/week" params={{ epic }} {...shared}>
           {children}
         </Link>
       )
     case "people":
       return (
-        <Link to="/people" {...shared}>
+        <Link to="/$epic/people" params={{ epic }} {...shared}>
           {children}
         </Link>
       )
     case "signoff":
       return (
-        <Link to="/signoff" {...shared}>
+        <Link to="/$epic/signoff" params={{ epic }} {...shared}>
           {children}
         </Link>
       )
     case "scope":
       return (
-        <Link to="/scope" {...shared}>
+        <Link to="/$epic/scope" params={{ epic }} {...shared}>
           {children}
         </Link>
       )
     case "config":
       return (
-        <Link to="/config" {...shared}>
+        <Link to="/$epic/config" params={{ epic }} {...shared}>
           {children}
         </Link>
       )
     case "feature":
       return (
-        <Link to="/f/$code" params={{ code: code! }} {...shared}>
+        <Link to="/$epic/f/$code" params={{ epic, code: code! }} {...shared}>
           {children}
         </Link>
       )
     case "milestone":
       return (
-        <Link to="/m/$id" params={{ id: id! }} {...shared}>
+        <Link to="/$epic/m/$id" params={{ epic, id: id! }} {...shared}>
           {children}
         </Link>
       )

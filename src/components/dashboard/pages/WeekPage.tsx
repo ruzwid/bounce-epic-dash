@@ -26,7 +26,7 @@ type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
  * the week cost in scope, and what nobody touched for the whole of it.
  */
 export function WeekPage({ past }: { past: StatusSnapshotT | null }) {
-  const { snapshot } = useShell()
+  const { epic, snapshot } = useShell()
   const [copied, setCopied] = useState(false)
 
   if (!past) {
@@ -125,7 +125,7 @@ export function WeekPage({ past }: { past: StatusSnapshotT | null }) {
                 key={owner}
                 className="surface flex flex-wrap items-center gap-x-4 gap-y-2 rounded-4xl border border-border bg-card px-5 py-3"
               >
-                <PersonChip login={loginForDisplayName(owner)} name={owner} />
+                <PersonChip login={loginForDisplayName(epic, owner)} name={owner} />
                 <span className="font-mono-data text-sm">{items.length}</span>
                 <span className="text-xs text-muted-foreground">
                   {items.length === 1 ? "change" : "changes"} across{" "}
@@ -175,7 +175,7 @@ export function WeekPage({ past }: { past: StatusSnapshotT | null }) {
                   <span className="font-mono-data text-[13px] font-medium">{feature.code}</span>
                 </ShellLink>
                 <span className="min-w-0 flex-1 truncate text-sm">{featureTitleWithoutCode(feature)}</span>
-                <PersonChip login={loginForDisplayName(feature.owner)} name={feature.owner} />
+                <PersonChip login={loginForDisplayName(epic, feature.owner)} name={feature.owner} />
                 <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
                   <Hourglass aria-hidden="true" className="size-3.5" />
                   <span className="font-mono-data">{feature.daysSinceLastActivity}d</span>

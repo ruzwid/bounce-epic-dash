@@ -10,6 +10,11 @@ type FilterBarProps = {
   onSearchChange: (updates: Partial<DashboardSearch>) => void
   /** Distinct owners present in *this* snapshot — never a hardcoded list. */
   engineers: string[]
+  /** The milestone groups present in *this* snapshot, same source as the
+   *  sidebar's sections (sidebarGroups). Also never a hardcoded list: the
+   *  chips used to read M1 / M2 / M3–M4 literally, which was one epic's
+   *  milestone structure baked into a shared component. */
+  milestoneGroups: { id: string; milestoneIds: string[] }[]
 }
 
 /**
@@ -17,7 +22,7 @@ type FilterBarProps = {
  * URL state") — this component only reads/writes via props, the actual
  * route wires `search`/`onSearchChange` to `Route.useSearch()`/`navigate`.
  */
-export function FilterBar({ search, onSearchChange, engineers }: FilterBarProps) {
+export function FilterBar({ search, onSearchChange, engineers, milestoneGroups }: FilterBarProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -42,17 +47,23 @@ export function FilterBar({ search, onSearchChange, engineers }: FilterBarProps)
 
   return (
     <div className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center gap-3 border-y border-border bg-background/95 px-4 py-2.5 backdrop-blur-sm sm:mx-0 sm:rounded-4xl sm:border-x">
-      <ToggleGroup
-        value={[search.milestone]}
-        onValueChange={(value) => onSearchChange({ milestone: (value[0] as DashboardSearch["milestone"]) ?? "all" })}
-        variant="outline"
-        size="sm"
-      >
-        <ToggleGroupItem value="all">All</ToggleGroupItem>
-        <ToggleGroupItem value="m1">M1</ToggleGroupItem>
-        <ToggleGroupItem value="m2">M2</ToggleGroupItem>
-        <ToggleGroupItem value="m3-m4">M3–M4</ToggleGroupItem>
-      </ToggleGroup>
+      {/* Hidden entirely when the epic has one milestone group: a
+          two-chip "All / M1" control filters nothing. */}
+      {milestoneGroups.length > 1 ? (
+        <ToggleGroup
+          value={[search.milestone]}
+          onValueChange={(value) => onSearchChange({ milestone: value[0] ?? "all" })}
+          variant="outline"
+          size="sm"
+        >
+          <ToggleGroupItem value="all">All</ToggleGroupItem>
+          {milestoneGroups.map((group) => (
+            <ToggleGroupItem key={group.id} value={group.id}>
+              {group.milestoneIds.join("–")}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      ) : null}
 
       <FilterMenu
         label="All engineers"

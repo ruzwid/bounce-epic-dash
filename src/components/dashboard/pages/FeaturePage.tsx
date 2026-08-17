@@ -272,6 +272,7 @@ function StatusMixLine({ feature }: { feature: FeatureT }) {
 }
 
 function AcRow({ ac }: { ac: AcCoverageT }) {
+  const { epic } = useShell()
   const isCovered = ac.coverage === "covered"
   const isPartial = ac.coverage === "partial"
   const tone = isCovered ? "shipped" : isPartial ? "staged" : "todo"
@@ -291,7 +292,7 @@ function AcRow({ ac }: { ac: AcCoverageT }) {
         {ac.evidence.length > 0 ? (
           <span className="font-mono-data ml-1.5 text-[11px] opacity-60">
             {ac.evidence.map((item, i) => {
-              const href = githubPrUrl(item) ?? jiraIssueUrl(item)
+              const href = githubPrUrl(epic, item) ?? jiraIssueUrl(item)
               return (
                 <span key={item}>
                   {i > 0 ? ", " : null}

@@ -8,6 +8,7 @@ import { featureSlug, featureTitleWithoutCode, isFeatureTicket } from "@/lib/das
 import { loginForDisplayName } from "@/lib/dashboard/appConfig"
 import { statusLabel } from "@/lib/dashboard/statusLabels"
 import { ShellLink } from "./shell/ShellLink"
+import { useShell } from "./shell/ShellContext"
 import { JiraLink } from "./JiraLink"
 import { PersonChip } from "./PersonChip"
 import { PrChip } from "./PrChip"
@@ -101,6 +102,7 @@ function ChangeLine({ change, status }: { change: ChangeItem; status: string }) 
   // rule, same helper, as the People page's in-flight tree.
   const ownTicket = rows.filter((row) => isFeatureTicket(row.story, change.feature))
   const childStories = rows.filter((row) => !isFeatureTicket(row.story, change.feature))
+  const { epic } = useShell()
 
   return (
     <li className="flex flex-col gap-1">
@@ -114,7 +116,7 @@ function ChangeLine({ change, status }: { change: ChangeItem; status: string }) 
           <span className="font-mono-data text-[13px] font-medium">{change.feature.code}</span>
         </ShellLink>
         <span className="min-w-0 truncate text-sm">{featureTitleWithoutCode(change.feature)}</span>
-        <PersonChip login={loginForDisplayName(change.feature.owner)} name={change.feature.owner} />
+        <PersonChip login={loginForDisplayName(epic, change.feature.owner)} name={change.feature.owner} />
         {ownTicket.map((row) => (
           <span
             key={row.story.key}

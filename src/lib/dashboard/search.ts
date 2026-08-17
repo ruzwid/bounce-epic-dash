@@ -5,13 +5,19 @@
 // helper (that's the thing that breaks .catch() type inference; a raw
 // schema passed straight to validateSearch keeps it).
 import { z } from "zod";
-import type { Feature as FeatureSchema } from "../schema.ts";
+import type { Feature as FeatureSchema, StatusSnapshot as StatusSnapshotSchema } from "../schema.ts";
+import { configMilestones } from "./appConfig.ts";
 import { storyPrs } from "../stories.ts";
 
 export const dashboardSearchSchema = z.object({
-  // M3 and M4 share one filter value: they're both Tony's light-tier
-  // platform work and are always read together.
-  milestone: z.enum(["all", "m1", "m2", "m3-m4"]).default("all").catch("all"),
+  // "all", or a sidebar group slug ("m1", or "m3-m4" for milestones that
+  // share a `group` in their epic's config). Deliberately an open string
+  // rather than the enum this used to be: the valid values are whatever
+  // the *current epic's* milestones are, which a schema shared by every
+  // route can't enumerate. An unrecognised value matches nothing, so a
+  // stale link from another epic shows an empty list rather than silently
+  // falling back to unfiltered.
+  milestone: z.string().default("all").catch("all"),
   engineer: z.string().nullable().default(null),
   needsAttention: z.boolean().default(false),
   q: z.string().default(""),
@@ -35,6 +41,7 @@ export const DASHBOARD_SEARCH_DEFAULTS: DashboardSearch = {
   q: "",
 };
 type FeatureT = z.infer<typeof FeatureSchema>;
+type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>;
 
 const STALL_DAYS = 7;
 const REVIEW_WAIT_DAYS = 2;
@@ -79,19 +86,54 @@ export function needsAttention(feature: FeatureT, asOf: Date): boolean {
   return waitingOnReview;
 }
 
-/** The one place "does this milestone id satisfy the milestone filter"
- *  is decided — shared by matchesFilters (one feature) and
- *  groupMatchesMilestoneFilter (a whole sidebar/Today group) below, so
- *  the two can never disagree about what "m3-m4" means. */
-function milestoneMatchesFilter(milestone: string, filter: DashboardSearch["milestone"]): boolean {
-  if (filter === "all") return true;
-  if (filter === "m1") return milestone === "M1";
-  if (filter === "m2") return milestone === "M2";
-  return milestone === "M3" || milestone === "M4";
+/** A group key as it appears in a URL or filter value: "M1" -> "m1".
+ *  Group keys written in an epic's config ("m3-m4") are already slugs;
+ *  bare milestone ids are not. */
+export function groupSlug(key: string): string {
+  return key.toLowerCase();
 }
 
-export function matchesFilters(feature: FeatureT, search: DashboardSearch, now: Date): boolean {
-  if (!milestoneMatchesFilter(feature.milestone, search.milestone)) return false;
+/** The sidebar/filter group a milestone id belongs to, as a slug.
+ *
+ *  Three sources, in order: the group published in the snapshot; then the
+ *  epic's current config; then the milestone's own id, meaning it stands
+ *  alone. The config fallback is what keeps snapshots written before
+ *  grouping was published rendering the way they always did — the same
+ *  shape as resolveTargetDate (src/lib/dashboard/velocity.ts), which falls
+ *  back to config for the same reason. Grouping is presentation, not
+ *  measurement, so reading it from today's config on an old snapshot is
+ *  correct rather than revisionist.
+ *
+ *  Lives here rather than in nav.ts because nav.ts already imports from
+ *  this module (needsAttention, prOpenDays) and the reverse would be a
+ *  cycle. It is the one place the filter and the sidebar agree on what a
+ *  filter value covers, so the two can never disagree about what "m3-m4"
+ *  means. */
+export function milestoneGroupSlug(snapshot: StatusSnapshotT, milestoneId: string): string {
+  const published = snapshot.milestones.find((m) => m.id === milestoneId)?.group;
+  return groupSlug(published ?? configuredGroup(snapshot.epic.slug, milestoneId) ?? milestoneId);
+}
+
+/** The `group` an epic's config gives a milestone id today, or null.
+ *  Reads the config block directly rather than through loadAppConfig() so
+ *  a config that fails full validation can't take the sidebar down — same
+ *  reasoning as the lookups in appConfig.ts. */
+function configuredGroup(epic: string, milestoneId: string): string | null {
+  for (const milestone of configMilestones(epic)) {
+    if (milestone.id === milestoneId) return milestone.group ?? null;
+  }
+  return null;
+}
+
+export function matchesFilters(
+  snapshot: StatusSnapshotT,
+  feature: FeatureT,
+  search: DashboardSearch,
+  now: Date,
+): boolean {
+  if (search.milestone !== "all" && milestoneGroupSlug(snapshot, feature.milestone) !== search.milestone) {
+    return false;
+  }
   if (search.engineer !== null && feature.owner !== search.engineer) return false;
   if (search.needsAttention && !needsAttention(feature, now)) return false;
 
@@ -105,11 +147,15 @@ export function matchesFilters(feature: FeatureT, search: DashboardSearch, now: 
 }
 
 /** Whether a sidebar/Today milestone group has anything to show under the
- *  active milestone filter — true if any of its milestoneIds match.
- *  matchesFilters alone can't express this: it decides per-feature, so
- *  without this a milestone filter narrowed every group's feature list to
- *  zero but still rendered the group itself, empty. Picking "M1" now
- *  hides the M2/M3/M4 sections outright instead of rendering them empty. */
-export function groupMatchesMilestoneFilter(milestoneIds: string[], search: DashboardSearch): boolean {
-  return milestoneIds.some((id) => milestoneMatchesFilter(id, search.milestone));
+ *  active milestone filter. matchesFilters alone can't express this: it
+ *  decides per-feature, so without this a milestone filter narrowed every
+ *  group's feature list to zero but still rendered the group itself,
+ *  empty. Picking one group now hides the other sections outright instead
+ *  of rendering them empty.
+ *
+ *  Takes the group's own slug (SidebarGroup.id), which sidebarGroups() has
+ *  already resolved — the filter values *are* group slugs, so this is a
+ *  direct comparison rather than a second, re-derived notion of grouping. */
+export function groupMatchesMilestoneFilter(groupId: string, search: DashboardSearch): boolean {
+  return search.milestone === "all" || search.milestone === groupId;
 }

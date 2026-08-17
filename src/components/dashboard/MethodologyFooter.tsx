@@ -41,8 +41,9 @@ export function MethodologyFooter({ snapshot }: MethodologyFooterProps) {
       <div>
         <h2 className="m-0 mb-1 text-sm font-semibold text-foreground">Full vs. light tier</h2>
         <p className="m-0">
-          Full-tier milestones (M1) are tracked in complete detail — every story, every acceptance-criteria bullet.
-          Light-tier milestones (M3/M4) are tracked with the same fields, condensed, for a single owner.
+          Full-tier milestones are tracked in complete detail — every story, every acceptance-criteria bullet.
+          Light-tier milestones are tracked with the same fields, condensed, and are what a single owner's
+          milestone is normally set to. Which milestone is which is set per epic, on the Config page.
         </p>
       </div>
       <p className="font-mono-data m-0 text-xs">

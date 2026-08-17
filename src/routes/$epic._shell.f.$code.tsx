@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { FeatureBySlug } from '@/components/dashboard/pages/FeatureBySlug'
 
-export const Route = createFileRoute('/$date/f/$code')({
+export const Route = createFileRoute('/$epic/_shell/f/$code')({
   component: FeatureRoute,
 })
 

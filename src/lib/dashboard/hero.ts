@@ -67,7 +67,12 @@ export function buildHeroSummary(snapshot: StatusSnapshotT, changes: ChangeItem[
         count: count("sent_for_sign_off"),
         noun: feature(count("sent_for_sign_off")),
         tail: "sent to product",
-        status: "in_review",
+        // Pink, not the blue "in review" wears: code review and product
+        // review are consecutive gates in the same flow (in progress →
+        // code review → to be released → product review → done), and one
+        // hue for both made a sentence counting each of them read as if
+        // it were counting the same thing twice.
+        status: "with_product",
         icon: "with_product",
       },
       {
@@ -126,7 +131,7 @@ export function buildHeroSummary(snapshot: StatusSnapshotT, changes: ChangeItem[
         count: awaiting,
         noun: feature(awaiting),
         tail: plural(awaiting, "is with product", "are with product"),
-        status: "in_review",
+        status: "with_product",
         icon: "with_product",
       },
       {

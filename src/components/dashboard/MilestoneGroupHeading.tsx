@@ -3,10 +3,11 @@ import { ShellLink } from "./shell/ShellLink"
 
 /**
  * One heading, two shapes: a single-milestone group ("M1 · Core...") links
- * as one unit to its one page; the merged M3/M4 group links each id to its
- * own milestone page separately, since "M3 / M4 · Tony" is two tickets —
- * neither has its own sidebar/Today entry otherwise, so this is the only
- * way either page is reachable without typing the URL.
+ * as one unit to its one page; a merged group (milestones sharing a
+ * `group` in their epic's config) links each id to its own milestone page
+ * separately, since "M3 / M4 · Tony" is two tickets — neither has its own
+ * sidebar/Today entry otherwise, so this is the only way either page is
+ * reachable without typing the URL.
  */
 export function MilestoneGroupHeading({ group, className }: { group: SidebarGroup; className?: string }) {
   if (group.milestoneIds.length === 1) {

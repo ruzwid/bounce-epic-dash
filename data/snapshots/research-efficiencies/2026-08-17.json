@@ -1,0 +1,3703 @@
+{
+  "schemaVersion": 4,
+  "date": "2026-08-17",
+  "generatedAt": "2026-08-17T16:52:31.843Z",
+  "epic": {
+    "key": "BOUN-11173",
+    "title": "Research Efficiencies",
+    "targetDate": null,
+    "overview": "Make the research team faster and more efficient by shipping a targeted set of features and bug fixes that eliminate manual workarounds, resolve known platform issues, and improve core survey creation, testing, translation, and results workflows. Each feature in this epic can be released independently.",
+    "slug": "research-efficiencies"
+  },
+  "milestones": [
+    {
+      "id": "M1",
+      "key": "BOUN-11174",
+      "title": "M1 — Core Logic & Testing Reliability",
+      "tier": "full",
+      "owner": "Minhal",
+      "overview": "What it delivers: Fixes the structural reliability of piping/logic references, gives researchers a flexible test mode, and adds AI-assisted open-end cleaning.\n\nFeatures included: Piping & Logic Reference Stability, Enhanced Survey Test Mode, AI-Assisted Admin Cleaning of Open-End Responses.\n\nWhat done looks like: All three features live with no regressions in existing piping, logic, or test flows.\n\nDependencies: None blocking start. Produces the Restrictions Review Table (Piping & Logic Reference Stability) that M2's Survey Creator Error Treatment depends on.",
+      "group": null
+    },
+    {
+      "id": "M2",
+      "key": "BOUN-11175",
+      "title": "M2 — Creator Efficiency & Error Clarity",
+      "tier": "full",
+      "owner": "Minhal",
+      "overview": "What it delivers: Speeds up survey building itself — bulk question actions, clearer hard-error/soft-warning treatment, precise answer-option-level quota control, and usable Excel exports.\n\nFeatures included: Notification Bucket Generation Performance, Ability to Multiselect Questions in Survey Creator, Excel Totals — Separate Tabs for Absolutes and Percentages, Question-Level Quota Targeting.\n\nWhat done looks like: All four features live. Survey Creator Error Treatment's restriction reclassification list agreed jointly with M1's Piping & Logic Reference Stability before either starts.\n\nDependencies: Survey Creator Error Treatment is blocked until M1's Restrictions Review Table (Piping & Logic Reference Stability) is finalised. Also needs coordination with the in-progress \"show all errors\" work and any api-core validation changes.",
+      "group": null
+    },
+    {
+      "id": "M3",
+      "key": "BOUN-11176",
+      "title": "M3 — Platform Fixes & Polish",
+      "tier": "light",
+      "owner": "Minhal",
+      "overview": "What it delivers: Clears a backlog of smaller, independent bugs — translation import, matrix toggle behaviour, notification performance, and AI insight display.\n\nFeatures included: Option Groups + Other (Please Specify) Translation Fix, Matrix Question Options Preserved on Choice Type Toggle, \"No Insights to Summarise\" — Colour Fix and fixing survey creator errors.\n\nWhat done looks like: All four features live independently — no cross-feature dependencies.\n\nDependencies: None blocking.",
+      "group": null
+    }
+  ],
+  "headline": {
+    "featuresWithNothingOnMaster": 7,
+    "totalFeatures": 11,
+    "sentence": "7 of 11 feature(s) have nothing shipped to the default branch yet."
+  },
+  "kpis": {
+    "featuresTracked": 11,
+    "lightTierMilestones": 1,
+    "storiesTracked": 52,
+    "shipped": 13,
+    "doneUnverified": 25,
+    "staged": 1,
+    "inReview": 7,
+    "inProgress": 0,
+    "blocked": 0,
+    "todo": 6,
+    "blockedOrTodo": 6
+  },
+  "features": [
+    {
+      "key": "BOUN-11177",
+      "code": "F1.1",
+      "title": "F1.1 Piping & Logic Reference Stability",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Artur",
+      "repos": [
+        "api-core",
+        "dashboard",
+        "dashboard-api",
+        "ts-types"
+      ],
+      "overview": "Ensure piping and advanced logic references remain accurate when survey structure is edited (questions added, deleted, or reordered), and reclassify overly strict restrictions as warnings.",
+      "stage": "nearly_done",
+      "score": 95,
+      "scoreBasis": {
+        "shipped": 1,
+        "doneUnverified": 17,
+        "staged": 0,
+        "inReview": 1,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 19
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "Only 1 of 19 stories is confirmed on master; 17 are marked Done in JIRA without a pull request proving the code reached the default branch, and 1 remains in review.",
+      "daysSinceLastActivity": 0,
+      "daysInStaged": 31,
+      "releaseGate": {
+        "integrationBranch": "BOUN-11117",
+        "pr": {
+          "repo": "dashboard",
+          "number": 3800,
+          "title": "[BOUN-11117] Preserve missOffset and piping tokens across question reorder",
+          "url": "https://github.com/bounceinsights/dashboard/pull/3800",
+          "state": "MERGED",
+          "isDraft": false,
+          "baseRef": "master",
+          "headRef": "BOUN-11117",
+          "shippedToDefault": true,
+          "mergedAt": "2026-07-28T14:36:55Z",
+          "updatedAt": "2026-07-28T14:36:55Z",
+          "createdAt": "2026-07-17T16:11:44Z",
+          "stackChain": [],
+          "reviewRequests": [],
+          "reviews": [
+            {
+              "reviewer": "Pierce-44",
+              "state": "APPROVED"
+            },
+            {
+              "reviewer": "minhalaftabrana",
+              "state": "APPROVED"
+            }
+          ],
+          "author": "arturvorobjov-tech",
+          "filesTouched": []
+        },
+        "status": "merged"
+      },
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Piping survives questions being added, removed or reordered",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11259",
+            "dashboard#3791",
+            "BOUN-11261",
+            "dashboard#3793"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Advanced logic conditions survive the same structural edits",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11260",
+            "dashboard#3792",
+            "dashboard#3799"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "A reference that still breaks warns the researcher instead of failing quietly",
+          "coverage": "covered",
+          "evidence": [
+            "dashboard#3813",
+            "BOUN-11271",
+            "dashboard#3814"
+          ]
+        },
+        {
+          "id": "ac-4",
+          "label": "Soft restrictions warn and can be dismissed rather than blocking publish",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11268",
+            "dashboard#3811",
+            "BOUN-11299",
+            "dashboard#3812"
+          ]
+        },
+        {
+          "id": "ac-5",
+          "label": "Interface and API agree on what is allowed",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11355",
+            "api-core#1001",
+            "dashboard-api#2070"
+          ]
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11225",
+          "summary": "Create Plan document for execution",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-05T13:43:17.473Z",
+          "prs": [],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11259",
+          "summary": "Add pipedFromBlockId to write sites and re-index forwardedFrom on mutations",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:21.278Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3791,
+              "title": "[BOUN-11259] Add pipedFromBlockId to write sites and re-index forwardedFrom on mutations",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3791",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11117",
+              "headRef": "BOUN-11259",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-17T08:36:34Z",
+              "updatedAt": "2026-07-17T08:36:42Z",
+              "createdAt": "2026-07-15T15:16:34Z",
+              "stackChain": [
+                3800
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11260",
+          "summary": "Migrate condition.question in advanced logic to use blockId",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:22.667Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3792,
+              "title": "[BOUN-11260] Migrate condition.question in advanced logic to use blockId",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3792",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11117",
+              "headRef": "BOUN-11260",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-22T10:56:41Z",
+              "updatedAt": "2026-07-22T10:57:00Z",
+              "createdAt": "2026-07-15T15:23:24Z",
+              "stackChain": [
+                3800
+              ],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "CHANGES_REQUESTED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11261",
+          "summary": "Migrate piping tokens in question text to use blockId",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:12.556Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3793,
+              "title": "[BOUN-11261] Migrate piping tokens in question text to use blockId",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3793",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11117",
+              "headRef": "BOUN-11261",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-17T16:27:09Z",
+              "updatedAt": "2026-07-17T16:27:12Z",
+              "createdAt": "2026-07-15T15:49:18Z",
+              "stackChain": [
+                3800
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11262",
+          "summary": "Surface inline error when reorder makes pipe structurally invalid",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:06.243Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3794,
+              "title": "[BOUN-11262] Surface inline error when reorder makes pipe structurally invalid",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3794",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "BOUN-11117",
+              "headRef": "BOUN-11262",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-21T08:21:20Z",
+              "createdAt": "2026-07-15T16:13:14Z",
+              "stackChain": [
+                3800
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11263",
+          "summary": "Cypress test",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:05.202Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3805,
+              "title": "[BOUN-11263] Cypress Tests",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3805",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11117",
+              "headRef": "BOUN-11263",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-22T11:27:03Z",
+              "updatedAt": "2026-07-22T11:27:06Z",
+              "createdAt": "2026-07-22T11:03:20Z",
+              "stackChain": [
+                3800
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11264",
+          "summary": "Inline advanced logic condition editor — remove modal popup",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:01.745Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3799,
+              "title": "[BOUN-11264] Advanced logic inline condition picker + blockId display fix",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3799",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11263",
+              "headRef": "BOUN-11264",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-22T11:02:27Z",
+              "updatedAt": "2026-07-22T11:02:32Z",
+              "createdAt": "2026-07-17T15:45:26Z",
+              "stackChain": [
+                3805,
+                3800
+              ],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "CHANGES_REQUESTED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11265",
+          "summary": "Add unreachable path UI-side warning and reclassify API to warning",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:43:57.682Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3803,
+              "title": "[BOUN-11265] Fix advanced logic: orphaned conditions, missOffset highlight, unreachable path warning",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3803",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11117",
+              "headRef": "BOUN-11265",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-22T11:33:59Z",
+              "updatedAt": "2026-07-22T11:34:04Z",
+              "createdAt": "2026-07-21T13:42:47Z",
+              "stackChain": [
+                3800
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11266",
+          "summary": "Reclassify optional question piping restriction from hard error to warning",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:26.745Z",
+          "prs": [
+            {
+              "repo": "api-core",
+              "number": 1000,
+              "title": "[BOUN-11266] Export getPipingRestrictionReason and RESTRICTION_REASONS from pipingUtils",
+              "url": "https://github.com/bounceinsights/api-core/pull/1000",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "BOUN-11355",
+              "headRef": "BOUN-11266",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-29T16:34:17Z",
+              "createdAt": "2026-07-22T09:28:31Z",
+              "stackChain": [
+                1001
+              ],
+              "reviewRequests": [
+                "minhalaftabrana"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3808,
+              "title": "[BOUN-11266] Improve piping error messages, localisation, and stale-error clearing",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3808",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11266",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-30T11:33:51Z",
+              "createdAt": "2026-07-23T15:11:56Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3804,
+              "title": "[BOUN-11266] Reclassify optional-source piping from error to warning",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3804",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "BOUN-11117",
+              "headRef": "BOUN-11266",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-30T11:33:51Z",
+              "createdAt": "2026-07-22T09:31:30Z",
+              "stackChain": [
+                3800
+              ],
+              "reviewRequests": [
+                "minhalaftabrana"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "COMMENTED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11267",
+          "summary": "Reclassify optional source restriction to warning",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:23.352Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3816,
+              "title": "[BOUN-11267] Errors & warnings — piping validation, advanced logic, missOffset reindex",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3816",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11267",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-29T16:34:45Z",
+              "createdAt": "2026-07-23T22:39:46Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11268",
+          "summary": "Reclassify missOffset mismatch to warning",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:43:55.861Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3811,
+              "title": "[BOUN-11268] Reclassify missOffset mismatch to warning",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3811",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11267",
+              "headRef": "BOUN-11268",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-23T22:38:31Z",
+              "updatedAt": "2026-07-23T22:38:34Z",
+              "createdAt": "2026-07-23T21:29:28Z",
+              "stackChain": [
+                3816
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11269",
+          "summary": "Spike: Obtain UX designs for publish-gate confirmation dialog",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:43:54.378Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3814,
+              "title": "[BOUN-11269] Add publish-gate piping warnings confirmation dialog",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3814",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11268",
+              "headRef": "BOUN-11269",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-23T22:34:52Z",
+              "updatedAt": "2026-07-23T22:34:52Z",
+              "createdAt": "2026-07-23T22:12:41Z",
+              "stackChain": [
+                3811,
+                3816
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11270",
+          "summary": "Extend QuestionCard with piping warning fields",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:19.062Z",
+          "prs": [],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11271",
+          "summary": "Build publish-gate confirmation dialog for piping warnings",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:21.195Z",
+          "prs": [],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11272",
+          "summary": "Wire all piping warnings to QuestionCard and publish-gate dialog",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:43:52.763Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3813,
+              "title": "[BOUN-11272] Wire isPossiblyUnreachablePath into piping source dropdown",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3813",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11268",
+              "headRef": "BOUN-11272",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-23T22:34:06Z",
+              "updatedAt": "2026-07-23T22:34:10Z",
+              "createdAt": "2026-07-23T22:04:53Z",
+              "stackChain": [
+                3811,
+                3816
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11299",
+          "summary": "Fix branch/skip check accuracy and reclassify to warning",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:43:51.710Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3812,
+              "title": "[BOUN-11299] Reclassify branch/skip overshoot from hard error to warning",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3812",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11268",
+              "headRef": "BOUN-11299",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-23T22:36:17Z",
+              "updatedAt": "2026-07-23T22:36:21Z",
+              "createdAt": "2026-07-23T21:55:07Z",
+              "stackChain": [
+                3811,
+                3816
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11355",
+          "summary": "Centralise piping validation in api-core: pure { status, reason } results consumed by dashboard and backend",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-13T11:51:33.345Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 637,
+              "title": "[BOUN-11355] Add DraftQuestionSchema for in-progress draft question saves",
+              "url": "https://github.com/bounceinsights/ts-types/pull/637",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11355",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-12T15:20:27Z",
+              "updatedAt": "2026-08-12T15:20:27Z",
+              "createdAt": "2026-08-04T09:40:29Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1001,
+              "title": "[BOUN-11355] Phase 1: add checkForwardedFromCompatibility",
+              "url": "https://github.com/bounceinsights/api-core/pull/1001",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11355",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-12T15:21:31Z",
+              "updatedAt": "2026-08-12T15:21:32Z",
+              "createdAt": "2026-07-24T08:56:23Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard-api",
+              "number": 2070,
+              "title": "[BOUN-11355] Centralise piping validation: v1 survey API with layered architecture",
+              "url": "https://github.com/bounceinsights/dashboard-api/pull/2070",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11355",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-12T15:26:44Z",
+              "updatedAt": "2026-08-12T16:02:19Z",
+              "createdAt": "2026-07-28T13:18:13Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard-api",
+              "number": 2063,
+              "title": "[BOUN-11355] Phase 3: add piping validation gate to publish endpoint",
+              "url": "https://github.com/bounceinsights/dashboard-api/pull/2063",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11355-phase3",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-28T13:17:16Z",
+              "createdAt": "2026-07-24T14:05:44Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3842,
+              "title": "[BOUN-11355] Fix survey dirty-state detection, debounced autosave, and unified alerts",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3842",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11355",
+              "headRef": "BOUN-11355-test",
+              "shippedToDefault": false,
+              "mergedAt": "2026-08-11T08:05:05Z",
+              "updatedAt": "2026-08-11T08:05:11Z",
+              "createdAt": "2026-08-08T12:13:31Z",
+              "stackChain": [
+                3830
+              ],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3830,
+              "title": "[BOUN-11355] Gate autosave on real content, move tagging to Audience step, fix dirty-check races",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3830",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11355",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-12T15:26:41Z",
+              "updatedAt": "2026-08-12T15:26:41Z",
+              "createdAt": "2026-07-30T15:34:22Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3817,
+              "title": "[BOUN-11355] Phase 2: delegate forwardedFrom compatibility to api-core",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3817",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11355-phase2",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-04T09:45:30Z",
+              "createdAt": "2026-07-24T09:55:56Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11362",
+          "summary": "Introduce FieldError component to centralise inline form-field error display in survey editor",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-11T11:44:54.919Z",
+          "prs": [],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11549",
+          "summary": "Fix: piping source silently reverts to previous question when switching to a source with advanced logic",
+          "jiraStatus": "Code Review",
+          "status": "in_review",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-17T11:38:37.119Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3854,
+              "title": "[BOUN-11549] missOffset mismatch warning + stale-closure fix for piping source change",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3854",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11549",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T11:55:29Z",
+              "createdAt": "2026-08-17T11:55:29Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "drift",
+          "severity": "warn",
+          "message": "Seventeen stories are closed in JIRA but no merged pull request confirms any of them reached the default branch, so the ticket board reads further ahead than the code does.",
+          "refs": [
+            "BOUN-11259",
+            "BOUN-11260",
+            "BOUN-11261",
+            "BOUN-11272"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11178",
+      "code": "F1.2",
+      "title": "F1.2 Enhanced Survey Test Mode",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Pierce",
+      "repos": [
+        "api",
+        "dashboard",
+        "ts-types",
+        "web-surveys"
+      ],
+      "overview": "Give researchers a faster, more flexible way to test surveys by allowing save, resume, and jump-to-question.",
+      "stage": "nearly_done",
+      "score": 85,
+      "scoreBasis": {
+        "shipped": 4,
+        "doneUnverified": 4,
+        "staged": 0,
+        "inReview": 2,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 10
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "4 of 10 stories are confirmed on master and 4 more are marked Done in JIRA without a pull request confirming it, with the feature ticket now sitting in product review and 2 stories still open.",
+      "daysSinceLastActivity": 0,
+      "daysInStaged": 25,
+      "releaseGate": {
+        "integrationBranch": "BOUN-11247",
+        "pr": {
+          "repo": "dashboard",
+          "number": 3790,
+          "title": "[BOUN-11247] - Add enhanced survey test mode documentation and implementation plan",
+          "url": "https://github.com/bounceinsights/dashboard/pull/3790",
+          "state": "MERGED",
+          "isDraft": false,
+          "baseRef": "master",
+          "headRef": "BOUN-11247",
+          "shippedToDefault": true,
+          "mergedAt": "2026-07-29T10:00:22Z",
+          "updatedAt": "2026-07-29T10:58:13Z",
+          "createdAt": "2026-07-15T11:19:50Z",
+          "stackChain": [],
+          "reviewRequests": [],
+          "reviews": [
+            {
+              "reviewer": "minhalaftabrana",
+              "state": "APPROVED"
+            },
+            {
+              "reviewer": "SaljithBounceInsights",
+              "state": "APPROVED"
+            }
+          ],
+          "author": "Pierce-44",
+          "filesTouched": []
+        },
+        "status": "merged"
+      },
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "A first run plays straight through and saves at the end",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11282",
+            "api#1489",
+            "web-surveys#554"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "After a completed run the entry screen offers restart, resume or jump",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11282",
+            "web-surveys#554"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "Jumping to an answered question restores earlier answers and anything piped from them",
+          "coverage": "covered",
+          "evidence": [
+            "web-surveys#554",
+            "BOUN-11387",
+            "web-surveys#566"
+          ]
+        },
+        {
+          "id": "ac-4",
+          "label": "Answering differently at the jump point reroutes and is saved",
+          "coverage": "covered",
+          "evidence": [
+            "web-surveys#554",
+            "api#1489"
+          ]
+        },
+        {
+          "id": "ac-5",
+          "label": "Only questions already answered can be jumped to",
+          "coverage": "covered",
+          "evidence": [
+            "api#1489",
+            "BOUN-11387",
+            "api#1512"
+          ]
+        },
+        {
+          "id": "ac-6",
+          "label": "Continuing past a jump replaces the answers that follow it",
+          "coverage": "covered",
+          "evidence": [
+            "web-surveys#554"
+          ]
+        },
+        {
+          "id": "ac-7",
+          "label": "A part-finished run can be resumed where it was left",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11282",
+            "web-surveys#554",
+            "api#1489"
+          ]
+        },
+        {
+          "id": "ac-8",
+          "label": "Randomised options appear randomised, matching what a real respondent sees",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11537",
+            "web-surveys#573",
+            "api#1538"
+          ]
+        },
+        {
+          "id": "ac-9",
+          "label": "Clearing saved responses starts the next run fresh",
+          "coverage": "covered",
+          "evidence": [
+            "web-surveys#554",
+            "api#1489"
+          ]
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11228",
+          "summary": "Engineering & Technical Planning",
+          "jiraStatus": "Planning",
+          "status": "in_review",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-07-15T08:40:06.884Z",
+          "prs": [],
+          "subtasks": [
+            {
+              "key": "BOUN-11229",
+              "summary": "Investigating the code base and creating initial plans of what will need implementing",
+              "jiraStatus": "Done",
+              "status": "done_unverified",
+              "assignee": "Pierce Hahn",
+              "updatedAt": "2026-07-15T10:32:29.959Z",
+              "prs": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11247",
+          "summary": "Enhanced Test Mode: Commit Markdown plan & overview",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-07-29T10:02:00.625Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3790,
+              "title": "[BOUN-11247] - Add enhanced survey test mode documentation and implementation plan",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3790",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11247",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T10:00:22Z",
+              "updatedAt": "2026-07-29T10:58:13Z",
+              "createdAt": "2026-07-15T11:19:50Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11249",
+          "summary": "Enhanced Test Mode: Add feature flag and scope test runs to per-user identity",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-07-29T10:02:17.533Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3795,
+              "title": "[BOUN-11249] - Add feature flag + per-user test identity for enhanced survey test mode",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3795",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11247",
+              "headRef": "BOUN-11249",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-29T08:25:58Z",
+              "updatedAt": "2026-07-29T08:25:59Z",
+              "createdAt": "2026-07-16T09:06:41Z",
+              "stackChain": [
+                3790
+              ],
+              "reviewRequests": [
+                "obieglok"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11282",
+          "summary": "Enhanced Test Mode: enable resume in test mode & keep completed test runs (stop auto-deleting on finish)",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-07-30T07:06:34.872Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 623,
+              "title": "[BOUN-11282] - Add test-baseline + structureVersion fields to InProgressResponseSchema",
+              "url": "https://github.com/bounceinsights/ts-types/pull/623",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11282",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T16:31:46Z",
+              "updatedAt": "2026-07-29T16:31:46Z",
+              "createdAt": "2026-07-17T10:40:28Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "SaljithBounceInsights"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "arturvorobjov-tech",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "web-surveys",
+              "number": 554,
+              "title": "[BOUN-11282] - Enhanced test mode UI: mode chooser, resume, jump, save & exit",
+              "url": "https://github.com/bounceinsights/web-surveys/pull/554",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11282",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T16:38:36Z",
+              "updatedAt": "2026-07-29T16:38:36Z",
+              "createdAt": "2026-07-17T10:41:20Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "arturvorobjov-tech",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "api",
+              "number": 1489,
+              "title": "[BOUN-11282] - Enhanced test mode backend: resume, test-state, jump cleanup & clear",
+              "url": "https://github.com/bounceinsights/api/pull/1489",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11282",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T16:38:50Z",
+              "updatedAt": "2026-07-29T16:38:50Z",
+              "createdAt": "2026-07-17T10:39:37Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "arturvorobjov-tech",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3798,
+              "title": "[BOUN-11282] - Enhanced test mode: per-user test identity, flag & docs",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3798",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11282",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-29T16:38:55Z",
+              "updatedAt": "2026-07-29T16:38:55Z",
+              "createdAt": "2026-07-17T10:44:46Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "SaljithBounceInsights"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "arturvorobjov-tech",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11316",
+          "summary": "Enhanced Survey Test Mode: web-surveys, api, ts-types (pause, resume & jump-to-question)",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-07-30T07:07:07.319Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 625,
+              "title": "wip: ticket 3 structureVersion field on InProgressResponseSchema",
+              "url": "https://github.com/bounceinsights/ts-types/pull/625",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11282",
+              "headRef": "BOUN-11316",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-23T15:09:03Z",
+              "updatedAt": "2026-07-23T15:09:03Z",
+              "createdAt": "2026-07-21T11:04:42Z",
+              "stackChain": [
+                623
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "web-surveys",
+              "number": 557,
+              "title": "Boun 11316",
+              "url": "https://github.com/bounceinsights/web-surveys/pull/557",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11282",
+              "headRef": "BOUN-11316",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-23T15:55:44Z",
+              "updatedAt": "2026-07-23T15:55:44Z",
+              "createdAt": "2026-07-21T11:07:53Z",
+              "stackChain": [
+                554
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "api",
+              "number": 1494,
+              "title": "Boun 11316",
+              "url": "https://github.com/bounceinsights/api/pull/1494",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11282",
+              "headRef": "BOUN-11316",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-23T15:55:42Z",
+              "updatedAt": "2026-07-23T15:55:42Z",
+              "createdAt": "2026-07-21T11:06:45Z",
+              "stackChain": [
+                1489
+              ],
+              "reviewRequests": [],
+              "reviews": [],
+              "author": "Pierce-44",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11386",
+          "summary": "Enhanced test mode: derive the personal test session id from a hash of the researcher's uid instead of the raw uid",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-08-11T11:35:29.803Z",
+          "prs": [],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11387",
+          "summary": "WPP Support - fix WPP matrix jump entry point and blank-matrix answered detection",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-08-10T10:24:40.836Z",
+          "prs": [
+            {
+              "repo": "web-surveys",
+              "number": 566,
+              "title": "[BOUN-11387] - Answer the jumped-to run fresh, and fix the matrix entry point and question numbering",
+              "url": "https://github.com/bounceinsights/web-surveys/pull/566",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11387",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-10T10:24:50Z",
+              "updatedAt": "2026-08-10T10:24:50Z",
+              "createdAt": "2026-07-28T10:52:27Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "api",
+              "number": 1512,
+              "title": "[BOUN-11387] - Derive the jump list from the visit path, and remove the orphaned-answer cleanup",
+              "url": "https://github.com/bounceinsights/api/pull/1512",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11387",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-10T10:24:47Z",
+              "updatedAt": "2026-08-10T10:24:47Z",
+              "createdAt": "2026-07-28T10:53:12Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3824,
+              "title": "[BOUN-11387] - Digest the researcher uid in the test-mode identity and open the personal test session to external users",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3824",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11387",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-10T10:24:53Z",
+              "updatedAt": "2026-08-10T10:24:53Z",
+              "createdAt": "2026-07-28T11:39:27Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11445",
+          "summary": "Enhanced test mode: Question/Option text change not being reflected",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-08-11T11:35:53.121Z",
+          "prs": [],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11447",
+          "summary": "Refactor touched api endpoints ",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-08-11T11:36:09.375Z",
+          "prs": [
+            {
+              "repo": "api",
+              "number": 1520,
+              "title": "[BOUN-11447] - Refactor the five touched surveys/answers endpoints into route / service / repository modules",
+              "url": "https://github.com/bounceinsights/api/pull/1520",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11447",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-11T10:32:08Z",
+              "updatedAt": "2026-08-11T10:41:22Z",
+              "createdAt": "2026-08-05T16:32:28Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "arturvorobjov-tech",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11537",
+          "summary": "Re-randomise option order on every test-mode resume and jump, and force a fresh run when option/statement text changes",
+          "jiraStatus": "Code Review",
+          "status": "in_review",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-08-14T11:33:57.737Z",
+          "prs": [
+            {
+              "repo": "web-surveys",
+              "number": 573,
+              "title": "[BOUN-11537] - Re-randomise option order on every test-mode resume and jump, and force a fresh run when option/statement text changes",
+              "url": "https://github.com/bounceinsights/web-surveys/pull/573",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11537",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T14:48:14Z",
+              "createdAt": "2026-08-13T14:03:29Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            },
+            {
+              "repo": "api",
+              "number": 1538,
+              "title": "[BOUN-11537] - Re-randomise option order on every test-mode resume and jump, and force a fresh run when option/statement text changes",
+              "url": "https://github.com/bounceinsights/api/pull/1538",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11537",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T14:48:08Z",
+              "createdAt": "2026-08-13T14:02:34Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "SaljithBounceInsights",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "Pierce-44",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "drift",
+          "severity": "info",
+          "message": "Engineering considers this finished and the ticket is sitting in product review, but the randomisation behaviour is still on two open pull requests, so a decision now would be approving work that has not landed.",
+          "refs": [
+            "BOUN-11537",
+            "web-surveys#573",
+            "api#1538"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": true
+    },
+    {
+      "key": "BOUN-11179",
+      "code": "F1.3",
+      "title": "F1.3 AI-Assisted Admin Cleaning of Open-End Responses",
+      "milestone": "M1",
+      "tier": "full",
+      "owner": "Saljith",
+      "repos": [
+        "admin-api",
+        "admin-v2",
+        "api",
+        "api-core",
+        "ts-types"
+      ],
+      "overview": "Integrate an AI model into admin cleaning that pre-flags gibberish, off-topic, or AI-generated open-end responses, with a clear category per flag so reviewers can decide quickly.",
+      "stage": "done",
+      "score": 95,
+      "scoreBasis": {
+        "shipped": 7,
+        "doneUnverified": 4,
+        "staged": 0,
+        "inReview": 1,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 12
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "Product has signed this off as Done; 7 of 12 stories are confirmed on master, 4 more are marked Done in JIRA without a pull request confirming it, and 1 is still in review.",
+      "daysSinceLastActivity": 0,
+      "daysInStaged": 17,
+      "releaseGate": {
+        "integrationBranch": "BOUN-11302",
+        "pr": {
+          "repo": "api-core",
+          "number": 1002,
+          "title": "[BOUN-11302]:Moved the quality checks to api-core",
+          "url": "https://github.com/bounceinsights/api-core/pull/1002",
+          "state": "MERGED",
+          "isDraft": false,
+          "baseRef": "master",
+          "headRef": "BOUN-11302",
+          "shippedToDefault": true,
+          "mergedAt": "2026-08-04T09:04:01Z",
+          "updatedAt": "2026-08-04T09:04:01Z",
+          "createdAt": "2026-07-24T11:05:58Z",
+          "stackChain": [],
+          "reviewRequests": [
+            "dharanipathirk"
+          ],
+          "reviews": [
+            {
+              "reviewer": "Pierce-44",
+              "state": "APPROVED"
+            },
+            {
+              "reviewer": "minhalaftabrana",
+              "state": "APPROVED"
+            }
+          ],
+          "author": "SaljithBounceInsights",
+          "filesTouched": []
+        },
+        "status": "merged"
+      },
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Analysis runs on its own in the background, only holding up the cleaning screen if it is not finished",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11302",
+            "admin-v2#634",
+            "BOUN-11462",
+            "api-core#1016"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Flagged responses are distinguishable by category in the review table",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11396",
+            "admin-v2#654",
+            "BOUN-11515",
+            "admin-v2#666"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "Existing profanity flagging keeps working and is retained",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "A reviewer can drop a flagged response or keep it, with nothing removed automatically",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11302",
+            "ts-types#635",
+            "admin-v2#666"
+          ]
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11244",
+          "summary": "Add AI flag fields to the response schema",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-07-28T10:25:10.669Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 622,
+              "title": "[BOUN-11244]:Added new quality flagging system to the response model.",
+              "url": "https://github.com/bounceinsights/ts-types/pull/622",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11244",
+              "shippedToDefault": true,
+              "mergedAt": "2026-07-28T10:22:02Z",
+              "updatedAt": "2026-07-28T10:22:02Z",
+              "createdAt": "2026-07-15T15:59:14Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11245",
+          "summary": "Evaluate gibberish detection tool",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-04T09:54:39.789Z",
+          "prs": [],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11302",
+          "summary": "Setting up the gibberish check for the resposne",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-04T08:50:31.935Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 635,
+              "title": "[BOUN-11302]:Adding support for tracking reviewed quality flags",
+              "url": "https://github.com/bounceinsights/ts-types/pull/635",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11302",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-04T09:02:46Z",
+              "updatedAt": "2026-08-04T09:02:46Z",
+              "createdAt": "2026-07-30T10:24:41Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1002,
+              "title": "[BOUN-11302]:Moved the quality checks to api-core",
+              "url": "https://github.com/bounceinsights/api-core/pull/1002",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11302",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-04T09:04:01Z",
+              "updatedAt": "2026-08-04T09:04:01Z",
+              "createdAt": "2026-07-24T11:05:58Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "dharanipathirk"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-v2",
+              "number": 634,
+              "title": "[BOUN-11302]:Added feature to the Strikes tab, allowing users to run quality checks",
+              "url": "https://github.com/bounceinsights/admin-v2/pull/634",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11302",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-04T09:09:59Z",
+              "updatedAt": "2026-08-04T09:10:00Z",
+              "createdAt": "2026-07-20T14:36:30Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1122,
+              "title": "[BOUN-11302]: Add gibberish check utility system",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1122",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11302",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-04T09:10:04Z",
+              "updatedAt": "2026-08-04T09:10:04Z",
+              "createdAt": "2026-07-20T10:33:21Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11315",
+          "summary": "Setting up the documentation regarding  AI-Assisted Admin Cleaning of Open-End Responses",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-14T08:48:55.479Z",
+          "prs": [
+            {
+              "repo": "admin-v2",
+              "number": 636,
+              "title": "[BOUN-11315]:Adds documentation for the new AI-assisted admin cleaning system for open-end survey responses",
+              "url": "https://github.com/bounceinsights/admin-v2/pull/636",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11315",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-05T15:26:56Z",
+              "createdAt": "2026-07-20T20:33:08Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "minhalaftabrana",
+                "obieglok",
+                "SeanCandon"
+              ],
+              "reviews": [],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11366",
+          "summary": "Setting up the test cases regarding the quality check",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-14T08:48:53.711Z",
+          "prs": [
+            {
+              "repo": "api-core",
+              "number": 1021,
+              "title": "[BOUN-11366]: Adding comprehensive unit tests for the runQualityClassification",
+              "url": "https://github.com/bounceinsights/api-core/pull/1021",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11366",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-14T08:44:43Z",
+              "updatedAt": "2026-08-14T08:44:43Z",
+              "createdAt": "2026-08-13T13:24:59Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1004,
+              "title": "[BOUN-11366]:Added tests covering the new quality Checks for the response",
+              "url": "https://github.com/bounceinsights/api-core/pull/1004",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11302",
+              "headRef": "BOUN-11366",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-28T14:01:37Z",
+              "updatedAt": "2026-07-28T14:01:38Z",
+              "createdAt": "2026-07-27T14:24:59Z",
+              "stackChain": [
+                1002
+              ],
+              "reviewRequests": [
+                "Pierce-44",
+                "minhalaftabrana"
+              ],
+              "reviews": [],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11388",
+          "summary": "setting offTopic in cleaned Responses",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-04T09:54:53.758Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 630,
+              "title": "Boun 11388",
+              "url": "https://github.com/bounceinsights/ts-types/pull/630",
+              "state": "CLOSED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11388",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-07-31T11:55:00Z",
+              "createdAt": "2026-07-28T10:17:15Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "SeanCandon",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11396",
+          "summary": "Changing the strcuture of quality flags",
+          "jiraStatus": "Done",
+          "status": "done_unverified",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-04T09:55:09.270Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 636,
+              "title": "[BOUN-11396]:Simplified QualityFlagsSchema",
+              "url": "https://github.com/bounceinsights/ts-types/pull/636",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11302",
+              "headRef": "BOUN-11396",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-31T12:44:24Z",
+              "updatedAt": "2026-07-31T12:44:25Z",
+              "createdAt": "2026-07-31T08:31:26Z",
+              "stackChain": [
+                635
+              ],
+              "reviewRequests": [
+                "minhalaftabrana"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1011,
+              "title": "[BOUN-11396]:Simplified QualityFlagsSchema",
+              "url": "https://github.com/bounceinsights/api-core/pull/1011",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11302",
+              "headRef": "BOUN-11396",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-31T12:43:28Z",
+              "updatedAt": "2026-07-31T12:43:28Z",
+              "createdAt": "2026-07-31T08:32:43Z",
+              "stackChain": [
+                1002
+              ],
+              "reviewRequests": [
+                "dharanipathirk",
+                "minhalaftabrana"
+              ],
+              "reviews": [],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-v2",
+              "number": 654,
+              "title": "[BOUN-11396]:Simplified QualityFlagsSchema",
+              "url": "https://github.com/bounceinsights/admin-v2/pull/654",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11302",
+              "headRef": "BOUN-11396",
+              "shippedToDefault": false,
+              "mergedAt": "2026-07-31T12:43:03Z",
+              "updatedAt": "2026-07-31T12:43:03Z",
+              "createdAt": "2026-07-31T08:35:36Z",
+              "stackChain": [
+                634
+              ],
+              "reviewRequests": [
+                "minhalaftabrana",
+                "Pierce-44"
+              ],
+              "reviews": [],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11446",
+          "summary": "Adding more context to the llm",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-07T15:50:27.245Z",
+          "prs": [
+            {
+              "repo": "api-core",
+              "number": 1012,
+              "title": "[BOUN-11446]:Adding improvements to the quality check pipeline for survey responses",
+              "url": "https://github.com/bounceinsights/api-core/pull/1012",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11446",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T15:50:39Z",
+              "updatedAt": "2026-08-07T15:50:39Z",
+              "createdAt": "2026-08-05T14:54:25Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "dharanipathirk",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11462",
+          "summary": "Recording the last run",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-13T10:20:04.373Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 642,
+              "title": "[BOUN-11462]: Adding enhancements to the survey and response data models to support tracking of quality checks and AI usage",
+              "url": "https://github.com/bounceinsights/ts-types/pull/642",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11462",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T09:35:55Z",
+              "updatedAt": "2026-08-13T09:35:55Z",
+              "createdAt": "2026-08-07T10:15:46Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "COMMENTED"
+                },
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1016,
+              "title": "[BOUN-11462]:Adding feature that provides users with clear visibility into the last quality check run and overall coverage.",
+              "url": "https://github.com/bounceinsights/api-core/pull/1016",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11462",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T09:37:37Z",
+              "updatedAt": "2026-08-13T09:37:37Z",
+              "createdAt": "2026-08-07T10:15:14Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-v2",
+              "number": 663,
+              "title": "[BOUN-11462]:Adding feature that provides users with clear visibility into the last quality check run and overall coverage.",
+              "url": "https://github.com/bounceinsights/admin-v2/pull/663",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11462",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T09:41:46Z",
+              "updatedAt": "2026-08-13T09:41:46Z",
+              "createdAt": "2026-08-07T10:09:35Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11515",
+          "summary": "Modifying the schema to handle a singlke flag",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-14T08:48:47.308Z",
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 645,
+              "title": "[BOUN-11515]: Changing the answer quality flagging model to use a stricter schema for answer quality flags",
+              "url": "https://github.com/bounceinsights/ts-types/pull/645",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11515",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T13:19:30Z",
+              "updatedAt": "2026-08-13T13:19:30Z",
+              "createdAt": "2026-08-11T13:24:13Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1019,
+              "title": "[BOUN-11515]:Refactoring how quality flags are represented and managed in the response review",
+              "url": "https://github.com/bounceinsights/api-core/pull/1019",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11515",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T13:20:40Z",
+              "updatedAt": "2026-08-13T13:20:40Z",
+              "createdAt": "2026-08-11T14:16:07Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-v2",
+              "number": 666,
+              "title": "[BOUN-11515]:Refactoring how quality flags are represented and managed in the response review",
+              "url": "https://github.com/bounceinsights/admin-v2/pull/666",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11515",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T13:25:17Z",
+              "updatedAt": "2026-08-13T13:25:17Z",
+              "createdAt": "2026-08-11T14:11:31Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1146,
+              "title": "[BOUN-11515]:Refactoring how quality flags are represented and managed in the response review",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1146",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11515",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-13T13:25:14Z",
+              "updatedAt": "2026-08-13T13:25:14Z",
+              "createdAt": "2026-08-11T14:18:39Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11531",
+          "summary": "setting up the feature flag for hiding the existing mechanism",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-14T14:50:14.671Z",
+          "prs": [
+            {
+              "repo": "api",
+              "number": 1535,
+              "title": "[BOUN-11531]: Introducing support for an \"AI cleaning\" feature flag in the survey answer validation process",
+              "url": "https://github.com/bounceinsights/api/pull/1535",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11531",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-14T09:10:23Z",
+              "updatedAt": "2026-08-14T09:10:23Z",
+              "createdAt": "2026-08-12T15:53:54Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "SeanCandon",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11548",
+          "summary": "fix AI detection coverage count including cleaned/flagged responses",
+          "jiraStatus": "Code Review",
+          "status": "in_review",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-17T12:50:23.772Z",
+          "prs": [
+            {
+              "repo": "admin-v2",
+              "number": 667,
+              "title": "[BOUN-11548]:Updates the Strikes tab to improve how eligibility and coverage statistics are displayed ",
+              "url": "https://github.com/bounceinsights/admin-v2/pull/667",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11548",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T11:08:11Z",
+              "createdAt": "2026-08-17T10:55:40Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "minhalaftabrana",
+                "Pierce-44"
+              ],
+              "reviews": [],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            },
+            {
+              "repo": "admin-api",
+              "number": 1157,
+              "title": "[BOUN-11548]:Updates the Strikes tab to improve how eligibility and coverage statistics are displayed ",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1157",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11548",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T15:24:51Z",
+              "createdAt": "2026-08-17T10:44:15Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "minhalaftabrana"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "SaljithBounceInsights",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "spec_gap",
+          "severity": "info",
+          "message": "Nothing in the tickets or pull requests references the existing profanity category, so there is no evidence either way that it survived the flag-model rewrite.",
+          "refs": [
+            "BOUN-11396",
+            "BOUN-11515"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11186",
+      "code": "F2.1",
+      "title": "F2.1 Notification Bucket Generation Performance",
+      "milestone": "M2",
+      "tier": "full",
+      "owner": "Artur",
+      "repos": [
+        "admin-api"
+      ],
+      "overview": "Refactor/re-do notification bucket generation so it returns to the ~30 second range (target: under 60 seconds per survey) and doesn't degrade as the platform user base grows.",
+      "stage": "underway",
+      "score": 35,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 1,
+        "inReview": 3,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 4
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "Nothing is on master yet: 3 of 4 stories are in review and the one merged story went to an integration branch with no release pull request found, so none of the speed-up is live.",
+      "daysSinceLastActivity": 0,
+      "daysInStaged": 0,
+      "releaseGate": {
+        "integrationBranch": "BOUN-11538",
+        "pr": null,
+        "status": "not_found"
+      },
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Bucket generation finishes inside a minute",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11519",
+            "admin-api#1149",
+            "BOUN-11526"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Generation time stops tracking total user count as the platform grows",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11523",
+            "admin-api#1149",
+            "BOUN-11545",
+            "admin-api#1156"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "The existing test suite passes untouched after the refactor",
+          "coverage": "partial",
+          "evidence": [
+            "BOUN-11520",
+            "admin-api#1154",
+            "BOUN-11527"
+          ]
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11519",
+          "summary": "Refactor notification bucket generation to fetch userNotifications only for matched users",
+          "jiraStatus": "In Progress",
+          "status": "in_review",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-12T14:56:48.699Z",
+          "prs": [
+            {
+              "repo": "admin-api",
+              "number": 1149,
+              "title": "BOUN-11519 - Refactor notification bucket generation to reduce Firestore reads",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1149",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11519",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T10:17:13Z",
+              "createdAt": "2026-08-13T13:04:57Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "Pierce-44",
+                "minhalaftabrana"
+              ],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": [
+            {
+              "key": "BOUN-11521",
+              "summary": "Remove userNotificationDocs parameter from generateNotificationBucketsForSurvey",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
+              "assignee": "Artur Vorobjov",
+              "updatedAt": "2026-08-12T14:57:24.877Z",
+              "prs": []
+            },
+            {
+              "key": "BOUN-11522",
+              "summary": "Add parallel stale-user Firestore query inside generateNotificationBucketsForSurvey",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
+              "assignee": "Artur Vorobjov",
+              "updatedAt": "2026-08-12T14:57:26.767Z",
+              "prs": []
+            },
+            {
+              "key": "BOUN-11523",
+              "summary": "Fetch userNotifications only for matched UIDs after matching loop",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
+              "assignee": "Artur Vorobjov",
+              "updatedAt": "2026-08-12T14:57:29.738Z",
+              "prs": []
+            },
+            {
+              "key": "BOUN-11524",
+              "summary": "Clear stale matchedBucket entries via batch update",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
+              "assignee": "Artur Vorobjov",
+              "updatedAt": "2026-08-12T14:57:31.475Z",
+              "prs": []
+            },
+            {
+              "key": "BOUN-11525",
+              "summary": "Remove bulk userNotifications fetch from route handler and update call site",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
+              "assignee": "Artur Vorobjov",
+              "updatedAt": "2026-08-12T14:57:34.015Z",
+              "prs": []
+            },
+            {
+              "key": "BOUN-11526",
+              "summary": "Add timing instrumentation to route handler and generation function",
+              "jiraStatus": "Code Review",
+              "status": "in_review",
+              "assignee": "Artur Vorobjov",
+              "updatedAt": "2026-08-12T14:57:36.311Z",
+              "prs": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11520",
+          "summary": "Update unit and integration tests for refactored bucket generation signature",
+          "jiraStatus": "In Progress",
+          "status": "staged",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-14T10:37:15.868Z",
+          "prs": [
+            {
+              "repo": "admin-api",
+              "number": 1154,
+              "title": "BOUN-11520 - Notification bucket test improvements and performance optimisations",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1154",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "BOUN-11538",
+              "headRef": "BOUN-11520",
+              "shippedToDefault": false,
+              "mergedAt": "2026-08-17T16:21:51Z",
+              "updatedAt": "2026-08-17T16:21:54Z",
+              "createdAt": "2026-08-14T11:33:28Z",
+              "stackChain": [
+                1150,
+                1149
+              ],
+              "reviewRequests": [
+                "Pierce-44"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": [
+            {
+              "key": "BOUN-11527",
+              "summary": "Update generateNotificationBucketsForSurvey call sites in notificationBuckets.test.ts",
+              "jiraStatus": "To Do",
+              "status": "todo",
+              "assignee": null,
+              "updatedAt": "2026-08-12T10:45:09.792Z",
+              "prs": []
+            },
+            {
+              "key": "BOUN-11528",
+              "summary": "Seed Firestore emulator for \"should change a user's matched bucket\" test",
+              "jiraStatus": "To Do",
+              "status": "todo",
+              "assignee": null,
+              "updatedAt": "2026-08-12T10:45:16.409Z",
+              "prs": []
+            },
+            {
+              "key": "BOUN-11529",
+              "summary": "Add route-level test for stale-user matchedBucket clearing",
+              "jiraStatus": "To Do",
+              "status": "todo",
+              "assignee": null,
+              "updatedAt": "2026-08-12T10:45:20.939Z",
+              "prs": []
+            }
+          ]
+        },
+        {
+          "key": "BOUN-11538",
+          "summary": "Reduce Firestore reads by reusing stale query results for sharedNotificationDocs",
+          "jiraStatus": "In Progress",
+          "status": "in_review",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-14T10:37:19.734Z",
+          "prs": [
+            {
+              "repo": "admin-api",
+              "number": 1150,
+              "title": "BOUN-11538 - Reduce Firestore reads by reusing stale query results",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1150",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "BOUN-11519",
+              "headRef": "BOUN-11538",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T16:21:53Z",
+              "createdAt": "2026-08-13T15:32:43Z",
+              "stackChain": [
+                1149
+              ],
+              "reviewRequests": [
+                "Pierce-44"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "minhalaftabrana",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        },
+        {
+          "key": "BOUN-11545",
+          "summary": "Cache users collection in Redis to reduce Firestore reads on cron runs",
+          "jiraStatus": "In Progress",
+          "status": "in_review",
+          "assignee": "Artur Vorobjov",
+          "updatedAt": "2026-08-14T14:45:32.500Z",
+          "prs": [
+            {
+              "repo": "admin-api",
+              "number": 1156,
+              "title": "BOUN-11545 - Cache users collection in Redis to reduce Firestore reads on cron runs",
+              "url": "https://github.com/bounceinsights/admin-api/pull/1156",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11545",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-17T13:37:55Z",
+              "createdAt": "2026-08-14T14:52:48Z",
+              "stackChain": [],
+              "reviewRequests": [
+                "Pierce-44",
+                "minhalaftabrana"
+              ],
+              "reviews": [],
+              "author": "arturvorobjov-tech",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "drift",
+          "severity": "warn",
+          "message": "One criterion asks for the existing test file to pass unmodified, but a whole story exists to rewrite that file's call sites for the new function signature.",
+          "refs": [
+            "BOUN-11520",
+            "BOUN-11527",
+            "admin-api#1154"
+          ]
+        },
+        {
+          "type": "release_blocked",
+          "severity": "warn",
+          "message": "The only merged pull request went into an integration branch rather than the default branch and no release pull request could be found for it, so nothing here has shipped.",
+          "refs": [
+            "BOUN-11520",
+            "admin-api#1154"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11181",
+      "code": "F2.2",
+      "title": "F2.2 Ability to Multiselect Questions in Survey Creator",
+      "milestone": "M2",
+      "tier": "full",
+      "owner": "Saljith",
+      "repos": [],
+      "overview": "Allow selecting multiple consecutive questions at once and performing bulk actions (duplicate, delete, drag-to-reorder) in a single operation.",
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "Not started: the single story is still To Do with no pull requests against it, though it was touched 5 days ago.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Selection checkboxes always visible on question cards",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Shift-click selects a range without selecting page text",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Only neighbouring questions can be selected together",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Selected questions are tinted and counted in a toolbar",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-5",
+          "label": "Bulk duplicate inserts copies as one block with references reset",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-6",
+          "label": "Bulk delete confirms first and tidies up branching references",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-7",
+          "label": "Dragging a selection moves the whole group together",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-8",
+          "label": "Clearing the selection hides the toolbar",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11181",
+          "summary": "F2.2 Ability to Multiselect Questions in Survey Creator",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Saljith Subhash",
+          "updatedAt": "2026-08-12T08:34:25.801Z",
+          "prs": [],
+          "subtasks": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11182",
+      "code": "F2.3",
+      "title": "F2.3 Excel Totals — Separate Tabs for Absolutes and Percentages",
+      "milestone": "M2",
+      "tier": "full",
+      "owner": "Minhal",
+      "repos": [
+        "dashboard"
+      ],
+      "overview": "Totals Excel downloads produce three tabs (Totals, Absolutes, Percentages) so the data is usable without manual reformatting, without removing the existing format.",
+      "stage": "done",
+      "score": 100,
+      "scoreBasis": {
+        "shipped": 1,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 0,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "Product has signed this off as Done and its one story is confirmed on master, but the shipped work covers non-tracker surveys only.",
+      "daysSinceLastActivity": 7,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "The download opens on a Totals tab with two further tabs beside it",
+          "coverage": "covered",
+          "evidence": [
+            "BOUN-11426",
+            "dashboard#3833"
+          ]
+        },
+        {
+          "id": "ac-2",
+          "label": "Per-question and cross-tab downloads behave the same way",
+          "coverage": "covered",
+          "evidence": [
+            "dashboard#3833"
+          ]
+        },
+        {
+          "id": "ac-3",
+          "label": "The Totals tab keeps today's combined layout",
+          "coverage": "covered",
+          "evidence": [
+            "dashboard#3833"
+          ]
+        },
+        {
+          "id": "ac-4",
+          "label": "The counts tab carries counts only",
+          "coverage": "covered",
+          "evidence": [
+            "dashboard#3833"
+          ]
+        },
+        {
+          "id": "ac-5",
+          "label": "The percentages tab carries percentages only",
+          "coverage": "covered",
+          "evidence": [
+            "dashboard#3833"
+          ]
+        },
+        {
+          "id": "ac-6",
+          "label": "All three tabs share headers and ordering",
+          "coverage": "partial",
+          "evidence": [
+            "dashboard#3833"
+          ]
+        },
+        {
+          "id": "ac-7",
+          "label": "No figure changes against the old single-tab export",
+          "coverage": "partial",
+          "evidence": [
+            "dashboard#3833"
+          ]
+        },
+        {
+          "id": "ac-8",
+          "label": "Both tabs store real numbers rather than formatted text",
+          "coverage": "covered",
+          "evidence": [
+            "dashboard#3833"
+          ]
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11426",
+          "summary": "Separate Tabs for Absolutes and Percentages (Part 1: non-tracker surveys)",
+          "jiraStatus": "Done",
+          "status": "shipped",
+          "assignee": "Minhal Aftab",
+          "updatedAt": "2026-08-07T18:58:55.173Z",
+          "prs": [
+            {
+              "repo": "dashboard",
+              "number": 3833,
+              "title": "[BOUN-11426] Excel Totals - Separate Tabs for Absolutes and Percentages (non-tracker surveys)",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3833",
+              "state": "MERGED",
+              "isDraft": false,
+              "baseRef": "master",
+              "headRef": "BOUN-11426",
+              "shippedToDefault": true,
+              "mergedAt": "2026-08-07T18:59:22Z",
+              "updatedAt": "2026-08-10T10:02:26Z",
+              "createdAt": "2026-08-03T13:53:08Z",
+              "stackChain": [],
+              "reviewRequests": [],
+              "reviews": [
+                {
+                  "reviewer": "Pierce-44",
+                  "state": "APPROVED"
+                },
+                {
+                  "reviewer": "arturvorobjov-tech",
+                  "state": "APPROVED"
+                }
+              ],
+              "author": "minhalaftabrana",
+              "filesTouched": []
+            }
+          ],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "spec_gap",
+          "severity": "warn",
+          "message": "The shipped change is explicitly part one, covering non-tracker surveys only, so tracker and multi-wave downloads still behave the old way despite the feature reading as signed off.",
+          "refs": [
+            "BOUN-11426",
+            "dashboard#3833"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": true,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11183",
+      "code": "F2.4",
+      "title": "F2.4 Question-Level Quota Targeting",
+      "milestone": "M2",
+      "tier": "full",
+      "owner": "Minhal",
+      "repos": [],
+      "overview": "Allow researchers to set response targets against specific answer options and automatically screen out respondents once a quota fills.",
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "Not started: the single story is still To Do with no pull requests, and nothing has touched it in 38 days.",
+      "daysSinceLastActivity": 38,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "A numeric target can be set and saved against an answer option",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Each option's target shows independently",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "A respondent picking a filled option is screened out",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Option targets exceeding the survey total are flagged",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-5",
+          "label": "A respondent picking a still-open option continues normally",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-6",
+          "label": "Live counts against targets are visible to the researcher",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-7",
+          "label": "On multi-select, one full option does not screen the respondent out",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11183",
+          "summary": "F2.4 Question-Level Quota Targeting",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": null,
+          "updatedAt": "2026-07-10T10:35:57.073Z",
+          "prs": [],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "stalled",
+          "severity": "warn",
+          "message": "Nothing has touched this ticket in 38 days and no work has been broken out of it.",
+          "refs": [
+            "BOUN-11183"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11184",
+      "code": "F2.5",
+      "title": "F2.5 Option Groups + Other (Please Specify) + None of the Above Translation Fix",
+      "milestone": "M2",
+      "tier": "full",
+      "owner": "Pierce",
+      "repos": [],
+      "overview": "Ensure option groups remap to translated option strings on import, and \"Other (Please Specify)\", “None of the Above” survives the import.",
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "Not started: the single story is still To Do with no pull requests against it, though it was touched 5 days ago.",
+      "daysSinceLastActivity": 5,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Option groups remap to translated option text on import",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "The free-text and none-of-these options stay enabled after import",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Those options are not exported as translatable strings",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11184",
+          "summary": "F2.5 Option Groups + Other (Please Specify) + None of the Above Translation Fix",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Pierce Hahn",
+          "updatedAt": "2026-08-12T08:34:37.477Z",
+          "prs": [],
+          "subtasks": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11185",
+      "code": "F3.2",
+      "title": "F3.2 Matrix Question Options Preserved on Choice Type Toggle",
+      "milestone": "M3",
+      "tier": "light",
+      "owner": "Minhal",
+      "repos": [],
+      "overview": "Matrix question column options are preserved when toggling between Single Choice and Multiple Choice.",
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "Not started: the single story is still To Do with no pull requests, and nothing has touched it in 38 days.",
+      "daysSinceLastActivity": 38,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "Switching a matrix column from single to multiple choice keeps its options",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Switching back the other way also keeps them",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "Switching to a slider still clears options, as today",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Switching away from a slider also still clears them",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11185",
+          "summary": "F3.2 Matrix Question Options Preserved on Choice Type Toggle",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": null,
+          "updatedAt": "2026-07-10T10:38:41.324Z",
+          "prs": [],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "stalled",
+          "severity": "warn",
+          "message": "Nothing has touched this ticket in 38 days and no work has been broken out of it.",
+          "refs": [
+            "BOUN-11185"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11180",
+      "code": "F3.4",
+      "title": "F3.4 Survey Creator Error Treatment",
+      "milestone": "M3",
+      "tier": "light",
+      "owner": "Minhal",
+      "repos": [],
+      "overview": "Reduce friction at survey creation by clearly distinguishing hard errors (must fix) from soft dismissible warnings (researcher can proceed with awareness), and improve clarity of all error/warning messages.",
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "medium",
+      "rationale": "Not started as its own feature: the single story is still To Do with no pull requests, and nothing has touched it in 20 days.",
+      "daysSinceLastActivity": 20,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "A dismissed soft warning stays dismissed for the session",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Publishing with active warnings shows a confirmation listing them",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-3",
+          "label": "A hard error blocks publishing until resolved",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-4",
+          "label": "Every message explains the cause and what to do next",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11180",
+          "summary": "F3.4 Survey Creator Error Treatment",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": null,
+          "updatedAt": "2026-07-28T14:35:47.961Z",
+          "prs": [],
+          "subtasks": []
+        }
+      ],
+      "callouts": [
+        {
+          "type": "stalled",
+          "severity": "warn",
+          "message": "Nothing has touched this ticket in 20 days and no work has been broken out of it.",
+          "refs": [
+            "BOUN-11180"
+          ]
+        }
+      ],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    },
+    {
+      "key": "BOUN-11187",
+      "code": "F3.4b",
+      "title": "F3.4\"No Insights to Summarise\" — Colour Fix",
+      "milestone": "M3",
+      "tier": "light",
+      "owner": "Minhal",
+      "repos": [],
+      "overview": "Ensure \"No insights to summarise\" does not appear on the dashboard as an insight by default (currently shown misleadingly in green).",
+      "stage": "not_started",
+      "score": 0,
+      "scoreBasis": {
+        "shipped": 0,
+        "doneUnverified": 0,
+        "staged": 0,
+        "inReview": 0,
+        "inProgress": 0,
+        "blocked": 0,
+        "todo": 1,
+        "total": 1
+      },
+      "scoreOverride": null,
+      "confidence": "high",
+      "rationale": "Not started: the single story is still To Do with no pull requests against it, though it was touched 3 days ago.",
+      "daysSinceLastActivity": 3,
+      "daysInStaged": null,
+      "releaseGate": null,
+      "acCoverage": [
+        {
+          "id": "ac-1",
+          "label": "The empty-insights message stops appearing on the dashboard",
+          "coverage": "no_signal",
+          "evidence": []
+        },
+        {
+          "id": "ac-2",
+          "label": "Other insight states keep displaying as they do now",
+          "coverage": "no_signal",
+          "evidence": []
+        }
+      ],
+      "stories": [
+        {
+          "key": "BOUN-11187",
+          "summary": "F3.4\"No Insights to Summarise\" — Colour Fix",
+          "jiraStatus": "To Do",
+          "status": "todo",
+          "assignee": "Minhal Aftab",
+          "updatedAt": "2026-08-14T09:31:28.737Z",
+          "prs": [],
+          "subtasks": []
+        }
+      ],
+      "callouts": [],
+      "override": null,
+      "dataOk": true,
+      "signedOff": false,
+      "awaitingSignOff": false
+    }
+  ],
+  "reviewQueue": [
+    {
+      "pr": {
+        "repo": "admin-v2",
+        "number": 667,
+        "title": "[BOUN-11548]:Updates the Strikes tab to improve how eligibility and coverage statistics are displayed ",
+        "url": "https://github.com/bounceinsights/admin-v2/pull/667",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11548",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T11:08:11Z",
+        "createdAt": "2026-08-17T10:55:40Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "minhalaftabrana",
+          "Pierce-44"
+        ],
+        "reviews": [],
+        "author": "SaljithBounceInsights",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11179",
+      "reviewer": "minhalaftabrana",
+      "requestedAt": "2026-08-17T11:08:11Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "admin-v2",
+        "number": 667,
+        "title": "[BOUN-11548]:Updates the Strikes tab to improve how eligibility and coverage statistics are displayed ",
+        "url": "https://github.com/bounceinsights/admin-v2/pull/667",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11548",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T11:08:11Z",
+        "createdAt": "2026-08-17T10:55:40Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "minhalaftabrana",
+          "Pierce-44"
+        ],
+        "reviews": [],
+        "author": "SaljithBounceInsights",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11179",
+      "reviewer": "Pierce-44",
+      "requestedAt": "2026-08-17T11:08:11Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "admin-api",
+        "number": 1157,
+        "title": "[BOUN-11548]:Updates the Strikes tab to improve how eligibility and coverage statistics are displayed ",
+        "url": "https://github.com/bounceinsights/admin-api/pull/1157",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11548",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T15:24:51Z",
+        "createdAt": "2026-08-17T10:44:15Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "minhalaftabrana"
+        ],
+        "reviews": [
+          {
+            "reviewer": "Pierce-44",
+            "state": "APPROVED"
+          }
+        ],
+        "author": "SaljithBounceInsights",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11179",
+      "reviewer": "minhalaftabrana",
+      "requestedAt": "2026-08-17T15:24:51Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "admin-api",
+        "number": 1149,
+        "title": "BOUN-11519 - Refactor notification bucket generation to reduce Firestore reads",
+        "url": "https://github.com/bounceinsights/admin-api/pull/1149",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11519",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T10:17:13Z",
+        "createdAt": "2026-08-13T13:04:57Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Pierce-44",
+          "minhalaftabrana"
+        ],
+        "reviews": [],
+        "author": "arturvorobjov-tech",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11186",
+      "reviewer": "Pierce-44",
+      "requestedAt": "2026-08-17T10:17:13Z",
+      "ageDays": 4,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "admin-api",
+        "number": 1149,
+        "title": "BOUN-11519 - Refactor notification bucket generation to reduce Firestore reads",
+        "url": "https://github.com/bounceinsights/admin-api/pull/1149",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11519",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T10:17:13Z",
+        "createdAt": "2026-08-13T13:04:57Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Pierce-44",
+          "minhalaftabrana"
+        ],
+        "reviews": [],
+        "author": "arturvorobjov-tech",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11186",
+      "reviewer": "minhalaftabrana",
+      "requestedAt": "2026-08-17T10:17:13Z",
+      "ageDays": 4,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "admin-api",
+        "number": 1150,
+        "title": "BOUN-11538 - Reduce Firestore reads by reusing stale query results",
+        "url": "https://github.com/bounceinsights/admin-api/pull/1150",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11519",
+        "headRef": "BOUN-11538",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T16:21:53Z",
+        "createdAt": "2026-08-13T15:32:43Z",
+        "stackChain": [
+          1149
+        ],
+        "reviewRequests": [
+          "Pierce-44"
+        ],
+        "reviews": [
+          {
+            "reviewer": "minhalaftabrana",
+            "state": "APPROVED"
+          }
+        ],
+        "author": "arturvorobjov-tech",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11186",
+      "reviewer": "Pierce-44",
+      "requestedAt": "2026-08-17T16:21:53Z",
+      "ageDays": 4,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "admin-api",
+        "number": 1156,
+        "title": "BOUN-11545 - Cache users collection in Redis to reduce Firestore reads on cron runs",
+        "url": "https://github.com/bounceinsights/admin-api/pull/1156",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11545",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T13:37:55Z",
+        "createdAt": "2026-08-14T14:52:48Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Pierce-44",
+          "minhalaftabrana"
+        ],
+        "reviews": [],
+        "author": "arturvorobjov-tech",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11186",
+      "reviewer": "Pierce-44",
+      "requestedAt": "2026-08-17T13:37:55Z",
+      "ageDays": 3,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "admin-api",
+        "number": 1156,
+        "title": "BOUN-11545 - Cache users collection in Redis to reduce Firestore reads on cron runs",
+        "url": "https://github.com/bounceinsights/admin-api/pull/1156",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11545",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-17T13:37:55Z",
+        "createdAt": "2026-08-14T14:52:48Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Pierce-44",
+          "minhalaftabrana"
+        ],
+        "reviews": [],
+        "author": "arturvorobjov-tech",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11186",
+      "reviewer": "minhalaftabrana",
+      "requestedAt": "2026-08-17T13:37:55Z",
+      "ageDays": 3,
+      "ageFromOpen": true
+    }
+  ],
+  "collectionErrors": []
+}

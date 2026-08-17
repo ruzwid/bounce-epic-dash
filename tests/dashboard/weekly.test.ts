@@ -3,6 +3,14 @@ import type { z } from "zod";
 import type { StatusSnapshot as StatusSnapshotSchema } from "../../src/lib/schema.ts";
 import { buildWeeklySummary, untouchedAllWeek, weekTotals } from "../../src/lib/dashboard/weekly.ts";
 
+/** The epic these fixtures belong to. loadSnapshot() stamps this on every
+ *  snapshot it returns (the directory a snapshot lives in is what says
+ *  which epic it is), and the derivations under test read it to find that
+ *  epic's people map and score weights — so a hand-built snapshot has to
+ *  carry it too. */
+const EPIC = "wpp-at-scale";
+
+
 type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>;
 
 function feature(key: string, basis: Record<string, number>, extra: Record<string, unknown> = {}) {
@@ -31,7 +39,7 @@ function feature(key: string, basis: Record<string, number>, extra: Record<strin
 }
 
 function snapshot(date: string, features: ReturnType<typeof feature>[]): StatusSnapshotT {
-  return { date, epic: { title: "An Epic" }, features } as unknown as StatusSnapshotT;
+  return { date, epic: { title: "An Epic", slug: EPIC }, features } as unknown as StatusSnapshotT;
 }
 
 describe("weekTotals", () => {

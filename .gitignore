@@ -15,7 +15,8 @@ todos.json
 
 # Data pipeline: raw/pending/judgment hold full-fidelity JIRA/GitHub data and
 # untrusted judge output — never publication-safe, never committed. Only
-# data/snapshots/ (produced by scripts/merge.ts) is committed.
+# data/snapshots/<epic>/ (produced by scripts/merge.ts) is committed. These
+# ignore whole trees, so the per-epic sub-directories under them are covered.
 data/raw/
 data/pending/
 data/judgment/

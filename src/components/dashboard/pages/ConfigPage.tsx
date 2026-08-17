@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react"
 import { configSource, loadAppConfig } from "@/lib/dashboard/appConfig"
+import { useShell } from "../shell/ShellContext"
 import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
 import { SectionHeading } from "../SectionHeading"
 import { StatusPill } from "../StatusPill"
@@ -12,16 +13,18 @@ import { Avatar } from "../Avatar"
  * status that isn't mapped, a weight that isn't what you assumed.
  */
 export function ConfigPage() {
-  const config = loadAppConfig()
+  const { epic } = useShell()
+  const config = loadAppConfig(epic)
 
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h1 className="font-display m-0 text-[28px] leading-tight">Config</h1>
         <p className="m-0 text-[13.5px] leading-relaxed text-muted-foreground">
-          The tracked epic, its milestones, and the rules the collector applies — read straight from{" "}
-          <code className="rounded-sm bg-muted px-1.5 py-0.5">config.yaml</code> at build time. Credentials are not part
-          of this file and are never published.
+          This epic's milestones and the rules the collector applies to it — read straight from{" "}
+          <code className="rounded-sm bg-muted px-1.5 py-0.5">epics/{epic}/config.yaml</code> at build time. Each epic
+          has its own file; nothing here is shared with another epic's page. Credentials are not part of this file and
+          are never published.
         </p>
       </header>
 
@@ -148,10 +151,10 @@ export function ConfigPage() {
       <details className="group">
         <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-4xl text-sm text-muted-foreground select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
           <ChevronRight className="size-3.5 transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90" />
-          View config.yaml as written
+          View epics/{epic}/config.yaml as written
         </summary>
         <pre className="surface mt-3 overflow-x-auto rounded-4xl border border-border bg-card p-5 text-xs leading-relaxed">
-          <code>{configSource}</code>
+          <code>{configSource(epic)}</code>
         </pre>
       </details>
     </div>

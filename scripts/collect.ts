@@ -1,11 +1,16 @@
 #!/usr/bin/env tsx
 // scripts/collect.ts
-// Pulls JIRA + GitHub data for every feature configured in config.yaml,
-// derives deterministic scores/stages/statuses, and writes:
-//   data/raw/<date>.json     full fidelity, gitignored
-//   data/pending/<date>.json judge input, trimmed, gitignored
+// Pulls JIRA + GitHub data for every feature configured in one epic's
+// config, derives deterministic scores/stages/statuses, and writes:
+//   data/raw/<epic>/<date>.json     full fidelity, gitignored
+//   data/pending/<epic>/<date>.json judge input, trimmed, gitignored
 // No judgment happens here — that's a separate Claude Code routine reading
-// data/pending/<date>.json and writing data/judgment/<date>.json.
+// data/pending/<epic>/<date>.json and writing data/judgment/<epic>/<date>.json.
+//
+// Exactly one epic per run: `pnpm collect --epic <slug>`, defaulting to
+// epics.yaml's `default`. Each team runs its own routine for its own epic,
+// and because every path above is scoped by slug, two runs on the same day
+// cannot touch each other's files.
 import { config as loadEnv } from "dotenv";
 loadEnv({ path: ".env.local" });
 import { extractAcBullets, extractOverview } from "../src/lib/adf.ts";
@@ -20,6 +25,7 @@ import {
   type RawPr,
 } from "../src/lib/classify.ts";
 import { loadConfig, logicalDate } from "../src/lib/config.ts";
+import { epicConfigPath, epicDataPath, epicFlag, resolveEpicSlug } from "../src/lib/epics.ts";
 import type { Config, MilestoneFeature } from "../src/lib/config-schema.ts";
 import { getDefaultBranch, getRepoPrs, listOrgRepos } from "../src/lib/github.ts";
 import { writeJsonAtomic } from "../src/lib/io.ts";
@@ -39,7 +45,7 @@ type CollectionError = z.infer<typeof CollectionErrorSchema>;
  *  milestone's own ticket. */
 export type FeatureTarget = MilestoneFeature & {
   title: string;
-  milestone: "M1" | "M2" | "M3" | "M4";
+  milestone: string;
   tier: "full" | "light";
 };
 
@@ -99,7 +105,7 @@ export type RawFeature = {
   key: string;
   code: string;
   title: string;
-  milestone: "M1" | "M2" | "M3" | "M4";
+  milestone: string;
   tier: "full" | "light";
   owner: string;
   repos: string[];
@@ -141,12 +147,16 @@ export type RawFeature = {
  *  ticket. Progress is deliberately absent — it's derived downstream from
  *  the milestone's features. */
 export type RawMilestone = {
-  id: "M1" | "M2" | "M3" | "M4";
+  id: string;
   key: string;
   title: string;
   tier: "full" | "light";
   owner: string;
   overview: string;
+  /** config.yaml's optional `group` — milestones sharing one render as a
+   *  single sidebar section. Passed straight through; nothing here
+   *  interprets it. */
+  group: string | null;
 };
 
 export type Deps = {
@@ -642,7 +652,7 @@ export type PendingFeature = {
   code: string;
   title: string;
   owner: string;
-  milestone: "M1" | "M2" | "M3" | "M4";
+  milestone: string;
   score: number;
   scoreBasis: ScoreBasis;
   daysSinceLastActivity: number | null;
@@ -687,6 +697,10 @@ export type PendingFeature = {
 export type PendingFile = {
   schemaVersion: 1;
   date: string;
+  /** Which epic this run collected — the epics.yaml slug. Written so the
+   *  judge, which is handed a path, can confirm it's reading the epic it
+   *  was asked about rather than trusting the filename. */
+  epic: string;
   epicTitle: string;
   features: PendingFeature[];
 };
@@ -695,7 +709,7 @@ export type RawFile = {
   schemaVersion: 1;
   date: string;
   generatedAt: string;
-  epic: Config["epic"] & { overview: string };
+  epic: Config["epic"] & { overview: string; slug: string };
   milestones: RawMilestone[];
   features: RawFeature[];
   collectionErrors: CollectionError[];
@@ -735,6 +749,7 @@ async function collectContext(
         title: milestone.title,
         tier: milestone.tier,
         owner: milestone.owner,
+        group: milestone.group,
       };
       if (!milestone.ticket) return { ...base, overview: "" };
       try {
@@ -793,7 +808,7 @@ export function toPending(feature: RawFeature): PendingFeature {
   };
 }
 
-export async function runCollect(config: Config, now: Date, deps: Deps = defaultDeps) {
+export async function runCollect(epic: string, config: Config, now: Date, deps: Deps = defaultDeps) {
   const date = logicalDate(config.timezone, now);
   const { targets, errors: expandErrors } = expandTargets(config);
 
@@ -817,7 +832,7 @@ export async function runCollect(config: Config, now: Date, deps: Deps = default
     schemaVersion: 1 as const,
     date,
     generatedAt: now.toISOString(),
-    epic: { ...config.epic, overview: context.epicOverview },
+    epic: { ...config.epic, overview: context.epicOverview, slug: epic },
     milestones: context.milestones,
     features,
     collectionErrors,
@@ -825,21 +840,23 @@ export async function runCollect(config: Config, now: Date, deps: Deps = default
   const pending = {
     schemaVersion: 1 as const,
     date,
+    epic,
     epicTitle: config.epic.title,
     features: features.map(toPending),
   };
 
-  writeJsonAtomic(`data/raw/${date}.json`, raw);
-  writeJsonAtomic(`data/pending/${date}.json`, pending);
+  writeJsonAtomic(epicDataPath("raw", epic, date), raw);
+  writeJsonAtomic(epicDataPath("pending", epic, date), pending);
 
   return { date, features, collectionErrors };
 }
 
 async function main() {
-  const config = loadConfig();
-  const { date, features, collectionErrors } = await runCollect(config, new Date());
+  const epic = resolveEpicSlug(epicFlag(process.argv.slice(2)));
+  const config = loadConfig(epicConfigPath(epic));
+  const { date, features, collectionErrors } = await runCollect(epic, config, new Date());
 
-  console.log(`\nCollected ${features.length} feature(s) for ${date}:\n`);
+  console.log(`\nCollected ${features.length} feature(s) for ${config.epic.title} (${epic}) on ${date}:\n`);
   for (const f of features) {
     const shipped = f.scoreBasis.shipped;
     const doneUnverified = f.scoreBasis.doneUnverified;
@@ -859,7 +876,7 @@ async function main() {
     }
   }
 
-  console.log(`\nWrote data/raw/${date}.json and data/pending/${date}.json`);
+  console.log(`\nWrote ${epicDataPath("raw", epic, date)} and ${epicDataPath("pending", epic, date)}`);
 
   const allFailed = features.length > 0 && features.every((f) => !f.dataOk);
   if (allFailed) {

@@ -24,7 +24,7 @@ import { SectionHeading } from "../SectionHeading"
 import { StatStrip } from "../StatStrip"
 import { Avatar } from "../Avatar"
 import { StatusPill } from "../StatusPill"
-import { JiraLink } from "../JiraLink"
+import { IssueTitle, JiraLink } from "../JiraLink"
 import { PrChip } from "../PrChip"
 import { ReviewerChip, orderReviewers } from "../ReviewerChip"
 import { EmptyState } from "../EmptyState"
@@ -33,11 +33,11 @@ type FeatureT = z.infer<typeof FeatureSchema>
 type PrRefT = z.infer<typeof PrRefSchema>
 type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
 
-/** How much of each person's work the page spells out. Compact is the
- *  default because six people at full detail is a page nobody scrolls to
- *  the bottom of; detailed is the standup view — screen-shared, read out
- *  person by person, so it has to answer "what are you on, what's stuck,
- *  what do you need looked at" without anyone clicking through. */
+/** How much of each person's work the page spells out. Detailed is the
+ *  default because it is the standup view — screen-shared, read out person
+ *  by person, so it has to answer "what are you on, what's stuck, what do
+ *  you need looked at" without anyone clicking through. Compact drops to
+ *  one line per person for a scan of who is carrying what. */
 type Density = "compact" | "detailed"
 
 /**
@@ -51,7 +51,7 @@ type Density = "compact" | "detailed"
  */
 export function PeoplePage() {
   const { snapshot, asOf } = useShell()
-  const [density, setDensity] = useState<Density>("compact")
+  const [density, setDensity] = useState<Density>("detailed")
   // On by default: a milestone that's fully done (M1, once every F1.x is)
   // has nothing left for a lead to check on, and left in the mix it pads
   // every card with a feature nobody needs to look at any more. Off shows
@@ -153,7 +153,7 @@ function PersonCard({
   // with "Active milestones only" on.
   snapshot: StatusSnapshotT
 }) {
-  const { asOf } = useShell()
+  const { epic, asOf } = useShell()
   const detailed = density === "detailed"
   const work = workInFlight(person, snapshot, asOf)
   const owed = person.reviewing.length
@@ -184,7 +184,7 @@ function PersonCard({
             Waiting on
             <span className="flex items-center gap-1">
               {person.waitingOn.map((login) => {
-                const name = displayNameForLogin(login) ?? login
+                const name = displayNameForLogin(epic, login) ?? login
                 return (
                   <PersonTip key={login} label={firstName(name)}>
                     <Avatar login={login} name={name} size={19} />
@@ -261,16 +261,23 @@ function PersonCard({
           {detailed ? (
             <ul className="m-0 flex list-none flex-col gap-2 p-0">
               {person.reviewing.map(({ pr, ageDays }) => (
-                <li key={`${pr.repo}#${pr.number}`} className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                  <AuthorAvatar pr={pr} />
-                  <PrChip pr={pr} />
-                  <span className="min-w-0 flex-1 truncate text-xs">{pr.title}</span>
-                  {/* Who else is on it — an approval already sitting there
-                      is the difference between "review this" and "this is
-                      one click from merging". Their own row is dropped:
-                      the block heading already says it's waiting on them. */}
-                  <OtherReviewers pr={pr} except={person.login} />
-                  <span className="font-mono-data shrink-0 text-xs text-muted-foreground">open {ageDays}d</span>
+                <li key={`${pr.repo}#${pr.number}`} className="min-w-0">
+                  <a
+                    href={pr.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="row-link flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 no-underline"
+                  >
+                    <AuthorAvatar pr={pr} />
+                    <PrChip pr={pr} asSpan />
+                    <span className="min-w-0 flex-1 truncate text-xs">{pr.title}</span>
+                    {/* Who else is on it — an approval already sitting there
+                        is the difference between "review this" and "this is
+                        one click from merging". Their own row is dropped:
+                        the block heading already says it's waiting on them. */}
+                    <OtherReviewers pr={pr} except={person.login} />
+                    <span className="font-mono-data shrink-0 text-xs text-muted-foreground">open {ageDays}d</span>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -298,14 +305,15 @@ function PersonCard({
               {person.features.map((feature) => (
                 <li key={feature.key} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
                   <FeatureLink feature={feature} />
-                  <span className="min-w-0 flex-1 truncate text-sm">{featureTitleWithoutCode(feature)}</span>
-                  <StatusPill status={feature.stage} className="shrink-0 text-[11px]" />
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    <span className="font-mono-data">{feature.stories.length}</span>{" "}
-                    {feature.stories.length === 1 ? "story" : "stories"}
-                  </span>
-                  <span className="font-mono-data w-9 shrink-0 text-right text-xs text-muted-foreground">
-                    {feature.dataOk ? `${feature.score}%` : "—"}
+                  <span className="ml-auto flex shrink-0 items-center gap-3">
+                    <StatusPill status={feature.stage} className="text-[11px]" />
+                    <span className="text-xs text-muted-foreground">
+                      <span className="font-mono-data">{feature.stories.length}</span>{" "}
+                      {feature.stories.length === 1 ? "story" : "stories"}
+                    </span>
+                    <span className="font-mono-data w-9 text-right text-xs text-muted-foreground">
+                      {feature.dataOk ? `${feature.score}%` : "—"}
+                    </span>
                   </span>
                 </li>
               ))}
@@ -314,7 +322,7 @@ function PersonCard({
             <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-1.5 p-0">
               {person.features.map((feature) => (
                 <li key={feature.key} className="flex items-center gap-1.5">
-                  <FeatureLink feature={feature} />
+                  <FeatureLink feature={feature} codeOnly />
                   <span className="font-mono-data text-[11px] text-muted-foreground">
                     {feature.dataOk ? `${feature.score}%` : "—"}
                   </span>
@@ -349,7 +357,8 @@ function OutOf({ value, of }: { value: number; of: number }) {
  * button — and with no entries at all, no row.
  */
 function PersonLinkButtons({ login, name }: { login: string; name: string }) {
-  const links = personLinks(login)
+  const { epic } = useShell()
+  const links = personLinks(epic, login)
   const targets = [
     { key: "jira", href: links.jira, label: `${name} in Jira`, icon: SiJira },
     // Slack's mark isn't in simple-icons' brand set (SiSlack was removed
@@ -403,7 +412,7 @@ function FeatureWorkRow({ entry, detailed }: { entry: FeatureWork; detailed: boo
       // pull requests wraps, and a second line starting back at the left
       // margin reads as another feature rather than more of this one.
       <li className="flex min-w-0 items-start gap-2">
-        <FeatureLink feature={feature} />
+        <FeatureLink feature={feature} codeOnly />
         <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1.5">
           {direct ? <StatusPill status={direct.story.status} className="shrink-0 text-[11px]" /> : null}
           {nested.map(({ story }) => (
@@ -427,14 +436,13 @@ function FeatureWorkRow({ entry, detailed }: { entry: FeatureWork; detailed: boo
     <li className="flex min-w-0 flex-col gap-1.5">
       <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
         <FeatureLink feature={feature} />
-        <span className="min-w-0 flex-1 truncate text-sm">{featureTitleWithoutCode(feature)}</span>
-        {/* A feature they don't own is here because they opened a PR on
-            somebody else's story — worth saying whose, or the row reads as
-            a feature they forgot they owned. */}
-        {!owned ? (
-          <span className="shrink-0 text-xs text-muted-foreground">{feature.owner}'s feature</span>
-        ) : null}
-        {direct ? <StatusPill status={direct.story.status} className="shrink-0 text-[11px]" /> : null}
+        <span className="ml-auto flex shrink-0 items-center gap-2">
+          {/* A feature they don't own is here because they opened a PR on
+              somebody else's story — worth saying whose, or the row reads as
+              a feature they forgot they owned. */}
+          {!owned ? <span className="text-xs text-muted-foreground">{feature.owner}'s feature</span> : null}
+          {direct ? <StatusPill status={direct.story.status} className="text-[11px]" /> : null}
+        </span>
       </span>
       <ul className="m-0 ml-[3px] flex list-none flex-col gap-2 border-l-2 border-border-soft p-0 pl-4">
         {direct?.prs.map((work) => (
@@ -443,11 +451,14 @@ function FeatureWorkRow({ entry, detailed }: { entry: FeatureWork; detailed: boo
         {nested.map(({ story, prs }) => (
           <li key={story.key} className="flex min-w-0 flex-col gap-1.5">
             <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-              <JiraLink issueKey={story.key} type="story" tone={story.status} className="shrink-0">
-                <span className="font-mono-data">{story.key}</span>
+              {/* Key and summary as one link, the way every other ticket on
+                  the dashboard reads — the summary is the part worth
+                  aiming at, and it used to be the one part that wasn't
+                  clickable. */}
+              <JiraLink issueKey={story.key} type="story" tone={story.status}>
+                <IssueTitle issueKey={story.key} title={summaryFor(story, feature)} />
               </JiraLink>
-              <span className="min-w-0 flex-1 truncate text-muted-foreground">{summaryFor(story, feature)}</span>
-              <StatusPill status={story.status} className="shrink-0 text-[11px]" />
+              <StatusPill status={story.status} className="ml-auto shrink-0 text-[11px]" />
             </span>
             {prs.length > 0 ? (
               <ul className="m-0 ml-[3px] flex list-none flex-col gap-1.5 border-l-2 border-border-soft p-0 pl-4">
@@ -467,6 +478,11 @@ function FeatureWorkRow({ entry, detailed }: { entry: FeatureWork; detailed: boo
  * A pull request as it matters at standup: what it is, who is sitting on
  * it, and how long it has been open.
  *
+ * The whole row is the link — every part of it (the author, the title, the
+ * reviewer faces, the age) is about this one pull request, so all of it
+ * opens the pull request rather than only the repo chip it used to hang
+ * off. See `.row-link` for how the chip stays lit as the target.
+ *
  * The reviewers are the same badges the Reviews page uses, minus the
  * names — a row this deep already carries a ticket key, a repo and a
  * title, and three spelled-out logins on the end of it wraps. Faces
@@ -476,30 +492,37 @@ function PrWorkRow({ work }: { work: PrWork }) {
   const { pr, reviewers, mine, openDays } = work
 
   return (
-    <li className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-      {/* Only when it isn't theirs: under someone's own name every PR is
-          assumed to be theirs, so a face here means "not yours". */}
-      {!mine ? <AuthorAvatar pr={pr} /> : null}
-      <PrChip pr={pr} />
-      <span className="min-w-0 flex-1 truncate text-xs">{pr.title}</span>
-      {reviewers.length === 0 ? (
-        <span className="shrink-0 text-xs" style={{ color: "var(--status-in-progress)" }}>
-          Needs a reviewer
-        </span>
-      ) : (
-        <span className="flex shrink-0 items-center gap-1.5">
-          {orderReviewers(reviewers).map((reviewer) => (
-            <ReviewerChip key={reviewer.reviewer} status={reviewer} avatarOnly />
-          ))}
-        </span>
-      )}
-      <span
-        className="font-mono-data shrink-0 text-xs whitespace-nowrap"
-        title="Days this pull request has been open"
-        style={{ color: openDays > 2 ? "var(--status-in-progress)" : "var(--muted-foreground)" }}
+    <li className="min-w-0">
+      <a
+        href={pr.url}
+        target="_blank"
+        rel="noreferrer"
+        className="row-link flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 no-underline"
       >
-        open {openDays}d
-      </span>
+        {/* Only when it isn't theirs: under someone's own name every PR is
+            assumed to be theirs, so a face here means "not yours". */}
+        {!mine ? <AuthorAvatar pr={pr} /> : null}
+        <PrChip pr={pr} asSpan />
+        <span className="min-w-0 flex-1 truncate text-xs">{pr.title}</span>
+        {reviewers.length === 0 ? (
+          <span className="shrink-0 text-xs" style={{ color: "var(--status-in-progress)" }}>
+            Needs a reviewer
+          </span>
+        ) : (
+          <span className="flex shrink-0 items-center gap-1.5">
+            {orderReviewers(reviewers).map((reviewer) => (
+              <ReviewerChip key={reviewer.reviewer} status={reviewer} avatarOnly />
+            ))}
+          </span>
+        )}
+        <span
+          className="font-mono-data shrink-0 text-xs whitespace-nowrap"
+          title="Days this pull request has been open"
+          style={{ color: openDays > 2 ? "var(--status-in-progress)" : "var(--muted-foreground)" }}
+        >
+          open {openDays}d
+        </span>
+      </a>
     </li>
   )
 }
@@ -524,8 +547,9 @@ function OtherReviewers({ pr, except }: { pr: PrRefT; except: string | null }) {
  *  people map where there is an entry, so the tooltip and the initials
  *  fallback read as "Vivek" rather than "VivekMurarkaIndIre". */
 function AuthorAvatar({ pr }: { pr: PrRefT }) {
+  const { epic } = useShell()
   if (!pr.author) return null
-  const name = displayNameForLogin(pr.author) ?? pr.author
+  const name = displayNameForLogin(epic, pr.author) ?? pr.author
 
   return (
     <PersonTip label={`Opened by ${firstName(name)}`} className="shrink-0 items-center">
@@ -587,17 +611,36 @@ function Block({ icon, title, children }: { icon: React.ReactNode; title: string
 /** The feature's own glyph — the same box every Jira feature link on the
  *  dashboard draws, tinted by stage — rather than a bare status dot, so a
  *  feature reads as a feature here too and not as a generic coloured
- *  bullet. */
-function FeatureLink({ feature }: { feature: FeatureT }) {
+ *  bullet.
+ *
+ *  Code and title are one link, not a link next to a dead label: the title
+ *  is the part a reader aims at, and splitting the two left the larger,
+ *  more obvious half of the row doing nothing. The link stops at the end
+ *  of the title rather than stretching the width of the row — a hover fill
+ *  running to the far edge would claim the status pill and the counts
+ *  sitting out there, which go somewhere else or nowhere at all.
+ *
+ *  `codeOnly` is the compact view, where there is no title on the row to
+ *  join up with. */
+function FeatureLink({ feature, codeOnly }: { feature: FeatureT; codeOnly?: boolean }) {
   return (
     <ShellLink
       page="feature"
       code={featureSlug(feature.code)}
-      className="hover-fill inline-flex shrink-0 items-center gap-1.5 no-underline"
+      className={cn(
+        "hover-fill inline-flex items-center gap-1.5 no-underline",
+        codeOnly ? "shrink-0" : "min-w-0",
+      )}
       title={feature.title}
     >
       <Package aria-hidden="true" data-status-icon={feature.stage} className="size-3.5 shrink-0" />
-      <span className="font-mono-data text-[13px]">{feature.code}</span>
+      {codeOnly ? (
+        <span className="font-mono-data text-[13px]">{feature.code}</span>
+      ) : (
+        <span className="min-w-0 truncate text-sm">
+          <IssueTitle issueKey={feature.code} title={featureTitleWithoutCode(feature)} />
+        </span>
+      )}
     </ShellLink>
   )
 }

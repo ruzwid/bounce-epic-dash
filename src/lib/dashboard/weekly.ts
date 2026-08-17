@@ -38,7 +38,7 @@ export type WeekTotals = {
  *  two percentages for the same epic on the same screen is one too many,
  *  and the header's is the one every other page agrees with. */
 function percent(snapshot: StatusSnapshotT): number {
-  return weightedPercent(storyTotals(snapshot.features));
+  return weightedPercent(snapshot.epic.slug, storyTotals(snapshot.features));
 }
 
 export function weekTotals(current: StatusSnapshotT, past: StatusSnapshotT): WeekTotals {

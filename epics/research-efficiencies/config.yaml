@@ -1,0 +1,181 @@
+# Real config for the "Research Efficiencies" epic — the
+# `research-efficiencies` slug in epics.yaml. No secrets live here — those
+# go in .env.local (gitignored). See README.md for setup + the daily
+# routine, and run this epic's collection with
+# `pnpm collect --epic research-efficiencies`.
+#
+# The milestone/feature tree below was read from JIRA (children of
+# BOUN-11173, one level down) rather than copied from the earlier
+# hand-written status prompt, which had drifted: that prompt knew only M1
+# and its three features, and M2/M3 have appeared since.
+#
+# Everything JIRA answers for itself — ticket titles, statuses, assignees —
+# is re-read on every collection run, so nothing below needs maintaining as
+# the epic moves. What does need a human is: the `people` /
+# `jiraAssignees` maps (a new engineer joining), and `epic.targetDate`.
+
+epic:
+  key: BOUN-11173
+  title: "Research Efficiencies"
+  # PR search floor. Same date as the WPP at Scale epic — both were kicked
+  # off in the same planning round.
+  startDate: 2026-07-07
+  # Not set yet. Null is a supported value, not a placeholder: the burn-up
+  # simply renders without a pace line until somebody fills one in. Do NOT
+  # invent a date to make the chart look complete.
+  targetDate: null
+
+jira:
+  projectKey: BOUN
+  # Same JIRA workflow as every other BOUN epic — statuses are a
+  # project-level setting, not a per-epic one. See the WPP at Scale config
+  # for what each mapping means and why "To Be Released" is staged rather
+  # than shipped.
+  statusMap:
+    Done: shipped
+    "Code Review": in_review
+    "To Be Released": staged
+    "Product Review": in_review
+    "In Progress": in_progress
+    "To Do": todo
+    # Used on this epic's tickets and not on WPP at Scale's. Mapped to
+    # todo, not in_progress: a ticket being planned is a ticket nobody has
+    # started building. Without this line collect.ts still reaches "todo",
+    # but by falling through its unmapped-status warning — which is a
+    # different thing from having decided.
+    Planning: todo
+    Blocked: blocked
+
+  productReviewStatus: "Product Review"
+  signedOffStatuses: ["Done"]
+  # Legacy "Product Approval" custom field, read only as a fallback for
+  # tickets signed off before the August 2026 flow change.
+  productSignOffField: customfield_10698
+
+github:
+  org: bounceinsights
+  # Repos are discovered from the org on every run, never listed per
+  # feature — see the long note in the WPP at Scale config for why the
+  # per-feature list was removed.
+  excludeRepos: ["emulator-data"]
+  includeRepos: []
+
+timezone: Europe/Dublin
+
+scoreWeights:
+  shipped: 1.0
+  done_unverified: 1.0
+  staged: 0.5
+  in_review: 0.3
+  in_progress: 0.15
+  blocked: 0
+  todo: 0
+
+milestones:
+  - id: M1
+    title: "Core Logic & Testing Reliability"
+    tier: full
+    owner: minhalaftabrana
+    ticket: BOUN-11174
+    features:
+      - key: BOUN-11177
+        code: "F1.1"
+        owner: arturvorobjov-tech
+      - key: BOUN-11178
+        code: "F1.2"
+        owner: Pierce-44
+      - key: BOUN-11179
+        code: "F1.3"
+        owner: SaljithBounceInsights
+
+  - id: M2
+    title: "Creator Efficiency & Error Clarity"
+    tier: full
+    owner: minhalaftabrana
+    ticket: BOUN-11175
+    features:
+      # Listed in code order rather than JIRA's creation order — F2.1 was
+      # created last (BOUN-11186) but reads first.
+      - key: BOUN-11186
+        code: "F2.1"
+        owner: arturvorobjov-tech
+      - key: BOUN-11181
+        code: "F2.2"
+        owner: SaljithBounceInsights
+      - key: BOUN-11182
+        code: "F2.3"
+        owner: minhalaftabrana
+      # Unassigned in JIRA — owner defaults to the milestone owner, the
+      # same convention the WPP at Scale config uses.
+      - key: BOUN-11183
+        code: "F2.4"
+        owner: minhalaftabrana
+      - key: BOUN-11184
+        code: "F2.5"
+        owner: Pierce-44
+
+  - id: M3
+    title: "Platform Fixes & Polish"
+    # PROVISIONAL: "light" because every feature here resolves to a single
+    # owner (Minhal), which is what the light tier is for — see
+    # MethodologyFooter. Flip to "full" the moment this milestone picks up
+    # separate owners.
+    tier: light
+    owner: minhalaftabrana
+    ticket: BOUN-11176
+    features:
+      # JIRA titles BOTH BOUN-11185 and BOUN-11187 with a code, and titles
+      # BOUN-11180 and BOUN-11187 *the same* code ("F3.4"). There is also
+      # no F3.1 or F3.3. The numbering in these ticket titles is simply
+      # inconsistent, and `code` has to be unique here because it's what
+      # the /f/<slug> URL and the in-page anchor are built from.
+      #
+      # So: BOUN-11180 keeps F3.4 as written, and BOUN-11187 is
+      # disambiguated to "F3.4b" — deliberately not renumbered to a free
+      # slot like F3.5, which would assert a numbering JIRA doesn't have.
+      # Fix the ticket titles in JIRA and this can go back to matching them.
+      - key: BOUN-11185
+        code: "F3.2"
+        owner: minhalaftabrana
+      - key: BOUN-11180
+        code: "F3.4"
+        owner: minhalaftabrana
+      - key: BOUN-11187
+        code: "F3.4b"
+        owner: minhalaftabrana
+
+# GitHub login -> short display name. Includes people who only ever show up
+# as reviewers or PR authors (Klaudia, Sean, Dharani) — a login with no
+# entry renders as the bare login rather than a name.
+people:
+  arturvorobjov-tech: Artur
+  Pierce-44: Pierce
+  SaljithBounceInsights: Saljith
+  minhalaftabrana: Minhal
+  obieglok: Klaudia
+  SeanCandon: Sean
+  dharanipathirk: Dharani
+
+# JIRA's assignee `displayName` -> GitHub login. Needs its own lookup
+# rather than reusing `people` above, because JIRA carries a full name
+# while `people` maps to a short first name. The four below are the
+# display names actually seen on this epic's tickets; add more as new
+# assignees appear (a missing entry costs an avatar, nothing else).
+jiraAssignees:
+  Artur Vorobjov: arturvorobjov-tech
+  Pierce Hahn: Pierce-44
+  Saljith Subhash: SaljithBounceInsights
+  Minhal Aftab: minhalaftabrana
+
+# login -> average colour of their GitHub avatar, a subtle tint behind
+# PersonChip badges. Empty is fine — no entry simply means no tint.
+peopleColors: {}
+
+# login -> JIRA accountId, for the Jira button on each People card. Find
+# one by opening someone's JIRA profile: the URL ends /jira/people/<id>.
+# No entry, no button — never a guessed URL.
+jiraAccounts: {}
+
+# login -> Slack member ID, for the DM button on each People card.
+# Slack profile -> ⋮ -> Copy member ID. Same rule: no entry, no button.
+slackIds: {}

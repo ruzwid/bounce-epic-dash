@@ -12,7 +12,7 @@ import type {
 import { deriveStage } from "../score.ts";
 import { storyTotals, weightedPercent } from "./totals.ts";
 import { featureAnchorId } from "./anchors.ts";
-import { needsAttention, prOpenDays } from "./search.ts";
+import { groupSlug, milestoneGroupSlug, needsAttention, prOpenDays } from "./search.ts";
 import { storyPrs } from "../stories.ts";
 
 type FeatureT = z.infer<typeof FeatureSchema>;
@@ -80,33 +80,20 @@ export type SidebarGroup = {
    *  one. Empty for the fallback grouping below. */
   overview: string;
   features: FeatureT[];
-  /** Every Milestone id ("M1", or ["M3","M4"] for the merged group) this
-   *  heading represents a page for — one ShellLink per id, since M3/M4
-   *  are two separate tickets sharing one sidebar/Today heading. */
+  /** Every Milestone id ("M1", or ["M3","M4"] for a merged group) this
+   *  heading represents a page for — one ShellLink per id, since two
+   *  milestones sharing a heading are still two separate tickets. */
   milestoneIds: string[];
-};
-
-/** M3 and M4 are always read together — one owner, one platform build —
- *  so they share a group even though they're separate milestones. */
-const LIGHT_TIER_GROUP = ["M3", "M4"] as const;
-
-function isLightTier(id: string): boolean {
-  return (LIGHT_TIER_GROUP as readonly string[]).includes(id);
-}
-
-/** Shared with milestoneBySlug() below, so a snapshot written before
- *  milestones were published gets the exact same fallback title in the
- *  sidebar as on the milestone page it links to. */
-const FALLBACK_MILESTONE_TITLES: Record<string, string> = {
-  M1: "Core efficiency",
-  M2: "Expansion",
-  M3: "Light tier",
-  M4: "Light tier",
 };
 
 /**
  * One group per milestone, in the order the snapshot lists them, with
- * M3/M4 folded together.
+ * milestones sharing a `group` folded together.
+ *
+ * The grouping comes from each epic's config.yaml (`group: m3-m4` on WPP at
+ * Scale's M3 and M4, one owner's platform build always read together). It
+ * used to be a hardcoded ["M3","M4"] here, which was invisible from the
+ * config and which a second epic could not have inherited or opted out of.
  *
  * Snapshots written before milestones were published have none, so this
  * falls back to grouping by `feature.milestone` alone — an old snapshot
@@ -119,63 +106,55 @@ export function sidebarGroups(snapshot: StatusSnapshotT): SidebarGroup[] {
 
   if (snapshot.milestones.length > 0) {
     const groups: SidebarGroup[] = [];
-    let lightAdded = false;
+    const emitted = new Set<string>();
+
+    // Resolved through milestoneGroupSlug so the sidebar's sections and the
+    // milestone filter's chips are the same set, decided once — including
+    // its fallback to the epic's current config for snapshots written
+    // before grouping was published.
+    const keyOf = (m: StatusSnapshotT["milestones"][number]) => milestoneGroupSlug(snapshot, m.id);
 
     for (const milestone of snapshot.milestones) {
-      if (isLightTier(milestone.id)) {
-        if (lightAdded) continue;
-        lightAdded = true;
-        const light = snapshot.milestones.filter((m) => isLightTier(m.id));
-        const suffix = light[0]?.owner ?? "light tier";
-        groups.push({
-          id: "m3-m4",
-          label: `${light.map((m) => m.id).join(" / ")} · ${suffix}`,
-          suffix,
-          overview: light.map((m) => m.overview).filter(Boolean).join("\n\n"),
-          features: featuresFor(light.map((m) => m.id)),
-          milestoneIds: light.map((m) => m.id),
-        });
-        continue;
-      }
+      // A milestone with no group of its own is a group of one, keyed by
+      // its own id, so the two cases share this whole code path.
+      const groupKey = keyOf(milestone);
+      if (emitted.has(groupKey)) continue;
+      emitted.add(groupKey);
+
+      const members = snapshot.milestones.filter((m) => keyOf(m) === groupKey);
+      const ids = members.map((m) => m.id);
+      // A single milestone is named by its title; a merged group is named
+      // by its shared owner, because the members' titles are different
+      // things and concatenating them reads as noise in a 264px rail.
+      const suffix =
+        members.length === 1 ? stripMilestonePrefix(members[0]!) : (members[0]?.owner ?? groupKey);
+
       groups.push({
-        id: milestone.id.toLowerCase(),
-        label: `${milestone.id} · ${stripMilestonePrefix(milestone)}`,
-        suffix: stripMilestonePrefix(milestone),
-        overview: milestone.overview,
-        features: featuresFor([milestone.id]),
-        milestoneIds: [milestone.id],
+        id: groupKey,
+        label: `${ids.join(" / ")} · ${suffix}`,
+        suffix,
+        overview: members.map((m) => m.overview).filter(Boolean).join("\n\n"),
+        features: featuresFor(ids),
+        milestoneIds: ids,
       });
     }
     return groups.filter((group) => group.features.length > 0);
   }
 
-  return [
-    {
-      id: "m1",
-      label: "M1 · Core efficiency",
-      suffix: "Core efficiency",
-      overview: "",
-      features: featuresFor(["M1"]),
-      milestoneIds: ["M1"],
-    },
-    {
-      id: "m2",
-      label: "M2 · Expansion",
-      suffix: "Expansion",
-      overview: "",
-      features: featuresFor(["M2"]),
-      milestoneIds: ["M2"],
-    },
-    {
-      id: "m3-m4",
-      label: "M3 / M4 · Light tier",
-      suffix: "Light tier",
-      overview: "",
-      features: featuresFor(LIGHT_TIER_GROUP),
-      milestoneIds: [...LIGHT_TIER_GROUP],
-    },
-  ].filter((group) => group.features.length > 0);
+  // No published milestones: derive the groups from the features
+  // themselves, in the order they appear. No titles are available, so the
+  // id stands in for one — better than a hardcoded guess at what "M2"
+  // was called in whichever epic this snapshot came from.
+  return [...new Set(snapshot.features.map((f) => f.milestone))].map((id) => ({
+    id: groupSlug(id),
+    label: id,
+    suffix: "",
+    overview: "",
+    features: featuresFor([id]),
+    milestoneIds: [id],
+  }));
 }
+
 
 export type MilestoneOverview = {
   /** "M1" */
@@ -202,7 +181,10 @@ export function milestoneBySlug(snapshot: StatusSnapshotT, slug: string): Milest
   return {
     id,
     key: summary?.key ?? null,
-    title: summary ? stripMilestonePrefix(summary) : (FALLBACK_MILESTONE_TITLES[id] ?? id),
+    // The id itself when the snapshot predates published milestones — a
+    // hardcoded per-id title map used to stand in here, which was only
+    // ever right for the one epic it was written for.
+    title: summary ? stripMilestonePrefix(summary) : id,
     overview: summary?.overview ?? "",
     tier: summary?.tier ?? null,
     owner: summary?.owner ?? null,
@@ -226,9 +208,9 @@ export type MilestoneProgress = {
  *  milestone's features instead of one feature's stories or the whole
  *  epic's KPIs — so "M1 is 80% done" and "F1.1 is 80% done" never disagree
  *  about what "done" means. */
-export function milestoneProgress(features: FeatureT[]): MilestoneProgress {
+export function milestoneProgress(epic: string, features: FeatureT[]): MilestoneProgress {
   const totals = storyTotals(features);
-  const score = weightedPercent(totals);
+  const score = weightedPercent(epic, totals);
   const allDone = features.length > 0 && features.every((f) => f.stage === "done");
 
   return {
@@ -266,7 +248,7 @@ export function activeMilestones(snapshot: StatusSnapshotT): Set<string> {
   }
   const active = new Set<string>();
   for (const [id, features] of byMilestone) {
-    if (milestoneProgress(features).stage !== "done") active.add(id);
+    if (milestoneProgress(snapshot.epic.slug, features).stage !== "done") active.add(id);
   }
   return active;
 }
@@ -362,13 +344,13 @@ export type EpicProgress = {
  *
  *  Deliberately *not* the mean of feature scores — that would weight a
  *  one-story feature the same as a fourteen-story one. */
-export function epicProgress(features: FeatureT[]): EpicProgress {
+export function epicProgress(epic: string, features: FeatureT[]): EpicProgress {
   const totals = storyTotals(features);
   if (totals.total === 0) {
     return { percent: 0, shippedShare: 0, doneUnverifiedShare: 0, stagedShare: 0, inReviewShare: 0 };
   }
   return {
-    percent: weightedPercent(totals),
+    percent: weightedPercent(epic, totals),
     shippedShare: (totals.shipped / totals.total) * 100,
     doneUnverifiedShare: (totals.doneUnverified / totals.total) * 100,
     stagedShare: (totals.staged / totals.total) * 100,
@@ -381,7 +363,7 @@ export function epicProgress(features: FeatureT[]): EpicProgress {
  *  the epic's Jira link icon (Sidebar) reads the same six-hue language as
  *  everything nested under it. */
 export function epicStage(snapshot: StatusSnapshotT): StageT {
-  const { percent } = epicProgress(snapshot.features);
+  const { percent } = epicProgress(snapshot.epic.slug, snapshot.features);
   const allDone = snapshot.features.length > 0 && snapshot.features.every((f) => f.stage === "done");
   // Same reasoning as milestoneProgress() above: allDone doubles as the
   // signed-off override so a signed-off feature's "done" status can carry

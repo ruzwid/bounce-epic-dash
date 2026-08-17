@@ -114,7 +114,15 @@ export const Override = z.object({
   expires: z.string().date(),
 });
 
-export const Milestone = z.enum(["M1", "M2", "M3", "M4"]);
+/** A milestone id, "M" followed by a number.
+ *
+ *  Deliberately a pattern rather than a fixed set: this used to be
+ *  z.enum(["M1","M2","M3","M4"]) — the four milestones one epic happened
+ *  to have — which meant a second epic couldn't have an M5, and the
+ *  hardcoded union was copied into scripts/collect.ts as well. The
+ *  M-and-a-number *shape* is still enforced, because it's what /m/:id
+ *  slugs and featureAnchorId are built from. */
+export const Milestone = z.string().regex(/^M\d+$/, "must be an M followed by a number, e.g. M1");
 
 /** Snapshots written before Sub-tasks were collected call a Feature's
  *  Stories `subtasks`, and its KPI `subtasksTracked`. Those files are still
@@ -216,6 +224,13 @@ export const MilestoneSummary = z.object({
   tier: z.enum(["full", "light"]),
   owner: z.string(),
   overview: z.string().default(""),
+  /** Milestones sharing a `group` render as one sidebar section and one
+   *  milestone-filter chip — WPP at Scale's M3 and M4 are one owner's
+   *  platform build and are always read together. Comes from config.yaml;
+   *  null (the default) means the milestone is its own group. Published
+   *  rather than re-derived so a historical snapshot keeps the grouping it
+   *  was collected under. */
+  group: z.string().nullable().default(null),
 });
 
 export const StatusSnapshot = z.object({
@@ -225,8 +240,11 @@ export const StatusSnapshot = z.object({
    *  3: Feature.signedOff / awaitingSignOff are published. The version is
    *  what lets the since-yesterday diff tell "product approved this
    *  overnight" apart from "the previous snapshot predates the field and
-   *  defaulted it to false" — see hasSignOffData in dashboard/diff.ts. */
-  schemaVersion: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+   *  defaulted it to false" — see hasSignOffData in dashboard/diff.ts.
+   *  4: the dashboard tracks more than one epic. epic.slug and
+   *  MilestoneSummary.group are published; snapshots live under
+   *  data/snapshots/<slug>/ instead of directly in data/snapshots/. */
+  schemaVersion: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
   /** logical Europe/Dublin date, YYYY-MM-DD — the file name */
   date: z.string().date(),
   generatedAt: z.string().datetime(),
@@ -235,6 +253,12 @@ export const StatusSnapshot = z.object({
     title: z.string(),
     targetDate: z.string().date().nullable(),
     overview: z.string().default(""),
+    /** Which epic this snapshot belongs to — the epics.yaml slug, and the
+     *  directory it was written into. Defaulted to "" for the snapshots
+     *  written before the dashboard tracked more than one epic; the loader
+     *  reads the slug off the path either way, so this is provenance
+     *  carried inside the file rather than the lookup key. */
+    slug: z.string().default(""),
   }),
 
   /** Defaulted, so snapshots written before milestones were published

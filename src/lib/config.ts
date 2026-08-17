@@ -1,7 +1,8 @@
 // src/lib/config.ts
-// Loads and validates config.yaml and overrides.yaml. Fails loudly with a
-// clear, field-naming message on any missing/invalid field — this is meant
-// to be the first thing that breaks, not something that silently degrades.
+// Loads and validates one epic's config.yaml and overrides.yaml. Fails
+// loudly with a clear, field-naming message on any missing/invalid field —
+// this is meant to be the first thing that breaks, not something that
+// silently degrades. Which epic's files to read is ./epics.ts's job.
 import { readFileSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
 import type { ZodError } from "zod";
@@ -28,9 +29,14 @@ function readYamlFile(path: string): unknown {
   }
 }
 
-/** Loads and validates config.yaml. Throws with a clear message naming the
- *  offending field(s) on any missing or invalid value. */
-export function loadConfig(path = "config.yaml"): ConfigT {
+/** Loads and validates one epic's config.yaml. Throws with a clear message
+ *  naming the offending field(s) on any missing or invalid value.
+ *
+ *  The path is required, deliberately: configs are per-epic
+ *  (epics/<slug>/config.yaml, built by epicConfigPath in ./epics.ts) and a
+ *  default here would be a default *epic*, silently loading one team's
+ *  config for another team's run. */
+export function loadConfig(path: string): ConfigT {
   const parsed = readYamlFile(path);
   const result = Config.safeParse(parsed);
   if (!result.success) {
@@ -39,9 +45,10 @@ export function loadConfig(path = "config.yaml"): ConfigT {
   return result.data;
 }
 
-/** Loads and validates overrides.yaml. Missing file is not an error — it's
- *  an optional, human-maintained file — and is treated as no overrides. */
-export function loadOverrides(path = "overrides.yaml"): OverridesFileT {
+/** Loads and validates one epic's overrides.yaml. Missing file is not an
+ *  error — it's an optional, human-maintained file — and is treated as no
+ *  overrides. Path required for the same reason as loadConfig above. */
+export function loadOverrides(path: string): OverridesFileT {
   let parsed: unknown;
   try {
     parsed = readYamlFile(path);

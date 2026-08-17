@@ -1,5 +1,11 @@
-# Real config for the "WPP at Scale" epic. No secrets live here — those go
-# in .env.local (gitignored). See README.md for setup + the daily routine.
+# Real config for the "WPP at Scale" epic — the `wpp-at-scale` slug in
+# epics.yaml. No secrets live here — those go in .env.local (gitignored).
+# See README.md for setup + the daily routine.
+#
+# This is one epic's config, not the dashboard's: everything below (epic,
+# milestones, people, weights) describes WPP at Scale alone, and a second
+# epic gets its own directory beside this one. Run this epic's collection
+# with `pnpm collect --epic wpp-at-scale`.
 #
 # Ticket keys, milestone/feature structure, and owner logins below were
 # discovered via read-only JIRA/GitHub API queries and confirmed with the
@@ -153,6 +159,11 @@ milestones:
     title: "WPP API Platform"
     tier: light
     owner: TonyCasey
+    # M3 and M4 are always read together — one owner, one platform build —
+    # so they share a sidebar section and one milestone filter chip. The
+    # grouping used to be a hardcoded ["M3","M4"] in src/lib/dashboard/nav.ts,
+    # which is exactly the kind of thing a second epic can't inherit.
+    group: m3-m4
     ticket: BOUN-11290
     features:
       - key: BOUN-11291
@@ -174,6 +185,7 @@ milestones:
     # pattern — not explicitly stated anywhere. Easy to flip to "full".
     tier: light
     owner: TonyCasey
+    group: m3-m4   # see M3 above
     ticket: BOUN-11248
     features:
       - key: BOUN-11465

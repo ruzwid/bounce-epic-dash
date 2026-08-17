@@ -33,7 +33,7 @@ type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
  * dashboard to find out.
  */
 export function TodayPage() {
-  const { snapshot, previous, history, search, onSearchChange, now, asOf } = useShell()
+  const { epic, snapshot, previous, history, search, onSearchChange, now, asOf } = useShell()
 
   const changes = computeChanges(snapshot, previous)
   const sinceLabel = previous ? formatSinceLabel(previous.date, snapshot.date) : null
@@ -49,9 +49,12 @@ export function TodayPage() {
   // Groups the milestone filter excludes don't render at all — rendering
   // them with an empty, filtered-down feature list is the exact bug this
   // replaced (picking "M1" left M2/M3/M4 on the page, just empty).
-  const groups = sidebarGroups(snapshot).filter((g) => groupMatchesMilestoneFilter(g.milestoneIds, search))
+  // Every group this epic has, for the filter chips — computed before
+  // the filter is applied, or picking one chip would remove the others.
+  const allGroups = sidebarGroups(snapshot)
+  const groups = allGroups.filter((g) => groupMatchesMilestoneFilter(g.id, search))
   const visibleFeatureCount = groups.reduce(
-    (n, g) => n + g.features.filter((f) => matchesFilters(f, search, asOf)).length,
+    (n, g) => n + g.features.filter((f) => matchesFilters(snapshot, f, search, asOf)).length,
     0,
   )
 
@@ -104,18 +107,23 @@ export function TodayPage() {
         >
           Features
         </SectionHeading>
-        <FilterBar search={search} onSearchChange={onSearchChange} engineers={engineers} />
+        <FilterBar
+          search={search}
+          onSearchChange={onSearchChange}
+          engineers={engineers}
+          milestoneGroups={allGroups}
+        />
         {groups.length === 0 ? (
           <EmptyState message="No milestone matches the current filters." />
         ) : (
           groups.map((group) => {
-            const visible = group.features.filter((f) => matchesFilters(f, search, asOf))
+            const visible = group.features.filter((f) => matchesFilters(snapshot, f, search, asOf))
             // Done milestones collapse by default — nothing left to act on
             // — but the boolean is stable across re-renders (search text,
             // filters) so a reader who expands one anyway never has it
             // snap shut on them mid-session. See the note on <details> in
             // FeatureCard for the same pattern.
-            const progress = milestoneProgress(group.features)
+            const progress = milestoneProgress(epic, group.features)
             const isDone = progress.stage === "done"
             return (
               <details

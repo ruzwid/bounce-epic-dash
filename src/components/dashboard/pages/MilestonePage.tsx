@@ -4,6 +4,7 @@ import { StatStrip } from "../StatStrip"
 import { StatusPill } from "../StatusPill"
 import { FeatureRow } from "../FeatureRow"
 import { EmptyState } from "../EmptyState"
+import { useShell } from "../shell/ShellContext"
 import { JiraLink } from "../JiraLink"
 
 /**
@@ -16,7 +17,8 @@ import { JiraLink } from "../JiraLink"
  * how far along one is.
  */
 export function MilestonePage({ milestone }: { milestone: MilestoneOverview }) {
-  const progress = milestoneProgress(milestone.features)
+  const { epic } = useShell()
+  const progress = milestoneProgress(epic, milestone.features)
 
   return (
     <article className="flex flex-col gap-8">

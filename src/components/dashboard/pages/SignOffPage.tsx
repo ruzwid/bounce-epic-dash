@@ -14,7 +14,7 @@ import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
 import { SectionHeading } from "../SectionHeading"
 import { PersonChip } from "../PersonChip"
-import { JiraLink } from "../JiraLink"
+import { IssueTitle, JiraLink } from "../JiraLink"
 import { EmptyState } from "../EmptyState"
 
 /**
@@ -66,11 +66,10 @@ export function SignOffPage() {
                   </p>
                   <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-1.5 p-0">
                     {entry.unverified.map((story) => (
-                      <li key={story.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <li key={story.key} className="flex min-w-0 items-center text-xs text-muted-foreground">
                         <JiraLink issueKey={story.key} type="story" tone={story.status}>
-                          <span className="font-mono-data">{story.key}</span>
+                          <IssueTitle issueKey={story.key} title={story.summary} />
                         </JiraLink>
-                        <span className="min-w-0 truncate">{story.summary}</span>
                       </li>
                     ))}
                   </ul>
@@ -136,7 +135,7 @@ function Pipeline({ features }: { features: SignOffFeature[] }) {
   const colors: Record<(typeof order)[number], string> = {
     building: "var(--status-in-progress)",
     code_complete: "var(--status-staged)",
-    with_product: "var(--status-in-review)",
+    with_product: "var(--status-with-product)",
     signed_off: "var(--status-shipped)",
   }
   const counts = order.map((id) => ({
@@ -171,19 +170,27 @@ function Pipeline({ features }: { features: SignOffFeature[] }) {
 }
 
 function FeatureLine({ entry }: { entry: SignOffFeature }) {
+  const { epic } = useShell()
   const { feature } = entry
   return (
     <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1">
+      {/* Code and title are one target: the title is the obvious thing to
+          aim at, and having it sit dead beside a four-character link made
+          the row look unclickable. It stops at the end of the title rather
+          than running the width of the row — everything after it (owner,
+          gate warnings, the AC bar) belongs to something else. */}
       <ShellLink
         page="feature"
         code={featureSlug(feature.code)}
-        className="hover-fill inline-flex shrink-0 items-center gap-1.5 no-underline"
+        className="hover-fill inline-flex min-w-0 items-center gap-1.5 no-underline"
+        title={feature.title}
       >
         <span aria-hidden="true" data-status-dot={feature.stage} className="size-2 shrink-0 rounded-full" />
-        <span className="font-mono-data text-[13px] font-medium">{feature.code}</span>
+        <span className="min-w-0 truncate text-sm">
+          <IssueTitle issueKey={feature.code} title={featureTitleWithoutCode(feature)} />
+        </span>
       </ShellLink>
-      <span className="min-w-0 truncate text-sm">{featureTitleWithoutCode(feature)}</span>
-      <PersonChip login={loginForDisplayName(feature.owner)} name={feature.owner} />
+      <PersonChip login={loginForDisplayName(epic, feature.owner)} name={feature.owner} />
       {entry.gateOpen ? (
         <span
           className="flex shrink-0 items-center gap-1 text-xs"

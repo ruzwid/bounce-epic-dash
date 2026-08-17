@@ -1,0 +1,24 @@
+# Per-ticket human notes for the Research Efficiencies epic, merged in by
+# scripts/merge.ts. Keyed by JIRA ticket key (feature or subtask). Expired
+# entries (past `expires`, checked in config.timezone) are dropped
+# automatically — this file is not hand-pruned.
+#
+# Overrides are per-epic on purpose: a note on one team's ticket has no
+# business appearing on another team's dashboard, and the two files are
+# edited by different people.
+#
+# Shape of each entry:
+#
+#   <TICKET-KEY>:
+#     note: "Free-text human note shown alongside this ticket."
+#     author: "your-github-login"
+#     suppressStallWarning: false   # optional, default false
+#     expires: 2026-12-31           # required, YYYY-MM-DD
+#
+# Example (commented out — this file starts with no real overrides):
+#
+# BOUN-11177:
+#   note: "Blocked on the UX design spike, not stalled."
+#   author: minhalaftabrana
+#   suppressStallWarning: true
+#   expires: 2026-09-01

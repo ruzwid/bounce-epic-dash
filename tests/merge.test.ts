@@ -180,6 +180,7 @@ describe("buildSnapshot", () => {
     const snapshot = buildSnapshot({
       date: "2026-01-15",
       epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
+      epicSlug: "test-epic",
       rawFeatures,
       judgment: judgment.value,
       overrides: {},
@@ -195,6 +196,7 @@ describe("buildSnapshot", () => {
     const snapshot = buildSnapshot({
       date: "2026-01-15",
       epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
+      epicSlug: "test-epic",
       rawFeatures,
       judgment: judgment.value,
       overrides: {},
@@ -215,6 +217,7 @@ describe("buildSnapshot", () => {
     const snapshot = buildSnapshot({
       date: "2026-01-15",
       epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
+      epicSlug: "test-epic",
       rawFeatures,
       judgment: judgment.value,
       overrides: {},
@@ -243,6 +246,7 @@ describe("buildSnapshot", () => {
     const snapshot = buildSnapshot({
       date: "2026-01-15",
       epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
+      epicSlug: "test-epic",
       rawFeatures,
       judgment: judgment.value,
       overrides: {},
@@ -277,6 +281,7 @@ describe("buildSnapshot", () => {
     const snapshot = buildSnapshot({
       date: "2026-01-15",
       epic: { key: "TEST-1", title: "Test Epic", targetDate: null },
+      epicSlug: "test-epic",
       rawFeatures,
       judgment: judgment.value,
       overrides: {},
@@ -304,7 +309,7 @@ describe("runMerge", () => {
     schemaVersion: 1,
     date: "2026-01-15",
     generatedAt: "2026-01-15T08:00:00.000Z",
-    epic: { ...config.epic, overview: "" },
+    epic: { ...config.epic, overview: "", slug: "test-epic" },
     milestones: [],
     features: [makeRawFeature()],
     collectionErrors: [],
@@ -312,9 +317,9 @@ describe("runMerge", () => {
 
   function makeDeps(overrides: Partial<MergeDeps> = {}): MergeDeps {
     const files: Record<string, unknown> = {
-      "data/raw/2026-01-15.json": rawFile,
-      "data/pending/2026-01-15.json": PENDING,
-      "data/judgment/2026-01-15.json": VALID_JUDGMENT,
+      "data/raw/test-epic/2026-01-15.json": rawFile,
+      "data/pending/test-epic/2026-01-15.json": PENDING,
+      "data/judgment/test-epic/2026-01-15.json": VALID_JUDGMENT,
     };
     return {
       readJsonFile: (path: string) => {
@@ -335,14 +340,14 @@ describe("runMerge", () => {
         return PENDING;
       },
     });
-    const result = await runMerge("2026-01-15", config as any, deps);
+    const result = await runMerge("test-epic", "2026-01-15", config as any, deps);
     expect(result.ok).toBe(false);
   });
 
   it("writes a schema-valid snapshot on success and never commits on failure", async () => {
     let written: unknown = null;
     const deps = makeDeps({ writeJsonAtomic: (_path, data) => { written = data; } });
-    const result = await runMerge("2026-01-15", config as any, deps);
+    const result = await runMerge("test-epic", "2026-01-15", config as any, deps);
     expect(result.ok).toBe(true);
     expect(written).not.toBeNull();
     expect(() => StatusSnapshot.parse(written)).not.toThrow();
@@ -358,7 +363,7 @@ describe("runMerge", () => {
       },
       writeJsonAtomic: (_path, data) => { written = data; },
     });
-    const result = await runMerge("2026-01-15", config as any, deps);
+    const result = await runMerge("test-epic", "2026-01-15", config as any, deps);
     expect(result.ok).toBe(false);
     expect(written).toBeNull();
   });

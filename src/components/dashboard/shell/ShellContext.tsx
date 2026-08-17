@@ -7,6 +7,11 @@ import type { DashboardSearch } from "@/lib/dashboard/search"
 type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
 
 export type ShellValue = {
+  /** Which epic is being read — the epics.yaml slug, and the first
+   *  segment of every URL in the shell. Carried here rather than derived
+   *  from `snapshot.epic.slug` because it is the routing key: every link
+   *  ShellLink builds needs it, and it exists before a snapshot does. */
+  epic: string
   snapshot: StatusSnapshotT
   previous: StatusSnapshotT | null
   history: HistoryPoint[]

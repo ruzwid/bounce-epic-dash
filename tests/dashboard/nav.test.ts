@@ -3,10 +3,22 @@ import { describe, expect, it } from "vitest";
 import { activeMilestones, milestoneProgress, signedOffUnverifiedStories } from "../../src/lib/dashboard/nav.ts";
 import { StatusSnapshot } from "../../src/lib/schema.ts";
 
+/** The epic these fixtures belong to. loadSnapshot() stamps this on every
+ *  snapshot it returns (the directory a snapshot lives in is what says
+ *  which epic it is), and the derivations under test read it to find that
+ *  epic's people map and score weights — so a hand-built snapshot has to
+ *  carry it too. */
+const EPIC = "wpp-at-scale";
+
+
 const FIXTURES = new URL("./fixtures/snapshots/", import.meta.url);
 
 function loadFixture(name: string) {
-  return StatusSnapshot.parse(JSON.parse(readFileSync(new URL(name, FIXTURES), "utf-8")));
+  const parsed = StatusSnapshot.parse(JSON.parse(readFileSync(new URL(name, FIXTURES), "utf-8")));
+  // Mirrors loadSnapshot(): the epic a snapshot belongs to comes from the
+  // directory it was loaded from, not from the file, and the derivations
+  // under test read it to find that epic's score weights and people map.
+  return { ...parsed, epic: { ...parsed.epic, slug: EPIC } };
 }
 
 describe("signedOffUnverifiedStories", () => {
@@ -87,7 +99,7 @@ describe("milestoneProgress", () => {
       // shipped:1, todo:1 -> weighted score 50, well under 100.
       scoreBasis: { shipped: 1, doneUnverified: 0, staged: 0, inReview: 0, inProgress: 0, blocked: 0, todo: 1, total: 2 },
     };
-    const progress = milestoneProgress([feature]);
+    const progress = milestoneProgress("wpp-at-scale", [feature]);
     expect(progress.score).toBeLessThan(100);
     expect(progress.stage).toBe("done");
   });

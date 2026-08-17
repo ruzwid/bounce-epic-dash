@@ -17,7 +17,7 @@ import { EmptyState } from "../EmptyState"
  * did anything wrong, and no other page can say so.
  */
 export function ScopePage({ snapshots }: { snapshots: ScopeSnapshot[] }) {
-  const { snapshot } = useShell()
+  const { epic, snapshot } = useShell()
   const timeline = scopeTimeline(snapshots)
 
   if (!timeline) {
@@ -76,7 +76,7 @@ export function ScopePage({ snapshots }: { snapshots: ScopeSnapshot[] }) {
                 <span className="min-w-0 flex-1 truncate text-sm">
                   {featureTitleWithoutCode(feature)}
                 </span>
-                <PersonChip login={loginForDisplayName(feature.owner)} name={feature.owner} />
+                <PersonChip login={loginForDisplayName(epic, feature.owner)} name={feature.owner} />
                 {/* Plain text, not a pill: on this epic almost every row
                     is a new feature, and nine filled badges down the page
                     shout a fact that is only worth a glance. */}
@@ -242,12 +242,13 @@ function Step({ step, isLatest }: { step: ScopeStep; isLatest: boolean }) {
 }
 
 function AddedLine({ entry }: { entry: ScopeEntry }) {
+  const { epic } = useShell()
   return (
     <li className="flex flex-col gap-1">
       <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
         <FeatureLink code={entry.feature.code} stage={entry.feature.stage} />
         <span className="min-w-0 truncate text-sm">{featureTitleWithoutCode(entry.feature)}</span>
-        <PersonChip login={loginForDisplayName(entry.feature.owner)} name={entry.feature.owner} />
+        <PersonChip login={loginForDisplayName(epic, entry.feature.owner)} name={entry.feature.owner} />
         <span className="font-mono-data text-xs" style={{ color: "var(--status-todo)" }}>
           +{entry.stories.length}
         </span>

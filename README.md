@@ -1,12 +1,20 @@
 # Epic Status Dashboard
 
-A daily engineering status page for **one epic**. It pulls JIRA and GitHub,
-derives a deterministic score from what actually shipped, adds a written
-judgment layer, and publishes a fully static site from committed snapshots.
+A daily engineering status page, one page per epic. It pulls JIRA and
+GitHub, derives a deterministic score from what actually shipped, adds a
+written judgment layer, and publishes a fully static site from committed
+snapshots.
 
 Everything project-specific — the epic, milestones, features, owners, repos,
-people — lives in `config.yaml`, never in source. Point it at a different
-epic and nothing in `src/` changes.
+people — lives in `epics/<slug>/config.yaml`, never in source. Point it at a
+different epic and nothing in `src/` changes.
+
+**Several epics, one site.** [`epics.yaml`](epics.yaml) lists the slugs;
+each has a directory under `epics/` and its own snapshots under
+`data/snapshots/<slug>/`, and the sidebar switches between them. Every
+pipeline command takes `--epic <slug>` and touches nothing outside that
+epic, so two teams run their own daily routine against this one repo without
+colliding. See [docs/daily-routine.md](docs/daily-routine.md).
 
 The rule the whole thing exists to enforce: **a PR merged into an
 integration branch is `staged`, not `shipped`.** Only a merge into the
@@ -24,7 +32,7 @@ flowchart TB
         GH["GitHub GraphQL<br/>PRs, reviews, default branches"]
     end
 
-    CFG["config.yaml<br/>epic · milestones · repos · people · weights"]
+    CFG["epics/EPIC/config.yaml<br/>epic · milestones · repos · people · weights"]
 
     subgraph collect["1 · pnpm collect — your machine"]
         C["scripts/collect.ts<br/>fetch → match PRs to tickets →<br/>classify → score → derive stage"]
@@ -40,7 +48,7 @@ flowchart TB
     subgraph merge["3 · pnpm merge — the trust boundary"]
         V["scripts/merge.ts<br/>validate judgment against pending →<br/>reject invented refs → apply overrides →<br/>take every number from raw"]
         OVR["overrides.yaml<br/>human notes, auto-expiring"]
-        SNAP["data/snapshots/DATE.json<br/>publication-safe · COMMITTED"]
+        SNAP["data/snapshots/EPIC/DATE.json<br/>publication-safe · COMMITTED"]
     end
 
     subgraph publish["4 · pnpm build — Vercel"]
@@ -70,10 +78,13 @@ flowchart TB
 
 | # | Stage | Command | Reads | Writes | Committed? |
 |---|-------|---------|-------|--------|-----------|
-| 1 | Collect | `pnpm collect` | JIRA, GitHub, `config.yaml` | `data/raw/`, `data/pending/` | No |
-| 2 | Judge | `/judge` in Claude Code | `data/pending/` | `data/judgment/` | No |
-| 3 | Merge | `pnpm merge` | `data/raw/`, `data/pending/`, `data/judgment/`, `overrides.yaml` | `data/snapshots/` | **Yes** |
-| 4 | Publish | `pnpm build` (on Vercel) | `data/snapshots/`, `config.yaml` | prerendered HTML | build output |
+| 1 | Collect | `pnpm collect --epic <slug>` | JIRA, GitHub, `epics/<slug>/config.yaml` | `data/raw/<slug>/`, `data/pending/<slug>/` | No |
+| 2 | Judge | `/judge <slug>` in Claude Code | `data/pending/<slug>/` | `data/judgment/<slug>/` | No |
+| 3 | Merge | `pnpm merge --epic <slug>` | `data/raw/<slug>/`, `data/pending/<slug>/`, `data/judgment/<slug>/`, `epics/<slug>/overrides.yaml` | `data/snapshots/<slug>/` | **Yes** |
+| 4 | Publish | `pnpm build` (on Vercel) | every epic's `data/snapshots/` and config | prerendered HTML | build output |
+
+Stages 1–3 are per-epic and never read or write another epic's directories.
+Only stage 4 sees them all, because the published site does.
 
 Stage 4 is triggered by pushing stage 3's output. The deployed site never
 talks to JIRA or GitHub — see [Deploying](#deploying-to-vercel).
@@ -119,7 +130,7 @@ script.
 Deterministic, pure, and tested — `src/lib/classify.ts` and
 `src/lib/score.ts` do this with no network and no judgment.
 
-**Per story**, JIRA's status is mapped through `config.yaml`'s `statusMap`
+**Per story**, JIRA's status is mapped through the epic config's `statusMap`
 to get a base, then GitHub evidence upgrades it (a stale JIRA status must
 never outrank real PR state):
 
@@ -137,7 +148,7 @@ least `in_review`. It never unions PRs flatly — one merged sub-task out of
 five must not declare the whole story shipped.
 
 **Per feature**, the score is the weighted mean of its story statuses
-(weights from `config.yaml`), rounded to the nearest 5. `scoreBasis` keeps
+(weights from the epic's config), rounded to the nearest 5. `scoreBasis` keeps
 the raw unweighted counts for display, never back-derived from the score.
 
 **Stage** bands the score, with two escape hatches in opposite directions:
@@ -156,7 +167,7 @@ Sign-off is read from the feature ticket's own JIRA status. Moving an
 epic/milestone/feature ticket to **Product Review** emails its product
 manager; approval sends it straight to Done, rejection back to In
 Progress — so for epic work, reaching Done *is* the sign-off. Both statuses
-are named in `config.yaml` (`jira.productReviewStatus`,
+are named in the epic's config (`jira.productReviewStatus`,
 `jira.signedOffStatuses`), and a feature sitting in review is published as
 `awaitingSignOff` so the dashboard can show what product currently owes a
 decision on. The retired "Product Approval" custom field is still read as a
@@ -190,23 +201,30 @@ flow; a live Product Review always outranks a stale label.
      ([github.com/settings/tokens](https://github.com/settings/tokens)) with
      the `repo` scope. If your org enforces SSO, authorize the token for
      that org after creating it. A fine-grained token works too, but must be
-     granted access to every repo in `config.yaml` — classic + SSO is
+     granted access to every repo the epic's config reaches — classic + SSO is
      simpler.
 
-3. **Config.** Copy `config.example.yaml` to `config.yaml` and fill in your
-   epic; the comments in that file document every field. Nothing in it is
-   secret (ticket keys, repo names, GitHub logins), so it's committed on
-   purpose — the dashboard's Config page renders it verbatim.
+3. **Config.** Copy `config.example.yaml` to `epics/<slug>/config.yaml` and
+   fill in your epic, then add `<slug>` to the `epics:` list in
+   `epics.yaml`; the comments in both files document every field. Nothing in
+   them is secret (ticket keys, repo names, GitHub logins), so they're
+   committed on purpose — the dashboard's Config page renders the epic
+   config verbatim.
 
 ---
 
 ## Daily routine
 
+The steps below are the whole pipeline for one epic. The exact prompt each
+team runs as a Claude Code routine — including the git handling for two
+teams pushing to `main` on the same day — is
+[docs/daily-routine.md](docs/daily-routine.md).
+
 ```bash
-pnpm collect
+pnpm collect --epic wpp-at-scale
 ```
 
-Prints a per-feature summary (score, stage, shipped/doneUnverified/staged/
+Omitting `--epic` uses `epics.yaml`'s `default`. Prints a per-feature summary (score, stage, shipped/doneUnverified/staged/
 total, release gate). **Halt if it exits non-zero** — that means *every*
 feature failed to collect, not just one; check the printed collection
 errors.
@@ -214,29 +232,33 @@ errors.
 Then, in Claude Code, run the **judge** skill against today's pending file:
 
 ```
-/judge
+/judge wpp-at-scale
 ```
 
-It reads `data/pending/<date>.json` and writes `data/judgment/<date>.json`
-(rationale, confidence, AC coverage, callouts). The skill's full evidence
-hierarchy lives in `.claude/skills/judge/SKILL.md`.
+It reads `data/pending/<epic>/<date>.json` and writes
+`data/judgment/<epic>/<date>.json` (rationale, confidence, AC coverage,
+callouts). The skill's full evidence hierarchy lives in
+`.claude/skills/judge/SKILL.md`.
 
 ```bash
-pnpm merge
+pnpm merge --epic wpp-at-scale
 ```
 
-Validates the judgment, applies non-expired `overrides.yaml` entries, and
-writes `data/snapshots/<date>.json`. **Never commit when merge fails** —
+Validates the judgment, applies non-expired `epics/<epic>/overrides.yaml`
+entries, and writes `data/snapshots/<epic>/<date>.json`. **Never commit when merge fails** —
 on any rejection it writes nothing and exits non-zero.
 
-`overrides.yaml` is the human channel into a snapshot: a note per ticket,
+`epics/<epic>/overrides.yaml` is the human channel into a snapshot: a note per ticket,
 optionally suppressing a stall warning, each with a required `expires` date
 so the file prunes itself instead of accumulating stale caveats. Its own
 comments document the shape.
 
 ```bash
-git add data/snapshots && git commit -m "snapshot: <date>" && git push
+git add data/snapshots/wpp-at-scale && git commit -m "status(wpp-at-scale): <date>" && git push
 ```
+
+Stage the epic's own directory, never `data/snapshots` wholesale — that is
+what keeps one team's run from committing another team's in-flight work.
 
 Vercel rebuilds on push and prerenders the new date automatically.
 
@@ -258,19 +280,28 @@ bloats the shared bundle.
 
 ### Routes
 
+Every route lives under an epic slug.
+
 | Route | Page |
 |-------|------|
-| `/` | Today — the latest snapshot |
-| `/attention` | What's stalled, blocked, or needs a human |
-| `/reviews` | The review queue across all tracked repos |
-| `/m/:id` | One milestone |
-| `/f/:code` | One feature (slug: `F1.1` → `f1-1`) |
-| `/config` | The live `config.yaml`, rendered |
+| `/` | Redirects to the default epic in `epics.yaml` |
+| `/:epic` | Today — that epic's latest snapshot |
+| `/:epic/attention` | What's stalled, blocked, or needs a human |
+| `/:epic/reviews` | The review queue across all tracked repos |
+| `/:epic/m/:id` | One milestone |
+| `/:epic/f/:code` | One feature (slug: `F1.1` → `f1-1`) |
+| `/:epic/config` | That epic's live config, rendered |
 
-Every route also exists under `/<date>` (e.g. `/2026-08-13/reviews`) for a
-specific snapshot. Unknown dates 404 with a link back to the latest, and
-feature anchors (`#f1-1`, `#m3-m4`) are linkable and scroll into view on
-load.
+Every route also exists under `/:epic/<date>` (e.g.
+`/wpp-at-scale/2026-08-13/reviews`) for a specific snapshot. Unknown dates
+404 with a link back to the latest, an unknown epic slug renders a page
+listing the real ones, and a date-shaped slug (`/2026-08-13`, from a link
+predating multi-epic support) redirects to the default epic. Feature anchors
+(`#f1-1`, `#m3-m4`) are linkable and scroll into view on load.
+
+Switching epic always lands on that epic's *latest* snapshot rather than
+carrying the current date across: the two teams collect on their own
+schedules, so a date from one epic means nothing in the other.
 
 ### Commands
 
@@ -282,12 +313,13 @@ pnpm dev
 pnpm build && pnpm preview
 ```
 
-`pnpm build` runs the Vite client + SSR build, then prerenders `/` and one
-page set per snapshot in `data/snapshots/`. `vite.config.ts` computes that
-page list with a synchronous `readdirSync` at config-eval time, so a new
-snapshot date is picked up automatically on the next build. It also resolves
-`config.yaml` to a virtual module at build time — the client ships data, not
-a YAML parser.
+`pnpm build` runs the Vite client + SSR build, then prerenders `/`, one
+latest-page set per epic, and one page set per snapshot in
+`data/snapshots/<epic>/`. `vite.config.ts` computes that page list with a
+synchronous `readdirSync` per epic at config-eval time, so a new snapshot
+date — or a whole new epic — is picked up automatically on the next build.
+It also resolves every epic's config to a single virtual module at build
+time, keyed by slug — the client ships data, not a YAML parser.
 
 ### Deploying to Vercel
 
@@ -338,8 +370,10 @@ by text too (`src/lib/dashboard/statusLabels.ts`), never by color alone.
 ## Repo map
 
 ```
-config.yaml            epic, milestones, features, repos, people, weights
-overrides.yaml         human notes per ticket, auto-expiring
+epics.yaml             which epics exist, and which one "/" resolves to
+epics/<slug>/
+  config.yaml          epic, milestones, features, repos, people, weights
+  overrides.yaml       human notes per ticket, auto-expiring
 scripts/
   collect.ts           stage 1 — fetch, match, classify, score
   merge.ts             stage 3 — validate judgment, apply overrides, publish
@@ -347,9 +381,11 @@ scripts/
 src/lib/               pipeline core: jira, github, classify, score, schema, prbody
 src/lib/dashboard/     pure UI data-shaping: nav, diff, burnup, staleness, search
 src/components/        the dashboard component library
-src/routes/            file-based routes (latest + /$date variants)
-data/                  raw → pending → judgment → snapshots (only the last is committed)
+src/lib/epics.ts       the epic registry and every per-epic path
+src/routes/            file-based routes ($epic + $epic/$date variants)
+data/<stage>/<slug>/   raw → pending → judgment → snapshots (only the last is committed)
 tests/                 vitest, fixtures only
+docs/daily-routine.md  the per-epic routine prompt both teams run
 docs/SPEC.md           the original spec
 ```
 
@@ -390,10 +426,12 @@ brew install gitleaks
   `requestedAt` still carries the last-activity timestamp, and
   `ageFromOpen` is false on snapshots collected before `createdAt` was
   published, where the old proxy is still the only thing available.
-- **A feature only sees the repos it lists.** `config.yaml`'s feature
-  `repos` lists are provisional in places (flagged in that file's comments).
-  A feature spanning an unlisted repo will silently miss those PRs rather
-  than error — expand the `repos` list as you notice it.
+- **Repo discovery is org-wide and shared.** Every non-archived repo in the
+  org pushed since `epic.startDate` is searched on each run, and PRs are
+  attributed by ticket key. Two epics in the same org therefore crawl the
+  same repos independently — correct, but twice the GitHub traffic when both
+  routines run. `github.excludeRepos` / `includeRepos` are the only escape
+  hatches, and they're per-epic.
 - **PR-body cleaning is tuned to one template.** PR descriptions are the
   judge's primary AC-coverage evidence (`src/lib/prbody.ts`), cleaned down
   to the substantive sections and capped at 1500 characters. A repo using a

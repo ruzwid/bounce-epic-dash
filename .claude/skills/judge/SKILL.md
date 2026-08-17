@@ -1,31 +1,44 @@
 ---
 name: judge
-description: Reads today's data/pending/<date>.json for the configured epic and writes data/judgment/<date>.json — rationale, confidence, AC coverage, and callouts for each tracked feature. Use as the middle step of the daily collection routine, between "pnpm collect" and "pnpm merge".
+description: Reads today's data/pending/<epic>/<date>.json for one epic and writes data/judgment/<epic>/<date>.json — rationale, confidence, AC coverage, and callouts for each tracked feature. Use as the middle step of the daily collection routine, between "pnpm collect --epic <slug>" and "pnpm merge --epic <slug>".
 ---
 
 # Judge
 
 You are the judgment layer of a data collection pipeline for an engineering
-status dashboard. This project is generic — read `config.yaml` for the
+status dashboard. This project is generic — read the epic's config for the
 actual epic name (`epic.title`) and never hardcode a project, company, or
-person's name in your reasoning; whatever is in config.yaml for this run is
+person's name in your reasoning; whatever is in that config for this run is
 the only project you know about.
 
+**This dashboard tracks several epics, and you judge exactly one of them.**
+The epic is named by the slug you were invoked with (`epics.yaml` lists
+them all; `default:` there is the one to use if you were given none). Every
+path below is scoped by that slug — `<epic>` in a path is always the slug,
+never a title. Judging one epic must never read or write another's files:
+the two are collected by different people, on different days, and a
+judgment written into the wrong directory would be merged into the wrong
+team's published snapshot.
+
 **Scope, strictly:**
-- Read `config.yaml` (for `epic.title` only — you don't need anything else
-  from it).
-- Read `data/pending/<date>.json` for today's logical date. To find today's
-  date, look at the most recently modified file in `data/pending/` — that's
-  the one `pnpm collect` just wrote. Each PR entry there has `body`
-  (cleaned — review-tool template scaffolding already stripped),
-  `bodyTruncated`, `bodySignal`, `title`, `state`, and `filesTouched`.
-- Write `data/judgment/<date>.json` for that same date.
-- Do not read or write anything else. Do not read `data/raw/<date>.json` —
-  it carries the *uncleaned* PR bodies and full file-path lists, neither of
-  which you need (`pending.json`'s cleaned `body` and `filesTouched` are
-  the versions you should reason from) and you shouldn't have access to raw
-  fidelity data. Do not read prior days' judgment or snapshot files — every
-  callout must be judged fresh from today's pending data.
+- Read `epics/<epic>/config.yaml` (for `epic.title` only — you don't need
+  anything else from it).
+- Read `data/pending/<epic>/<date>.json` for today's logical date. To find
+  today's date, look at the most recently modified file in
+  `data/pending/<epic>/` — that's the one `pnpm collect --epic <epic>` just
+  wrote. Confirm its `epic` field matches the slug you were asked about; if
+  it doesn't, stop and report rather than judging the wrong epic. Each PR
+  entry there has `body` (cleaned — review-tool template scaffolding
+  already stripped), `bodyTruncated`, `bodySignal`, `title`, `state`, and
+  `filesTouched`.
+- Write `data/judgment/<epic>/<date>.json` for that same date.
+- Do not read or write anything else. Not another epic's directories, and
+  not `data/raw/<epic>/<date>.json` — the latter carries the *uncleaned* PR
+  bodies and full file-path lists, neither of which you need
+  (`pending.json`'s cleaned `body` and `filesTouched` are the versions you
+  should reason from) and you shouldn't have access to raw fidelity data.
+  Do not read prior days' judgment or snapshot files — every callout must
+  be judged fresh from today's pending data.
 
 **Evidence hierarchy — read this before writing any `acCoverage` or
 `rationale`:**
@@ -84,7 +97,7 @@ the only project you know about.
 }
 ```
 
-Judge every feature present in `data/pending/<date>.json`. `scripts/merge.ts`
+Judge every feature present in `data/pending/<epic>/<date>.json`. `scripts/merge.ts`
 is the trust boundary and will reject this file outright — with a non-zero
 exit and no snapshot written — if you violate any rule below.
 
@@ -92,7 +105,7 @@ exit and no snapshot written — if you violate any rule below.
 
 1. **Never invent.** Every `featureKey`, `acCoverage.id`, and callout `ref`
    you write must already exist in that feature's entry in
-   `data/pending/<date>.json` — a real subtask key, a real `repo#number` PR
+   `data/pending/<epic>/<date>.json` — a real subtask key, a real `repo#number` PR
    ref, or a real AC bullet id. `merge.ts` checks this exactly; an invented
    reference fails the whole run. Never invent a ticket key, PR number, or
    percentage that isn't already in the pending data.
@@ -162,6 +175,7 @@ exit and no snapshot written — if you violate any rule below.
 
 ## After writing
 
-Write `data/judgment/<date>.json` as a single JSON file (not JSON5, no
-comments, no trailing commas). Do not run `pnpm merge` yourself — that's the
-next step in the daily routine, run separately (see README.md).
+Write `data/judgment/<epic>/<date>.json` as a single JSON file (not JSON5,
+no comments, no trailing commas) — creating the `<epic>` directory if it
+doesn't exist yet. Do not run `pnpm merge` yourself — that's the next step
+in the daily routine, run separately (see docs/daily-routine.md).

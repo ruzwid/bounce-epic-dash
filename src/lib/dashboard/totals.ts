@@ -64,13 +64,18 @@ export function storyTotals(features: readonly { scoreBasis: StoryTotals }[]): S
   );
 }
 
-/** The weighted percentage those totals represent, on config.yaml's own
+/** The weighted percentage those totals represent, on that epic's own
  *  scoreWeights — the same weights src/lib/score.ts gives one feature, so
  *  the epic figure, a milestone figure and a feature's own score can never
- *  disagree about what a staged story is worth. */
-export function weightedPercent(totals: StoryTotals): number {
+ *  disagree about what a staged story is worth.
+ *
+ *  The epic slug is a parameter rather than implicit module state: several
+ *  epics' pages are rendered in one prerender process, and each weights
+ *  its own statuses. Callers holding a snapshot pass `snapshot.epic.slug`,
+ *  which the loader guarantees (see loadSnapshot). */
+export function weightedPercent(epic: string, totals: StoryTotals): number {
   if (totals.total === 0) return 0;
-  const weights = loadAppConfig().scoreWeights;
+  const weights = loadAppConfig(epic).scoreWeights;
   const weighted =
     totals.shipped * weights.shipped +
     totals.doneUnverified * weights.done_unverified +

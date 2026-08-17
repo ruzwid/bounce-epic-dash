@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { MilestoneBySlug } from '@/components/dashboard/pages/MilestoneBySlug'
 
-export const Route = createFileRoute('/_shell/m/$id')({
+export const Route = createFileRoute('/$epic/$date/m/$id')({
   component: MilestoneRoute,
 })
 

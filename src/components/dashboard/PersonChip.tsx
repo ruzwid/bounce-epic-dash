@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { colorForLogin } from "@/lib/dashboard/appConfig"
 import { cn } from "@/lib/utils"
 import { Avatar } from "./Avatar"
+import { useShell } from "./shell/ShellContext"
 import { firstName, PersonTip } from "./PersonTip"
 
 type PersonChipProps = {
@@ -34,8 +35,9 @@ type PersonChipProps = {
  * chip uses when the login has no known colour.
  */
 export function PersonChip({ login, name, icon, title, hideName, className }: PersonChipProps) {
+  const { epic } = useShell()
   const label = name ?? login ?? "Unknown"
-  const color = login ? colorForLogin(login) : null
+  const color = login ? colorForLogin(epic, login) : null
 
   const chip = (
     <span

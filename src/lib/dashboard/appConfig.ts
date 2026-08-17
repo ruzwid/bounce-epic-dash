@@ -1,7 +1,7 @@
 // src/lib/dashboard/appConfig.ts
-// The pipeline's config.yaml, made readable from the browser.
+// Every epic's config.yaml, made readable from the browser.
 //
-// src/lib/config.ts reads the same file with `fs` for the Node collection
+// src/lib/config.ts reads the same files with `fs` for the Node collection
 // scripts; that can't work in a prerendered page or after hydration. The
 // `virtual:app-config` module (see appConfigPlugin in vite.config.ts)
 // resolves the YAML to plain JS at build time instead, so no parser ships
@@ -9,21 +9,50 @@
 // config the pipeline accepts and a config this page renders can never
 // diverge.
 //
+// Every lookup here takes an epic slug first. There is deliberately no
+// "current epic" module state: a prerender renders several epics' pages in
+// one process, so an implicit current-epic would be a cross-request global
+// waiting to hand one team's avatars to another team's page. Components
+// read the slug from `useShell()` and pass it in.
+//
 // config.yaml holds no secrets by construction — credentials live in
 // .env.local, which is gitignored and never imported here.
-import { appConfig, appConfigSource, jiraBaseUrl } from "virtual:app-config";
+import { appConfigs, appConfigSources, epicRegistry, jiraBaseUrl } from "virtual:app-config";
 import { Config } from "../config-schema.ts";
 
 export type AppConfig = Config;
 
-/** The raw YAML text, for showing the file as it is actually written —
- *  comments and all, which is most of the documentation this file has. */
-export const configSource: string = appConfigSource;
+/** Which epics this dashboard tracks, and which one "/" resolves to —
+ *  epics.yaml, as read at build time. Drives the epic switcher. */
+export const EPICS: string[] = epicRegistry.epics;
+export const DEFAULT_EPIC: string = epicRegistry.default;
+
+export function isKnownEpic(slug: string): boolean {
+  return EPICS.includes(slug);
+}
+
+/** An epic's human title ("WPP at Scale") for chrome that has no snapshot
+ *  in hand — page <title>s, the switcher, the unknown-epic page. Falls
+ *  back to the slug, which is at least true. Anything rendering *inside* a
+ *  loaded snapshot should prefer `snapshot.epic.title`, which is the live
+ *  JIRA summary as of that collection run. */
+export function epicTitle(slug: string): string {
+  const epic = rawConfig(slug).epic;
+  const title = epic && typeof epic === "object" ? (epic as { title?: unknown }).title : undefined;
+  return typeof title === "string" && title.length > 0 ? title : slug;
+}
+
+/** One epic's raw YAML text, for showing the file as it is actually
+ *  written — comments and all, which is most of the documentation it has. */
+export function configSource(epic: string): string {
+  return appConfigSources[epic] ?? "";
+}
 
 /** `https://<org>.atlassian.net/browse/BOUN-1234` for any ticket key, or
  *  null if JIRA_BASE_URL isn't set (a checkout without .env.local) — every
  *  caller must handle null by rendering the title unlinked rather than
- *  guessing at a host. */
+ *  guessing at a host. Not epic-scoped: every tracked epic lives on the
+ *  same JIRA site. */
 export function jiraIssueUrl(key: string): string | null {
   return jiraBaseUrl ? `${jiraBaseUrl}/browse/${encodeURIComponent(key)}` : null;
 }
@@ -32,63 +61,101 @@ export function jiraIssueUrl(key: string): string | null {
  *  entry shaped like `"repo#123"` (see schema.ts) — the other shape that
  *  array holds is a bare JIRA key, which this returns null for so callers
  *  fall back to `jiraIssueUrl`. */
-export function githubPrUrl(evidence: string): string | null {
+export function githubPrUrl(epic: string, evidence: string): string | null {
   const match = /^(.+)#(\d+)$/.exec(evidence);
   if (!match) return null;
   const [, repo, number] = match;
-  return `https://github.com/${loadAppConfig().github.org}/${repo}/pull/${number}`;
+  return `https://github.com/${loadAppConfig(epic).github.org}/${repo}/pull/${number}`;
 }
 
-let parsed: Config | null = null;
+const parsed = new Map<string, Config>();
 
-/** Validated config. Parsed once and memoised: several components read it
- *  and there's no reason to re-run zod for each. */
-export function loadAppConfig(): Config {
-  parsed ??= Config.parse(appConfig);
-  return parsed;
+/** One epic's validated config. Parsed once per epic and memoised: several
+ *  components read it and there's no reason to re-run zod for each. */
+export function loadAppConfig(epic: string): Config {
+  const cached = parsed.get(epic);
+  if (cached) return cached;
+  if (!isKnownEpic(epic)) {
+    // Named explicitly rather than left to zod, which would otherwise
+    // report an unknown slug as eleven "Required" field errors on an empty
+    // object — true, but useless for finding the actual mistake.
+    throw new Error(
+      `No config for epic "${epic}". Known epics: ${EPICS.join(", ")}. ` +
+        `A snapshot's epic slug comes from the directory it was loaded from, so this usually means ` +
+        `data/snapshots/${epic}/ exists without a matching entry in epics.yaml.`,
+    );
+  }
+  const config = Config.parse(rawConfig(epic));
+  parsed.set(epic, config);
+  return config;
 }
 
-let loginsByDisplayName: Map<string, string> | null = null;
+/** The unvalidated config object for an epic, or an empty object for an
+ *  unknown slug.
+ *
+ *  The lookups below read this directly rather than going through
+ *  loadAppConfig(): owner avatars render on nearly every page, and a
+ *  config that fails full validation should break the Config page, not
+ *  take down the whole dashboard over a missing profile picture. */
+function rawConfig(epic: string): Record<string, unknown> {
+  const config = appConfigs[epic];
+  return config && typeof config === "object" ? (config as Record<string, unknown>) : {};
+}
 
-/** The GitHub login behind a display name, or null if config.yaml doesn't
- *  map one.
+/** An epic's configured milestones, reduced to the two fields the sidebar
+ *  and milestone filter need, or empty for an unknown epic. Read directly
+ *  rather than through loadAppConfig() for the same reason as the lookups
+ *  below: how sections are grouped is chrome, and a config error should
+ *  break the Config page rather than the whole dashboard. */
+export function configMilestones(epic: string): { id: string; group: string | null }[] {
+  const milestones = rawConfig(epic).milestones;
+  if (!Array.isArray(milestones)) return [];
+  return milestones.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const { id, group } = entry as { id?: unknown; group?: unknown };
+    if (typeof id !== "string") return [];
+    return [{ id, group: typeof group === "string" ? group : null }];
+  });
+}
+
+function stringMap(epic: string, block: string): Record<string, string> {
+  const value = rawConfig(epic)[block];
+  if (!value || typeof value !== "object") return {};
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+  );
+}
+
+const loginsByDisplayName = new Map<string, Map<string, string>>();
+
+/** The GitHub login behind a display name, or null if this epic's config
+ *  doesn't map one.
  *
  *  Snapshots store `feature.owner` already humanised (scripts/merge.ts
  *  swaps the login for `config.people[login]`), so going the other way is
  *  the only route from a rendered name back to an avatar. Reviewers need
- *  none of this — GitHub review requests are logins to begin with.
- *
- *  Reads the `people` block directly rather than going through
- *  loadAppConfig(): owner avatars render on nearly every page, and a
- *  config that fails full validation should break the Config page, not
- *  take down the whole dashboard over a missing profile picture. */
-export function loginForDisplayName(displayName: string): string | null {
-  if (!loginsByDisplayName) {
-    const people = (appConfig as { people?: Record<string, unknown> } | null)?.people ?? {};
-    loginsByDisplayName = new Map(
-      Object.entries(people)
-        .filter((entry): entry is [string, string] => typeof entry[1] === "string")
-        .map(([login, name]) => [name, login]),
-    );
+ *  none of this — GitHub review requests are logins to begin with. */
+export function loginForDisplayName(epic: string, displayName: string): string | null {
+  let reversed = loginsByDisplayName.get(epic);
+  if (!reversed) {
+    reversed = new Map(Object.entries(stringMap(epic, "people")).map(([login, name]) => [name, login]));
+    loginsByDisplayName.set(epic, reversed);
   }
-  return loginsByDisplayName.get(displayName) ?? null;
+  return reversed.get(displayName) ?? null;
 }
 
-/** The short display name config.yaml's `people` block gives a GitHub
- *  login ("ruzwid" -> "Ruzzell"), or null when it lists none — review-only
- *  logins and bots have no entry, and a caller showing one falls back to
- *  the login itself rather than inventing a name.
+/** The short display name this epic's `people` block gives a GitHub login
+ *  ("ruzwid" -> "Ruzzell"), or null when it lists none — review-only logins
+ *  and bots have no entry, and a caller showing one falls back to the login
+ *  itself rather than inventing a name.
  *
- *  The forward direction of loginForDisplayName above, reading the same
- *  map directly for the same reason. */
-export function displayNameForLogin(login: string): string | null {
-  const people = (appConfig as { people?: Record<string, unknown> } | null)?.people ?? {};
-  const name = people[login];
-  return typeof name === "string" ? name : null;
+ *  The forward direction of loginForDisplayName above. */
+export function displayNameForLogin(epic: string, login: string): string | null {
+  return stringMap(epic, "people")[login] ?? null;
 }
 
 /** The GitHub login behind a JIRA assignee's `displayName`, or null if
- *  config.yaml's `jiraAssignees` doesn't map one.
+ *  this epic's `jiraAssignees` doesn't map one.
  *
  *  Separate from loginForDisplayName: that one reverses `people`, whose
  *  values are short first names ("Ruzzell") because owners are humanised
@@ -96,54 +163,35 @@ export function displayNameForLogin(login: string): string | null {
  *  humanisation — they're JIRA's raw `displayName` ("Ruzzell Widjaja",
  *  or for one person a bare username, "vivek.murarka") — so reusing
  *  `people` here would never match. */
-export function loginForJiraAssignee(displayName: string): string | null {
-  const jiraAssignees = (appConfig as { jiraAssignees?: Record<string, unknown> } | null)?.jiraAssignees ?? {};
-  const login = jiraAssignees[displayName];
-  return typeof login === "string" ? login : null;
+export function loginForJiraAssignee(epic: string, displayName: string): string | null {
+  return stringMap(epic, "jiraAssignees")[displayName] ?? null;
 }
 
 /** The reader-facing places a person exists outside this dashboard.
  *
  *  Neither can be derived: JIRA Cloud dropped username/displayName from
  *  JQL, and nothing collected knows anyone's Slack identity, so both come
- *  from config.yaml's `jiraAccounts` / `slackIds` maps and are simply
+ *  from the epic config's `jiraAccounts` / `slackIds` maps and are simply
  *  absent until somebody fills them in. A missing link is a missing
  *  button; never a guessed URL that lands on an error page. */
 export type PersonLinks = { jira: string | null; slack: string | null };
 
-export function personLinks(login: string): PersonLinks {
-  const config = appConfig as { jiraAccounts?: Record<string, unknown>; slackIds?: Record<string, unknown> } | null;
-  const accountId = config?.jiraAccounts?.[login];
-  const slackId = config?.slackIds?.[login];
+export function personLinks(epic: string, login: string): PersonLinks {
+  const accountId = stringMap(epic, "jiraAccounts")[login];
+  const slackId = stringMap(epic, "slackIds")[login];
 
   return {
-    jira:
-      jiraBaseUrl && typeof accountId === "string"
-        ? `${jiraBaseUrl}/jira/people/${encodeURIComponent(accountId)}`
-        : null,
+    jira: jiraBaseUrl && accountId ? `${jiraBaseUrl}/jira/people/${encodeURIComponent(accountId)}` : null,
     // app_redirect rather than the slack:// scheme: it opens the desktop
     // app when it's installed and the web client when it isn't, instead of
     // failing silently in a browser that has no handler for the scheme.
-    slack: typeof slackId === "string" ? `https://slack.com/app_redirect?channel=${encodeURIComponent(slackId)}` : null,
+    slack: slackId ? `https://slack.com/app_redirect?channel=${encodeURIComponent(slackId)}` : null,
   };
 }
 
-let colorsByLogin: Map<string, string> | null = null;
-
-/** The subtle background colour for a GitHub login, or null if
- *  config.yaml's `peopleColors` doesn't have one — the caller then falls
- *  back to no tint at all rather than guessing a colour.
- *
- *  Reads `peopleColors` directly rather than going through
- *  loadAppConfig(), same reasoning as loginForDisplayName: a badge colour
- *  is decoration, not something a config error should be able to take the
- *  whole dashboard down over. */
-export function colorForLogin(login: string): string | null {
-  if (!colorsByLogin) {
-    const peopleColors = (appConfig as { peopleColors?: Record<string, unknown> } | null)?.peopleColors ?? {};
-    colorsByLogin = new Map(
-      Object.entries(peopleColors).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
-    );
-  }
-  return colorsByLogin.get(login) ?? null;
+/** The subtle background colour for a GitHub login, or null if this epic's
+ *  `peopleColors` doesn't have one — the caller then falls back to no tint
+ *  at all rather than guessing a colour. */
+export function colorForLogin(epic: string, login: string): string | null {
+  return stringMap(epic, "peopleColors")[login] ?? null;
 }

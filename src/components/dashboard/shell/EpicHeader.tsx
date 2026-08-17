@@ -15,14 +15,14 @@ import { useShell } from "./ShellContext"
  * never be read as "40% of the work is live" when half of it is staged.
  */
 export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
-  const { snapshot, previous } = useShell()
+  const { epic, snapshot, previous } = useShell()
   const [copied, setCopied] = useState(false)
 
   // Falls back to config.yaml's current target for snapshots collected
   // before one was set — see resolveTargetDate.
   const targetDate = resolveTargetDate(snapshot)
-  const progress = epicProgress(snapshot.features)
-  const previousPercent = previous ? epicProgress(previous.features).percent : null
+  const progress = epicProgress(epic, snapshot.features)
+  const previousPercent = previous ? epicProgress(epic, previous.features).percent : null
   const delta = previousPercent === null ? null : progress.percent - previousPercent
 
   async function copySlackSummary() {

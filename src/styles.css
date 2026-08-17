@@ -64,11 +64,11 @@
   --shadow-surface: 0 1px 2px rgb(71 67 42 / 0.05);
   --shadow-surface-hover: 0 8px 24px -8px rgb(71 67 42 / 0.12), 0 2px 6px -2px rgb(71 67 42 / 0.08);
 
-  /* Status family — seven hues, matched lightness/chroma so they sit
+  /* Status family — eight hues, matched lightness/chroma so they sit
      together. Distinct hues (not distinct saturation) so shipped vs.
      staged vs. done-unverified is unambiguous at a glance and under
      common colour-vision deficiencies. --destructive reuses
-     --status-blocked deliberately, rather than inventing an eighth hue.
+     --status-blocked deliberately, rather than inventing a ninth hue.
      --status-shipped deliberately reuses --primary rather than a stock
      green: "shipped" is this product's actual finish line, so it gets
      the brand's own olive instead of a generic traffic-light colour —
@@ -81,6 +81,11 @@
   --status-done-unverified: oklch(66.6% 0.179 58.318);
   --status-staged: #9a7b4f;
   --status-in-review: #7E9DDB;
+  /* The *product* gate, not the code one. Its own hue on purpose: the
+     flow is in progress → code review → to be released → product review
+     → done, and drawing the two review stages in the same blue made two
+     different queues, owned by two different people, read as one. */
+  --status-with-product: oklch(62.5% 0.168 350);
   --status-in-progress: oklch(64.6% 0.222 41.116);
   --status-blocked: #d32f2f;
   --status-todo: #a9a89f;
@@ -124,6 +129,7 @@
   --status-done-unverified: #d9b563;
   --status-staged: #c7a472;
   --status-in-review: #93a3b5;
+  --status-with-product: #e09ac0;
   --status-in-progress: #de9078;
   --status-blocked: #eb6f6b;
   --status-todo: #7c7a72;
@@ -159,6 +165,7 @@
   --color-status-done-unverified: var(--status-done-unverified);
   --color-status-staged: var(--status-staged);
   --color-status-in-review: var(--status-in-review);
+  --color-status-with-product: var(--status-with-product);
   --color-status-in-progress: var(--status-in-progress);
   --color-status-blocked: var(--status-blocked);
   --color-status-todo: var(--status-todo);
@@ -259,6 +266,33 @@ a:hover {
 @media (hover: hover) and (pointer: fine) {
   .hover-fill:hover {
     background-color: color-mix(in oklch, var(--foreground) 7%, transparent);
+  }
+}
+
+/* The same idea one level up: a whole row that is one link. Used by the
+   pull request rows on People and Reviews, where the only click target
+   used to be the little repo chip — a row carrying a title, a reviewer
+   list and an age, all of which are about that one pull request, should
+   open it from anywhere in the row rather than from one 90px badge. The
+   fill is softer than .hover-fill's because it covers far more area.
+
+   The chip inside is drawn as a plain span (PrChip's `asSpan`) since an
+   anchor can't nest in an anchor — it keeps its own hover brightening
+   here, driven by the row, so it still reads as the thing being opened. */
+.row-link {
+  border-radius: var(--radius-md);
+  margin: -0.25rem -0.5rem;
+  padding: 0.25rem 0.5rem;
+  transition: background-color 150ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row-link:hover {
+    background-color: color-mix(in oklch, var(--foreground) 5%, transparent);
+  }
+
+  .row-link:hover [data-pr] {
+    background: color-mix(in oklch, var(--pr-color) 22%, var(--card));
   }
 }
 
@@ -390,6 +424,9 @@ code {
 [data-status="in_review"] {
   --status-color: var(--status-in-review);
 }
+[data-status="with_product"] {
+  --status-color: var(--status-with-product);
+}
 [data-status="in_progress"] {
   --status-color: var(--status-in-progress);
 }
@@ -453,6 +490,10 @@ code {
 [data-status-dot="in_review"],
 [data-status-icon="in_review"] {
   --status-color: var(--status-in-review);
+}
+[data-status-dot="with_product"],
+[data-status-icon="with_product"] {
+  --status-color: var(--status-with-product);
 }
 [data-status-dot="in_progress"],
 [data-status-dot="early"],
