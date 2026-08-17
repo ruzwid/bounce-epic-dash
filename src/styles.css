@@ -405,8 +405,21 @@ code {
 }
 
 /* Status pill / dot colour, computed from one --status-* token via
-   color-mix — one rule for all seven statuses, no per-status one-offs. */
-[data-status] {
+   color-mix — one rule for all seven statuses, no per-status one-offs.
+   The default below is what an unrecognised value falls back to.
+
+   `active` and `inactive` are excluded because they aren't ours: TanStack
+   Router stamps data-status="active" on whichever <Link> matches the
+   current route. A bare attribute selector therefore painted that link as
+   a work-status pill — an unexplained grey badge on the link you're
+   already on, defaulting to --status-todo since "active" matches none of
+   the values below. Excluded here rather than patched per component,
+   because every <Link> in the app is a candidate.
+
+   Wrapped in :where() so the exclusion costs no specificity — a bare
+   :not() here outranks the [data-status="shipped"] rules below and every
+   pill in the app silently falls back to the grey default. */
+[data-status]:where(:not([data-status="active"], [data-status="inactive"])) {
   --status-color: var(--status-todo);
   background: color-mix(in oklch, var(--status-color) 15%, var(--card));
   color: color-mix(in oklch, var(--status-color) 76%, var(--foreground));

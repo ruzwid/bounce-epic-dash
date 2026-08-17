@@ -1,7 +1,6 @@
 import { ChevronsUpDown, Check } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { EPICS, epicTitle } from "@/lib/dashboard/appConfig"
-import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,15 +49,22 @@ export function EpicSwitcher() {
       />
       <DropdownMenuContent align="start">
         {EPICS.map((slug) => (
+          // Tick on the right, in the same column FilterMenu's checked
+          // items use (DropdownMenuRadioItem) — the two dropdowns in this
+          // app should mark "this is the current one" the same way.
+          // Nothing marks the current epic other than the tick: a
+          // background tint here would compete with the hover/keyboard
+          // highlight, so the row you're pointing at and the row you're on
+          // would look alike.
           <DropdownMenuItem
             key={slug}
+            className="pr-8"
             render={
               <Link to="/$epic" params={{ epic: slug }}>
-                <Check
-                  aria-hidden="true"
-                  className={cn("size-3.5 shrink-0", slug === epic ? "opacity-100" : "opacity-0")}
-                />
                 {epicTitle(slug)}
+                {slug === epic ? (
+                  <Check aria-hidden="true" className="absolute right-2.5 size-3.5 shrink-0" />
+                ) : null}
               </Link>
             }
           />
