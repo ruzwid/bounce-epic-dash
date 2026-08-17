@@ -584,7 +584,7 @@ function LoadBar({ person, busiest }: { person: PersonLoad; busiest: number }) {
     // below carry the values; this only has to make "who is carrying the
     // most" visible without reading them.
     <div
-      className="flex h-1.5 w-28 shrink-0 overflow-hidden rounded-[2px] bg-muted"
+      className="flex h-1.5 w-28 shrink-0 overflow-hidden rounded-md bg-muted"
       role="img"
       aria-label={`${person.features.length} features owned, ${person.reviewing.length} reviews waiting on them`}
     >
