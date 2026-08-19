@@ -70,7 +70,7 @@ function DropdownMenuRadioItem({
       data-slot="dropdown-menu-radio-item"
       closeOnClick={closeOnClick}
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-4xl py-1.5 pr-8 pl-2.5 text-sm whitespace-nowrap outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+        "relative flex w-full cursor-default items-center gap-2 rounded-4xl py-1.5 pr-8 pl-2.5 text-sm whitespace-nowrap outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-checked:bg-accent data-checked:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
         className,
       )}
       {...props}

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   listSnapshotDates,
@@ -7,6 +8,7 @@ import {
   loadPreviousSnapshot,
   loadSnapshot,
 } from "../../src/lib/dashboard/snapshots.ts";
+import { StatusSnapshot } from "../../src/lib/schema.ts";
 
 // Against the real data/snapshots/ directory — that's the whole point of
 // import.meta.glob, and there's a real committed snapshot to check against.
@@ -90,4 +92,37 @@ describe("loadHistory", () => {
       expect(point.generatedAt).toBeTruthy();
     }
   });
+});
+
+// Every committed snapshot must be readable by today's schema.
+//
+// loadSnapshot parses on read, and that parse is load-bearing rather than
+// belt-and-braces: the schema's defaults are what make a snapshot written
+// weeks ago renderable by today's components (the oldest on disk predates
+// `milestones` and `features[].stories` entirely). This reads the files
+// off disk *unparsed* to check the thing that isn't otherwise checked
+// anywhere — that the migration still succeeds. A snapshot the schema can
+// no longer read is a broken page, and this is the place that can say so
+// while someone can still fix it.
+describe("every snapshot on disk", () => {
+  const epics = listSnapshotEpics();
+
+  it("covers at least one epic (otherwise the checks below assert nothing)", () => {
+    expect(epics.length).toBeGreaterThan(0);
+  });
+
+  for (const epic of epics) {
+    for (const date of listSnapshotDates(epic)) {
+      it(`${epic}/${date}.json still parses against the current schema`, () => {
+        const raw = JSON.parse(readFileSync(`data/snapshots/${epic}/${date}.json`, "utf-8"));
+        const result = StatusSnapshot.safeParse(raw);
+        // Printed in full: "invalid" without the field is useless when the
+        // file is 120KB of nested features and stories.
+        const problems = result.success
+          ? ""
+          : result.error.issues.map((i) => `  - ${i.path.join(".") || "(root)"}: ${i.message}`).join("\n");
+        expect(problems, `data/snapshots/${epic}/${date}.json:\n${problems}`).toBe("");
+      });
+    }
+  }
 });

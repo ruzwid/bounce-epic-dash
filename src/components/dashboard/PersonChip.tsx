@@ -3,7 +3,8 @@ import { colorForLogin } from "@/lib/dashboard/appConfig"
 import { cn } from "@/lib/utils"
 import { Avatar } from "./Avatar"
 import { useShell } from "./shell/ShellContext"
-import { firstName, PersonTip } from "./PersonTip"
+import { firstName } from "@/lib/dashboard/personName"
+import { PersonTip } from "./PersonTip"
 
 type PersonChipProps = {
   /** GitHub login, when known. Review requests are logins already; an

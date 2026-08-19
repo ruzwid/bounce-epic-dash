@@ -7,6 +7,6 @@ import { DEFAULT_EPIC } from '@/lib/dashboard/appConfig'
 // from the CDN rather than a server round trip.
 export const Route = createFileRoute('/')({
   beforeLoad: () => {
-    throw redirect({ to: '/$epic', params: { epic: DEFAULT_EPIC }, replace: true })
+    throw redirect({ to: '/$epic/{-$date}', params: { epic: DEFAULT_EPIC }, replace: true })
   },
 })

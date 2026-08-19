@@ -12,11 +12,13 @@ import {
   type PersonLoad,
   type PrWork,
 } from "@/lib/dashboard/people"
-import { featureSlug, featureTitleWithoutCode, isFeatureTicket, reviewersForPr } from "@/lib/dashboard/nav"
+import { featureSlug, featureTitleWithoutCode, isFeatureTicket, orderReviewers, reviewersForPr } from "@/lib/dashboard/nav"
 import { displayNameForLogin, personLinks } from "@/lib/dashboard/appConfig"
-import { firstName, PersonTip } from "../PersonTip"
+import { firstName } from "@/lib/dashboard/personName"
+import { PersonTip } from "../PersonTip"
 import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
 import { Switch } from "@/components/ui/switch"
 import { useShell } from "../shell/ShellContext"
 import { ShellLink } from "../shell/ShellLink"
@@ -26,7 +28,7 @@ import { Avatar } from "../Avatar"
 import { StatusPill } from "../StatusPill"
 import { IssueTitle, JiraLink } from "../JiraLink"
 import { PrChip } from "../PrChip"
-import { ReviewerChip, orderReviewers } from "../ReviewerChip"
+import { ReviewerChip } from "../ReviewerChip"
 import { EmptyState } from "../EmptyState"
 
 type FeatureT = z.infer<typeof FeatureSchema>

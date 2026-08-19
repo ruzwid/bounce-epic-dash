@@ -1,7 +1,5 @@
 import { useState } from "react"
-import type { IconType } from "react-icons"
-import { SiGithubcopilot } from "react-icons/si"
-import { BsOpenai } from "react-icons/bs";
+import { BOT_ICONS } from "@/lib/dashboard/botIcons"
 import { cn } from "@/lib/utils"
 
 type AvatarProps = {
@@ -41,15 +39,6 @@ function swatchFor(name: string): string {
   let hash = 0
   for (let i = 0; i < name.length; i += 1) hash = (hash * 31 + name.charCodeAt(i)) >>> 0
   return SWATCHES[hash % SWATCHES.length]!
-}
-
-/** GitHub's own review-bot accounts render a recognizable brand mark
- *  instead of the usual photo/initials — their `github.com/<login>.png`
- *  avatars are generic app icons that don't read as "who reviewed this"
- *  at a glance the way a person's face does. */
-export const BOT_ICONS: Record<string, IconType> = {
-  "copilot-pull-request-reviewer": SiGithubcopilot,
-  "chatgpt-codex-connector": BsOpenai,
 }
 
 /**

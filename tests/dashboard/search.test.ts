@@ -274,8 +274,16 @@ describe("groupMatchesMilestoneFilter", () => {
 });
 
 describe("dashboardSearchSchema", () => {
+  // The validator's parameter carries TanStack's phantom SearchSchemaInput
+  // marker, which exists only in the type system (it is how the function
+  // tells the router that every field is optional for link-building — see
+  // the note on dashboardSearchSchema). Nothing constructs one at runtime,
+  // so the tests hand it a plain URL-shaped object.
+  const parse = (input: Record<string, unknown>) =>
+    dashboardSearchSchema(input as Parameters<typeof dashboardSearchSchema>[0]);
+
   it("defaults to the all-features, no-filter state", () => {
-    const parsed = dashboardSearchSchema.parse({});
+    const parsed = parse({});
     expect(parsed).toEqual({ milestone: "all", engineer: null, needsAttention: false, q: "" });
   });
 
@@ -285,10 +293,27 @@ describe("dashboardSearchSchema", () => {
     // through and simply matches nothing (see matchesFilters above) rather
     // than being silently rewritten to "all", which would show a reader
     // following a stale link the whole epic while their URL said otherwise.
-    expect(dashboardSearchSchema.parse({ milestone: "m9" }).milestone).toBe("m9");
+    expect(parse({ milestone: "m9" }).milestone).toBe("m9");
   });
 
   it("falls back to 'all' for a milestone value of the wrong type instead of throwing", () => {
-    expect(dashboardSearchSchema.parse({ milestone: 7 }).milestone).toBe("all");
+    expect(parse({ milestone: 7 }).milestone).toBe("all");
+  });
+
+  it("falls back on every other field of the wrong type rather than throwing", () => {
+    // A hand-edited or stale-shaped URL shows the dashboard unfiltered —
+    // a state the reader can see and correct — rather than an error page.
+    expect(parse({ engineer: 7, needsAttention: "yes", q: [] })).toEqual({
+      milestone: "all",
+      engineer: null,
+      needsAttention: false,
+      q: "",
+    });
+  });
+
+  it("reads needsAttention as a boolean or the string a hand-typed URL leaves", () => {
+    expect(parse({ needsAttention: true }).needsAttention).toBe(true);
+    expect(parse({ needsAttention: "true" }).needsAttention).toBe(true);
+    expect(parse({ needsAttention: false }).needsAttention).toBe(false);
   });
 });

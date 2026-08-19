@@ -4,10 +4,11 @@
 // src/lib/config.ts reads the same files with `fs` for the Node collection
 // scripts; that can't work in a prerendered page or after hydration. The
 // `virtual:app-config` module (see appConfigPlugin in vite.config.ts)
-// resolves the YAML to plain JS at build time instead, so no parser ships
-// to the client. Both paths validate through the same zod schema, so a
-// config the pipeline accepts and a config this page renders can never
-// diverge.
+// resolves the YAML to plain JS at build time instead, so neither a parser
+// nor a validator ships to the client. Both paths still validate through
+// the same zod schema — the pipeline at collection time, the plugin at
+// build time — so a config the pipeline accepts and a config this page
+// renders can never diverge.
 //
 // Every lookup here takes an epic slug first. There is deliberately no
 // "current epic" module state: a prerender renders several epics' pages in
@@ -17,8 +18,10 @@
 //
 // config.yaml holds no secrets by construction — credentials live in
 // .env.local, which is gitignored and never imported here.
-import { appConfigs, appConfigSources, epicRegistry, jiraBaseUrl } from "virtual:app-config";
-import { Config } from "../config-schema.ts";
+import { appConfigs, epicRegistry, jiraBaseUrl } from "virtual:app-config";
+// Type-only: the values arrive already validated (see the plugin), so the
+// schema itself — and zod with it — never reaches the browser.
+import type { Config } from "../config-schema.ts";
 
 export type AppConfig = Config;
 
@@ -42,12 +45,6 @@ export function epicTitle(slug: string): string {
   return typeof title === "string" && title.length > 0 ? title : slug;
 }
 
-/** One epic's raw YAML text, for showing the file as it is actually
- *  written — comments and all, which is most of the documentation it has. */
-export function configSource(epic: string): string {
-  return appConfigSources[epic] ?? "";
-}
-
 /** `https://<org>.atlassian.net/browse/BOUN-1234` for any ticket key, or
  *  null if JIRA_BASE_URL isn't set (a checkout without .env.local) — every
  *  caller must handle null by rendering the title unlinked rather than
@@ -68,35 +65,35 @@ export function githubPrUrl(epic: string, evidence: string): string | null {
   return `https://github.com/${loadAppConfig(epic).github.org}/${repo}/pull/${number}`;
 }
 
-const parsed = new Map<string, Config>();
-
-/** One epic's validated config. Parsed once per epic and memoised: several
- *  components read it and there's no reason to re-run zod for each. */
+/** One epic's config, already validated — the plugin that emits these
+ *  runs each through the zod schema at build time and fails the build on a
+ *  bad one, so this is a lookup rather than a parse. */
 export function loadAppConfig(epic: string): Config {
-  const cached = parsed.get(epic);
-  if (cached) return cached;
   if (!isKnownEpic(epic)) {
-    // Named explicitly rather than left to zod, which would otherwise
-    // report an unknown slug as eleven "Required" field errors on an empty
-    // object — true, but useless for finding the actual mistake.
+    // An unknown slug is named explicitly rather than left to surface as
+    // an undefined-property crash three frames deeper, which says nothing
+    // about the actual mistake.
     throw new Error(
       `No config for epic "${epic}". Known epics: ${EPICS.join(", ")}. ` +
         `A snapshot's epic slug comes from the directory it was loaded from, so this usually means ` +
         `data/snapshots/${epic}/ exists without a matching entry in epics.yaml.`,
     );
   }
-  const config = Config.parse(rawConfig(epic));
-  parsed.set(epic, config);
-  return config;
+  return appConfigs[epic]!;
 }
 
-/** The unvalidated config object for an epic, or an empty object for an
+/** One epic's config as a bag of fields, or an empty object for an
  *  unknown slug.
  *
- *  The lookups below read this directly rather than going through
- *  loadAppConfig(): owner avatars render on nearly every page, and a
- *  config that fails full validation should break the Config page, not
- *  take down the whole dashboard over a missing profile picture. */
+ *  The lookups below read this rather than going through loadAppConfig()
+ *  so that an unknown slug returns "no avatar" instead of throwing: owner
+ *  avatars and milestone chips render on nearly every page, and a stale
+ *  link to a removed epic should land on the shell's own "no epic called
+ *  …" page rather than taking the render down from inside a tooltip.
+ *
+ *  The `unknown` field types are about that missing-epic case only. What
+ *  is present has already been validated against the schema at build
+ *  time — see the note at the top of this file. */
 function rawConfig(epic: string): Record<string, unknown> {
   const config = appConfigs[epic];
   return config && typeof config === "object" ? (config as Record<string, unknown>) : {};

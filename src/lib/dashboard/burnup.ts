@@ -10,6 +10,14 @@ import type { Velocity } from "./velocity.ts";
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
+/** Two points is a line, not a trend — but three days of real snapshots
+ *  says more than an empty panel promising a chart in a fortnight.
+ *
+ *  Lives here rather than beside the chart that enforces it so the
+ *  deferred-chart wrapper can tell whether a chart is going to be drawn at
+ *  all, without importing the chart (and Recharts with it) to find out. */
+export const MIN_HISTORY_FOR_CHART = 3;
+
 export type BurnUpPoint = {
   date: string;
   /** Measured counts. Undefined on projected points, which is what leaves

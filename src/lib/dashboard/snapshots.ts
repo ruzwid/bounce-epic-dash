@@ -5,6 +5,7 @@
 // browser after hydration. A raw `fs.readFileSync` would work for the
 // former only; import.meta.glob's dynamic import() works for both.
 import { StatusSnapshot } from "../schema.ts";
+import { epicProgress } from "./nav.ts";
 import type { ScopeSnapshot } from "./scope.ts";
 
 // Lazy (non-eager): each snapshot becomes its own code-split chunk,
@@ -45,6 +46,16 @@ export function listSnapshotDates(epic: string): string[] {
     .sort();
 }
 
+/** The newest snapshot date one epic has, or null when it has none.
+ *  Reads the file listing only — nothing is loaded or parsed, which is the
+ *  point: callers that just need to know *which* date is latest (to anchor
+ *  a comparison window, say) shouldn't pay for a whole snapshot to read
+ *  one field off it. */
+export function latestSnapshotDate(epic: string): string | null {
+  const dates = listSnapshotDates(epic);
+  return dates[dates.length - 1] ?? null;
+}
+
 function keyFor(epic: string, date: string): string | undefined {
   return Object.keys(snapshotModules).find((path) => {
     const location = locationFromPath(path);
@@ -53,7 +64,20 @@ function keyFor(epic: string, date: string): string | undefined {
 }
 
 /** The validated snapshot for one epic and date, or null if it doesn't
- *  exist. */
+ *  exist.
+ *
+ *  The parse here is not a redundant re-check of a file the pipeline
+ *  already validated, and removing it on that reasoning breaks the site.
+ *  The schema carries ~29 `.default()`s, so parsing is also the migration
+ *  step that makes a snapshot written weeks ago readable by today's
+ *  components: the oldest one on disk has no `milestones` array and no
+ *  `features[].stories` at all, and skipping the parse hands those
+ *  straight to a `.map()` as undefined.
+ *
+ *  It costs zod in the client bundle, which is real. The way out is to
+ *  stop shipping snapshots that need migrating — have merge.ts write
+ *  parsed output and normalise the existing files once — not to drop the
+ *  parse while the files still need it. */
 export async function loadSnapshot(epic: string, date: string): Promise<StatusSnapshot | null> {
   const key = keyFor(epic, date);
   if (!key) return null;
@@ -75,8 +99,7 @@ export async function loadSnapshot(epic: string, date: string): Promise<StatusSn
  *  first collection run, and that is a state the route renders around
  *  rather than a setup error that should take the whole site down. */
 export async function loadLatestSnapshot(epic: string): Promise<StatusSnapshot | null> {
-  const dates = listSnapshotDates(epic);
-  const latest = dates[dates.length - 1];
+  const latest = latestSnapshotDate(epic);
   if (!latest) return null;
   const snapshot = await loadSnapshot(epic, latest);
   if (!snapshot) {
@@ -94,6 +117,46 @@ export async function loadPreviousSnapshot(epic: string, date: string): Promise<
   const index = dates.indexOf(date);
   if (index <= 0) return null;
   return loadSnapshot(epic, dates[index - 1]!);
+}
+
+/** The handful of numbers every page needs about the *previous* snapshot,
+ *  without the snapshot. See loadPreviousSummary. */
+export type PreviousSummary = {
+  date: string;
+  /** Weighted epic completion as of that snapshot — the header's
+   *  "▲ 3 pts since last snapshot". */
+  percent: number;
+  /** Each feature's score then, keyed by JIRA key (never array position —
+   *  features reorder between days). Drives the feature page's
+   *  "vs. previous snapshot" delta. */
+  scoreByFeature: Record<string, number>;
+};
+
+/**
+ * The previous snapshot, reduced to what the shell chrome actually reads
+ * off it.
+ *
+ * The shell used to hand every page the whole previous snapshot so that
+ * three components could compute three deltas from it. Two of those
+ * deltas are a single number each, and the third is one number per
+ * feature — about 600 bytes all told, against ~120KB for the snapshot
+ * they were being derived from. Because a route loader's result is
+ * serialised into that page's prerendered HTML, that difference was paid
+ * on all eleven pages, including the Config page, which renders a YAML
+ * file and reads none of it.
+ *
+ * The one page that genuinely needs the whole previous snapshot — Today,
+ * which diffs it story by story — loads it in its own route loader
+ * instead.
+ */
+export async function loadPreviousSummary(epic: string, date: string): Promise<PreviousSummary | null> {
+  const previous = await loadPreviousSnapshot(epic, date);
+  if (!previous) return null;
+  return {
+    date: previous.date,
+    percent: epicProgress(epic, previous.features).percent,
+    scoreByFeature: Object.fromEntries(previous.features.map((f) => [f.key, f.score])),
+  };
 }
 
 /** How much history the scope timeline reads. A quarter of daily
@@ -160,7 +223,17 @@ export type HistoryPoint = {
 /** date + kpis + generatedAt for every snapshot of one epic, ascending —
  *  the burn-up chart's full history. Deliberately excludes `features` (no
  *  need to ship every historical feature list just to draw
- *  shipped/doneUnverified/staged-over-time). */
+ *  shipped/doneUnverified/staged-over-time).
+ *
+ *  Uncapped, unlike loadScopeHistory. The burn-up is drawn from
+ *  `history[0].date` — the day collection started — so trimming the front
+ *  of this list would not trim the chart's payload so much as silently
+ *  redraw the chart from a later origin, which is a different claim about
+ *  the epic. A point is ~180 bytes and it is loaded by the Today route
+ *  alone, so a year of daily collection costs that one page ~65KB. If
+ *  that ever needs bounding, downsample the old end (weekly before the
+ *  last 30 days) rather than dropping it, so the arc still starts where
+ *  the work did. */
 export async function loadHistory(epic: string): Promise<HistoryPoint[]> {
   const dates = listSnapshotDates(epic);
   const points = await Promise.all(

@@ -34,9 +34,36 @@ export type ChangeItem =
    *  story titles under a feature that only just appeared is noise. */
   | { kind: "scope_added"; feature: FeatureT; stories: StoryT[]; isNewFeature: boolean };
 
+/** Stable identity for a change item, for use as a React list key. A
+ *  feature can appear more than once within a section (e.g. two of its
+ *  stories both shipped), so the feature's key alone can collide — the
+ *  item's own story (when it carries one) disambiguates those. */
+export function changeItemKey(item: ChangeItem): string {
+  switch (item.kind) {
+    case "shipped":
+    case "newly_done_unverified":
+    case "newly_staged":
+    case "newly_blocked":
+    case "regressed":
+      return `${item.feature.key}-${item.kind}-${item.story.key}`;
+    case "released":
+    case "sent_for_sign_off":
+    case "feature_regressed":
+    case "newly_stalled":
+    case "scope_added":
+      return `${item.feature.key}-${item.kind}`;
+    default: {
+      const _never: never = item;
+      return _never;
+    }
+  }
+}
+
 function findStory(feature: FeatureT | undefined, key: string): StoryT | undefined {
   return feature?.stories.find((s) => s.key === key);
 }
+
+const WEEKDAY_LONG_FORMATTER = new Intl.DateTimeFormat("en-US", { weekday: "long" });
 
 /** "since yesterday" / "since Friday" / "since 2026-07-28" — names the
  *  real gap between two snapshot dates rather than a hardcoded word. */
@@ -47,7 +74,7 @@ export function formatSinceLabel(previousDate: string, currentDate: string): str
 
   if (diffDays === 1) return "since yesterday";
   if (diffDays > 1 && diffDays <= 6) {
-    return `since ${new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(prev)}`;
+    return `since ${WEEKDAY_LONG_FORMATTER.format(prev)}`;
   }
   return `since ${previousDate}`;
 }

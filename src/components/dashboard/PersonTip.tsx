@@ -2,13 +2,6 @@ import type { ReactNode } from "react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
-/** The first word of a name — "Ruzzell Widjaja" -> "Ruzzell". A login with
- *  no config.yaml entry ("Madjda", "chatgpt-codex-connector") has no first
- *  name to take, so it passes through whole. */
-export function firstName(name: string): string {
-  return name.trim().split(/\s+/)[0] || name
-}
-
 /**
  * A hover label for a face with no name beside it.
  *

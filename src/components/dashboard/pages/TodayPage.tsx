@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { ChevronRight } from "lucide-react"
 import type { z } from "zod"
 import type { StatusSnapshot as StatusSnapshotSchema } from "@/lib/schema"
@@ -19,8 +20,8 @@ import { SinceYesterday } from "../SinceYesterday"
 import { FeatureRow } from "../FeatureRow"
 import { FilterBar } from "../FilterBar"
 import { EmptyState } from "../EmptyState"
-import { StoryStatusMixChart } from "../StoryStatusMixChart"
-import { BurnUpChart } from "../BurnUpChart"
+// Both charts arrive through the deferred wrapper — see DeferredChart.
+import { BurnUpChart, StoryStatusMixChart } from "../DeferredChart"
 import { MethodologyFooter } from "../MethodologyFooter"
 import { MilestoneGroupHeading } from "../MilestoneGroupHeading"
 
@@ -32,26 +33,53 @@ type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
  * the totals are what you already knew and the feed is what you opened the
  * dashboard to find out.
  */
-export function TodayPage() {
-  const { epic, snapshot, previous, history, search, onSearchChange, now, asOf } = useShell()
+type TodayPageProps = {
+  /** The snapshot before this one, in full — the only page that needs it.
+   *  Loaded by this page's own route rather than the shell; see the note
+   *  in $epic.{-$date}.index.tsx. Null on an epic's first snapshot. */
+  previous: StatusSnapshotT | null
+  history: HistoryPoint[]
+}
 
-  const changes = computeChanges(snapshot, previous)
-  const sinceLabel = previous ? formatSinceLabel(previous.date, snapshot.date) : null
-  const engineers = [...new Set(snapshot.features.map((f) => f.owner))].sort()
-  // Summed from the features, not read off snapshot.kpis: the published
-  // KPI object grew a field at a time, so only this is complete for every
-  // snapshot version. See src/lib/dashboard/totals.ts.
-  const totals = storyTotals(snapshot.features)
-  const scope = scopeDelta(snapshot, previous)
-  const targetDate = resolveTargetDate(snapshot)
-  const velocity = computeVelocity(history, snapshot, targetDate)
-  const burnUp = buildBurnUpSeries(history, history[0]?.date ?? snapshot.date, targetDate, velocity)
+export function TodayPage({ previous, history }: TodayPageProps) {
+  const { epic, snapshot, search, onSearchChange, now, asOf } = useShell()
+
+  // Everything the snapshot alone determines, memoised as one block.
+  //
+  // Filters live in the URL, so changing one is a navigation: the shell
+  // re-renders, and with it this page. None of the figures below depend on
+  // a filter — they describe the whole epic — but recomputing them anyway
+  // rebuilt `burnUp` as a new array on every chip click, which is a prop
+  // change to the burn-up chart, which is a full Recharts relayout for a
+  // chart whose contents did not move. The memo is what makes the `memo()`
+  // on the charts actually hold.
+  const derived = useMemo(() => {
+    const targetDate = resolveTargetDate(snapshot)
+    const velocity = computeVelocity(history, snapshot, targetDate)
+    return {
+      changes: computeChanges(snapshot, previous),
+      sinceLabel: previous ? formatSinceLabel(previous.date, snapshot.date) : null,
+      engineers: [...new Set(snapshot.features.map((f) => f.owner))].sort(),
+      // Summed from the features, not read off snapshot.kpis: the published
+      // KPI object grew a field at a time, so only this is complete for every
+      // snapshot version. See src/lib/dashboard/totals.ts.
+      totals: storyTotals(snapshot.features),
+      scope: scopeDelta(snapshot, previous),
+      targetDate,
+      velocity,
+      burnUp: buildBurnUpSeries(history, history[0]?.date ?? snapshot.date, targetDate, velocity),
+      // Every group this epic has, for the filter chips — computed before
+      // the filter is applied, or picking one chip would remove the others.
+      allGroups: sidebarGroups(snapshot),
+    }
+  }, [snapshot, previous, history])
+
+  const { changes, sinceLabel, engineers, totals, scope, targetDate, velocity, burnUp, allGroups } = derived
+
+  // Filter-dependent, so deliberately outside the memo above.
   // Groups the milestone filter excludes don't render at all — rendering
   // them with an empty, filtered-down feature list is the exact bug this
   // replaced (picking "M1" left M2/M3/M4 on the page, just empty).
-  // Every group this epic has, for the filter chips — computed before
-  // the filter is applied, or picking one chip would remove the others.
-  const allGroups = sidebarGroups(snapshot)
   const groups = allGroups.filter((g) => groupMatchesMilestoneFilter(g.id, search))
   const visibleFeatureCount = groups.reduce(
     (n, g) => n + g.features.filter((f) => matchesFilters(snapshot, f, search, asOf)).length,
@@ -66,9 +94,9 @@ export function TodayPage() {
         {snapshot.epic.overview ? (
           <p className="m-0 max-w-[70ch] text-sm leading-relaxed text-muted-foreground">{snapshot.epic.overview}</p>
         ) : null}
-        {snapshot.collectionErrors.map((error, i) => (
+        {snapshot.collectionErrors.map((error) => (
           <Callout
-            key={i}
+            key={`${error.source}-${error.scope}-${error.message}`}
             callout={{
               type: "spec_gap",
               severity: "warn",
@@ -121,8 +149,8 @@ export function TodayPage() {
             // Done milestones collapse by default — nothing left to act on
             // — but the boolean is stable across re-renders (search text,
             // filters) so a reader who expands one anyway never has it
-            // snap shut on them mid-session. See the note on <details> in
-            // FeatureCard for the same pattern.
+            // snap shut on them mid-session. The sidebar's milestone
+            // groups follow the same rule, from the same derivation.
             const progress = milestoneProgress(epic, group.features)
             const isDone = progress.stage === "done"
             return (

@@ -3,7 +3,7 @@ import { Package } from "lucide-react"
 import type { z } from "zod"
 import type { PrRef as PrRefSchema, Story as StorySchema } from "@/lib/schema"
 import type { ChangeItem } from "@/lib/dashboard/diff"
-import { groupChanges } from "@/lib/dashboard/diff"
+import { changeItemKey, groupChanges } from "@/lib/dashboard/diff"
 import { featureSlug, featureTitleWithoutCode, isFeatureTicket } from "@/lib/dashboard/nav"
 import { loginForDisplayName } from "@/lib/dashboard/appConfig"
 import { statusLabel } from "@/lib/dashboard/statusLabels"
@@ -57,8 +57,8 @@ export function SinceYesterday({ changes }: { changes: ChangeItem[] }) {
               <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">{section.note}</p>
             ) : null}
             <ul className="m-0 flex list-none flex-col gap-3 p-0">
-              {section.items.map((item, i) => (
-                <ChangeLine key={`${item.feature.key}-${i}`} change={item} status={section.status} />
+              {section.items.map((item) => (
+                <ChangeLine key={changeItemKey(item)} change={item} status={section.status} />
               ))}
             </ul>
           </Nest>

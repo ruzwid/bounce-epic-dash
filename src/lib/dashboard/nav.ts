@@ -14,6 +14,7 @@ import { storyTotals, weightedPercent } from "./totals.ts";
 import { featureAnchorId } from "./anchors.ts";
 import { groupSlug, milestoneGroupSlug, needsAttention, prOpenDays } from "./search.ts";
 import { storyPrs } from "../stories.ts";
+import { BOT_ICONS } from "./botIcons.ts";
 
 type FeatureT = z.infer<typeof FeatureSchema>;
 type StoryT = z.infer<typeof StorySchema>;
@@ -448,6 +449,18 @@ export function reviewersForPr(
     byReviewer.set(r.reviewer, { reviewer: r.reviewer, state, ageDays: null });
   }
   return [...byReviewer.values()];
+}
+
+/** Bots first, then alphabetical: reviewer order in the underlying data is
+ *  whatever order requests/reviews landed in on that specific PR, so two
+ *  PRs with the same two reviewers could otherwise show them swapped. A
+ *  fixed sort key makes the same person land in the same slot on every row
+ *  of every page that draws these badges. */
+export function orderReviewers<T extends { reviewer: string }>(reviewers: T[]): T[] {
+  return [...reviewers].sort((a, b) => {
+    const botDiff = Number(!(a.reviewer in BOT_ICONS)) - Number(!(b.reviewer in BOT_ICONS));
+    return botDiff !== 0 ? botDiff : a.reviewer.localeCompare(b.reviewer);
+  });
 }
 
 /** The ticket a group of PRs actually hangs off — a Story, or one of its

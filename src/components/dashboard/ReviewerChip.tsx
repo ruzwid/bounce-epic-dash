@@ -2,9 +2,10 @@ import { Clock, Check, X, MessageSquare } from "lucide-react"
 import type { ReviewerState, ReviewerStatus } from "@/lib/dashboard/nav"
 import { cn } from "@/lib/utils"
 import { displayNameForLogin } from "@/lib/dashboard/appConfig"
+import { firstName } from "@/lib/dashboard/personName"
+import { BOT_ICONS } from "@/lib/dashboard/botIcons"
 import { PersonChip } from "./PersonChip"
-import { firstName, PersonTip } from "./PersonTip"
-import { BOT_ICONS } from "./Avatar"
+import { PersonTip } from "./PersonTip"
 import { useShell } from "./shell/ShellContext"
 
 /** requested: still being waited on. approved / changes_requested /
@@ -30,18 +31,6 @@ const REVIEWER_STATE_LABEL: Record<ReviewerState, string> = {
   approved: "approved",
   changes_requested: "changes requested",
   commented: "commented",
-}
-
-/** Bots first, then alphabetical: reviewer order in the underlying data is
- *  whatever order requests/reviews landed in on that specific PR, so two
- *  PRs with the same two reviewers could otherwise show them swapped. A
- *  fixed sort key makes the same person land in the same slot on every row
- *  of every page that draws these badges. */
-export function orderReviewers<T extends { reviewer: string }>(reviewers: T[]): T[] {
-  return [...reviewers].sort((a, b) => {
-    const botDiff = Number(!(a.reviewer in BOT_ICONS)) - Number(!(b.reviewer in BOT_ICONS))
-    return botDiff !== 0 ? botDiff : a.reviewer.localeCompare(b.reviewer)
-  })
 }
 
 /** A PersonChip carrying its review-state icon — shared by the Reviews

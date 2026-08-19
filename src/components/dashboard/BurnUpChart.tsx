@@ -1,5 +1,5 @@
 import { Area, CartesianGrid, ComposedChart, Line, ReferenceDot, ReferenceLine, XAxis, YAxis } from "recharts"
-import type { BurnUpPoint } from "@/lib/dashboard/burnup"
+import { MIN_HISTORY_FOR_CHART, type BurnUpPoint } from "@/lib/dashboard/burnup"
 import type { Velocity } from "@/lib/dashboard/velocity"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { SectionHeading } from "./SectionHeading"
@@ -11,10 +11,6 @@ type BurnUpChartProps = {
   targetDate: string | null
   velocity: Velocity | null
 }
-
-/** Two points is a line, not a trend — but three days of real snapshots
- *  says more than an empty panel promising a chart in a fortnight. */
-const MIN_HISTORY_FOR_CHART = 3
 
 const chartConfig = {
   shipped: { label: "Shipped", color: "var(--status-shipped)" },
@@ -34,11 +30,13 @@ const SERIES = Object.keys(chartConfig) as (keyof typeof chartConfig)[]
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 
+const DAY_FORMATTER = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })
+
 /** "11 Aug". Rendered in UTC so a prerendered page and a browser in any
  *  timezone print the same tick (a locale-dependent render would
  *  hydrate-mismatch). */
 function formatDay(ms: number): string {
-  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ms))
+  return DAY_FORMATTER.format(new Date(ms))
 }
 
 export function BurnUpChart({ series, targetDate, velocity }: BurnUpChartProps) {

@@ -10,299 +10,178 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as EpicDateRouteImport } from './routes/$epic.$date'
-import { Route as EpicShellRouteImport } from './routes/$epic._shell'
-import { Route as EpicDateIndexRouteImport } from './routes/$epic.$date.index'
-import { Route as EpicDateAttentionRouteImport } from './routes/$epic.$date.attention'
-import { Route as EpicDateConfigRouteImport } from './routes/$epic.$date.config'
-import { Route as EpicDatePeopleRouteImport } from './routes/$epic.$date.people'
-import { Route as EpicDateReviewsRouteImport } from './routes/$epic.$date.reviews'
-import { Route as EpicDateScopeRouteImport } from './routes/$epic.$date.scope'
-import { Route as EpicDateSignoffRouteImport } from './routes/$epic.$date.signoff'
-import { Route as EpicDateWeekRouteImport } from './routes/$epic.$date.week'
-import { Route as EpicShellIndexRouteImport } from './routes/$epic._shell.index'
-import { Route as EpicShellAttentionRouteImport } from './routes/$epic._shell.attention'
-import { Route as EpicShellConfigRouteImport } from './routes/$epic._shell.config'
-import { Route as EpicShellPeopleRouteImport } from './routes/$epic._shell.people'
-import { Route as EpicShellReviewsRouteImport } from './routes/$epic._shell.reviews'
-import { Route as EpicShellScopeRouteImport } from './routes/$epic._shell.scope'
-import { Route as EpicShellSignoffRouteImport } from './routes/$epic._shell.signoff'
-import { Route as EpicShellWeekRouteImport } from './routes/$epic._shell.week'
-import { Route as EpicDateFCodeRouteImport } from './routes/$epic.$date.f.$code'
-import { Route as EpicDateMIdRouteImport } from './routes/$epic.$date.m.$id'
-import { Route as EpicShellFCodeRouteImport } from './routes/$epic._shell.f.$code'
-import { Route as EpicShellMIdRouteImport } from './routes/$epic._shell.m.$id'
+import { Route as EpicChar123DateChar125RouteImport } from './routes/$epic.{-$date}'
+import { Route as EpicChar123DateChar125IndexRouteImport } from './routes/$epic.{-$date}.index'
+import { Route as EpicChar123DateChar125AttentionRouteImport } from './routes/$epic.{-$date}.attention'
+import { Route as EpicChar123DateChar125ConfigRouteImport } from './routes/$epic.{-$date}.config'
+import { Route as EpicChar123DateChar125PeopleRouteImport } from './routes/$epic.{-$date}.people'
+import { Route as EpicChar123DateChar125ReviewsRouteImport } from './routes/$epic.{-$date}.reviews'
+import { Route as EpicChar123DateChar125ScopeRouteImport } from './routes/$epic.{-$date}.scope'
+import { Route as EpicChar123DateChar125SignoffRouteImport } from './routes/$epic.{-$date}.signoff'
+import { Route as EpicChar123DateChar125WeekRouteImport } from './routes/$epic.{-$date}.week'
+import { Route as EpicChar123DateChar125FCodeRouteImport } from './routes/$epic.{-$date}.f.$code'
+import { Route as EpicChar123DateChar125MIdRouteImport } from './routes/$epic.{-$date}.m.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EpicDateRoute = EpicDateRouteImport.update({
-  id: '/$epic/$date',
-  path: '/$epic/$date',
+const EpicChar123DateChar125Route = EpicChar123DateChar125RouteImport.update({
+  id: '/$epic/{-$date}',
+  path: '/$epic/{-$date}',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EpicShellRoute = EpicShellRouteImport.update({
-  id: '/$epic/_shell',
-  path: '/$epic',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EpicDateIndexRoute = EpicDateIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDateAttentionRoute = EpicDateAttentionRouteImport.update({
-  id: '/attention',
-  path: '/attention',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDateConfigRoute = EpicDateConfigRouteImport.update({
-  id: '/config',
-  path: '/config',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDatePeopleRoute = EpicDatePeopleRouteImport.update({
-  id: '/people',
-  path: '/people',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDateReviewsRoute = EpicDateReviewsRouteImport.update({
-  id: '/reviews',
-  path: '/reviews',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDateScopeRoute = EpicDateScopeRouteImport.update({
-  id: '/scope',
-  path: '/scope',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDateSignoffRoute = EpicDateSignoffRouteImport.update({
-  id: '/signoff',
-  path: '/signoff',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDateWeekRoute = EpicDateWeekRouteImport.update({
-  id: '/week',
-  path: '/week',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicShellIndexRoute = EpicShellIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellAttentionRoute = EpicShellAttentionRouteImport.update({
-  id: '/attention',
-  path: '/attention',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellConfigRoute = EpicShellConfigRouteImport.update({
-  id: '/config',
-  path: '/config',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellPeopleRoute = EpicShellPeopleRouteImport.update({
-  id: '/people',
-  path: '/people',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellReviewsRoute = EpicShellReviewsRouteImport.update({
-  id: '/reviews',
-  path: '/reviews',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellScopeRoute = EpicShellScopeRouteImport.update({
-  id: '/scope',
-  path: '/scope',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellSignoffRoute = EpicShellSignoffRouteImport.update({
-  id: '/signoff',
-  path: '/signoff',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellWeekRoute = EpicShellWeekRouteImport.update({
-  id: '/week',
-  path: '/week',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicDateFCodeRoute = EpicDateFCodeRouteImport.update({
-  id: '/f/$code',
-  path: '/f/$code',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicDateMIdRoute = EpicDateMIdRouteImport.update({
-  id: '/m/$id',
-  path: '/m/$id',
-  getParentRoute: () => EpicDateRoute,
-} as any)
-const EpicShellFCodeRoute = EpicShellFCodeRouteImport.update({
-  id: '/f/$code',
-  path: '/f/$code',
-  getParentRoute: () => EpicShellRoute,
-} as any)
-const EpicShellMIdRoute = EpicShellMIdRouteImport.update({
-  id: '/m/$id',
-  path: '/m/$id',
-  getParentRoute: () => EpicShellRoute,
-} as any)
+const EpicChar123DateChar125IndexRoute =
+  EpicChar123DateChar125IndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125AttentionRoute =
+  EpicChar123DateChar125AttentionRouteImport.update({
+    id: '/attention',
+    path: '/attention',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125ConfigRoute =
+  EpicChar123DateChar125ConfigRouteImport.update({
+    id: '/config',
+    path: '/config',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125PeopleRoute =
+  EpicChar123DateChar125PeopleRouteImport.update({
+    id: '/people',
+    path: '/people',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125ReviewsRoute =
+  EpicChar123DateChar125ReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125ScopeRoute =
+  EpicChar123DateChar125ScopeRouteImport.update({
+    id: '/scope',
+    path: '/scope',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125SignoffRoute =
+  EpicChar123DateChar125SignoffRouteImport.update({
+    id: '/signoff',
+    path: '/signoff',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125WeekRoute =
+  EpicChar123DateChar125WeekRouteImport.update({
+    id: '/week',
+    path: '/week',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125FCodeRoute =
+  EpicChar123DateChar125FCodeRouteImport.update({
+    id: '/f/$code',
+    path: '/f/$code',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
+const EpicChar123DateChar125MIdRoute =
+  EpicChar123DateChar125MIdRouteImport.update({
+    id: '/m/$id',
+    path: '/m/$id',
+    getParentRoute: () => EpicChar123DateChar125Route,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$epic/$date': typeof EpicDateRouteWithChildren
-  '/$epic': typeof EpicShellRouteWithChildren
-  '/$epic/$date/attention': typeof EpicDateAttentionRoute
-  '/$epic/$date/config': typeof EpicDateConfigRoute
-  '/$epic/$date/people': typeof EpicDatePeopleRoute
-  '/$epic/$date/reviews': typeof EpicDateReviewsRoute
-  '/$epic/$date/scope': typeof EpicDateScopeRoute
-  '/$epic/$date/signoff': typeof EpicDateSignoffRoute
-  '/$epic/$date/week': typeof EpicDateWeekRoute
-  '/$epic/attention': typeof EpicShellAttentionRoute
-  '/$epic/config': typeof EpicShellConfigRoute
-  '/$epic/people': typeof EpicShellPeopleRoute
-  '/$epic/reviews': typeof EpicShellReviewsRoute
-  '/$epic/scope': typeof EpicShellScopeRoute
-  '/$epic/signoff': typeof EpicShellSignoffRoute
-  '/$epic/week': typeof EpicShellWeekRoute
-  '/$epic/$date/': typeof EpicDateIndexRoute
-  '/$epic/': typeof EpicShellIndexRoute
-  '/$epic/$date/f/$code': typeof EpicDateFCodeRoute
-  '/$epic/$date/m/$id': typeof EpicDateMIdRoute
-  '/$epic/f/$code': typeof EpicShellFCodeRoute
-  '/$epic/m/$id': typeof EpicShellMIdRoute
+  '/$epic/{-$date}': typeof EpicChar123DateChar125RouteWithChildren
+  '/$epic/{-$date}/attention': typeof EpicChar123DateChar125AttentionRoute
+  '/$epic/{-$date}/config': typeof EpicChar123DateChar125ConfigRoute
+  '/$epic/{-$date}/people': typeof EpicChar123DateChar125PeopleRoute
+  '/$epic/{-$date}/reviews': typeof EpicChar123DateChar125ReviewsRoute
+  '/$epic/{-$date}/scope': typeof EpicChar123DateChar125ScopeRoute
+  '/$epic/{-$date}/signoff': typeof EpicChar123DateChar125SignoffRoute
+  '/$epic/{-$date}/week': typeof EpicChar123DateChar125WeekRoute
+  '/$epic/{-$date}/': typeof EpicChar123DateChar125IndexRoute
+  '/$epic/{-$date}/f/$code': typeof EpicChar123DateChar125FCodeRoute
+  '/$epic/{-$date}/m/$id': typeof EpicChar123DateChar125MIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$epic/$date/attention': typeof EpicDateAttentionRoute
-  '/$epic/$date/config': typeof EpicDateConfigRoute
-  '/$epic/$date/people': typeof EpicDatePeopleRoute
-  '/$epic/$date/reviews': typeof EpicDateReviewsRoute
-  '/$epic/$date/scope': typeof EpicDateScopeRoute
-  '/$epic/$date/signoff': typeof EpicDateSignoffRoute
-  '/$epic/$date/week': typeof EpicDateWeekRoute
-  '/$epic/attention': typeof EpicShellAttentionRoute
-  '/$epic/config': typeof EpicShellConfigRoute
-  '/$epic/people': typeof EpicShellPeopleRoute
-  '/$epic/reviews': typeof EpicShellReviewsRoute
-  '/$epic/scope': typeof EpicShellScopeRoute
-  '/$epic/signoff': typeof EpicShellSignoffRoute
-  '/$epic/week': typeof EpicShellWeekRoute
-  '/$epic/$date': typeof EpicDateIndexRoute
-  '/$epic': typeof EpicShellIndexRoute
-  '/$epic/$date/f/$code': typeof EpicDateFCodeRoute
-  '/$epic/$date/m/$id': typeof EpicDateMIdRoute
-  '/$epic/f/$code': typeof EpicShellFCodeRoute
-  '/$epic/m/$id': typeof EpicShellMIdRoute
+  '/$epic/{-$date}/attention': typeof EpicChar123DateChar125AttentionRoute
+  '/$epic/{-$date}/config': typeof EpicChar123DateChar125ConfigRoute
+  '/$epic/{-$date}/people': typeof EpicChar123DateChar125PeopleRoute
+  '/$epic/{-$date}/reviews': typeof EpicChar123DateChar125ReviewsRoute
+  '/$epic/{-$date}/scope': typeof EpicChar123DateChar125ScopeRoute
+  '/$epic/{-$date}/signoff': typeof EpicChar123DateChar125SignoffRoute
+  '/$epic/{-$date}/week': typeof EpicChar123DateChar125WeekRoute
+  '/$epic/{-$date}': typeof EpicChar123DateChar125IndexRoute
+  '/$epic/{-$date}/f/$code': typeof EpicChar123DateChar125FCodeRoute
+  '/$epic/{-$date}/m/$id': typeof EpicChar123DateChar125MIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$epic/$date': typeof EpicDateRouteWithChildren
-  '/$epic/_shell': typeof EpicShellRouteWithChildren
-  '/$epic/$date/attention': typeof EpicDateAttentionRoute
-  '/$epic/$date/config': typeof EpicDateConfigRoute
-  '/$epic/$date/people': typeof EpicDatePeopleRoute
-  '/$epic/$date/reviews': typeof EpicDateReviewsRoute
-  '/$epic/$date/scope': typeof EpicDateScopeRoute
-  '/$epic/$date/signoff': typeof EpicDateSignoffRoute
-  '/$epic/$date/week': typeof EpicDateWeekRoute
-  '/$epic/_shell/attention': typeof EpicShellAttentionRoute
-  '/$epic/_shell/config': typeof EpicShellConfigRoute
-  '/$epic/_shell/people': typeof EpicShellPeopleRoute
-  '/$epic/_shell/reviews': typeof EpicShellReviewsRoute
-  '/$epic/_shell/scope': typeof EpicShellScopeRoute
-  '/$epic/_shell/signoff': typeof EpicShellSignoffRoute
-  '/$epic/_shell/week': typeof EpicShellWeekRoute
-  '/$epic/$date/': typeof EpicDateIndexRoute
-  '/$epic/_shell/': typeof EpicShellIndexRoute
-  '/$epic/$date/f/$code': typeof EpicDateFCodeRoute
-  '/$epic/$date/m/$id': typeof EpicDateMIdRoute
-  '/$epic/_shell/f/$code': typeof EpicShellFCodeRoute
-  '/$epic/_shell/m/$id': typeof EpicShellMIdRoute
+  '/$epic/{-$date}': typeof EpicChar123DateChar125RouteWithChildren
+  '/$epic/{-$date}/attention': typeof EpicChar123DateChar125AttentionRoute
+  '/$epic/{-$date}/config': typeof EpicChar123DateChar125ConfigRoute
+  '/$epic/{-$date}/people': typeof EpicChar123DateChar125PeopleRoute
+  '/$epic/{-$date}/reviews': typeof EpicChar123DateChar125ReviewsRoute
+  '/$epic/{-$date}/scope': typeof EpicChar123DateChar125ScopeRoute
+  '/$epic/{-$date}/signoff': typeof EpicChar123DateChar125SignoffRoute
+  '/$epic/{-$date}/week': typeof EpicChar123DateChar125WeekRoute
+  '/$epic/{-$date}/': typeof EpicChar123DateChar125IndexRoute
+  '/$epic/{-$date}/f/$code': typeof EpicChar123DateChar125FCodeRoute
+  '/$epic/{-$date}/m/$id': typeof EpicChar123DateChar125MIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$epic/$date'
-    | '/$epic'
-    | '/$epic/$date/attention'
-    | '/$epic/$date/config'
-    | '/$epic/$date/people'
-    | '/$epic/$date/reviews'
-    | '/$epic/$date/scope'
-    | '/$epic/$date/signoff'
-    | '/$epic/$date/week'
-    | '/$epic/attention'
-    | '/$epic/config'
-    | '/$epic/people'
-    | '/$epic/reviews'
-    | '/$epic/scope'
-    | '/$epic/signoff'
-    | '/$epic/week'
-    | '/$epic/$date/'
-    | '/$epic/'
-    | '/$epic/$date/f/$code'
-    | '/$epic/$date/m/$id'
-    | '/$epic/f/$code'
-    | '/$epic/m/$id'
+    | '/$epic/{-$date}'
+    | '/$epic/{-$date}/attention'
+    | '/$epic/{-$date}/config'
+    | '/$epic/{-$date}/people'
+    | '/$epic/{-$date}/reviews'
+    | '/$epic/{-$date}/scope'
+    | '/$epic/{-$date}/signoff'
+    | '/$epic/{-$date}/week'
+    | '/$epic/{-$date}/'
+    | '/$epic/{-$date}/f/$code'
+    | '/$epic/{-$date}/m/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/$epic/$date/attention'
-    | '/$epic/$date/config'
-    | '/$epic/$date/people'
-    | '/$epic/$date/reviews'
-    | '/$epic/$date/scope'
-    | '/$epic/$date/signoff'
-    | '/$epic/$date/week'
-    | '/$epic/attention'
-    | '/$epic/config'
-    | '/$epic/people'
-    | '/$epic/reviews'
-    | '/$epic/scope'
-    | '/$epic/signoff'
-    | '/$epic/week'
-    | '/$epic/$date'
-    | '/$epic'
-    | '/$epic/$date/f/$code'
-    | '/$epic/$date/m/$id'
-    | '/$epic/f/$code'
-    | '/$epic/m/$id'
+    | '/$epic/{-$date}/attention'
+    | '/$epic/{-$date}/config'
+    | '/$epic/{-$date}/people'
+    | '/$epic/{-$date}/reviews'
+    | '/$epic/{-$date}/scope'
+    | '/$epic/{-$date}/signoff'
+    | '/$epic/{-$date}/week'
+    | '/$epic/{-$date}'
+    | '/$epic/{-$date}/f/$code'
+    | '/$epic/{-$date}/m/$id'
   id:
     | '__root__'
     | '/'
-    | '/$epic/$date'
-    | '/$epic/_shell'
-    | '/$epic/$date/attention'
-    | '/$epic/$date/config'
-    | '/$epic/$date/people'
-    | '/$epic/$date/reviews'
-    | '/$epic/$date/scope'
-    | '/$epic/$date/signoff'
-    | '/$epic/$date/week'
-    | '/$epic/_shell/attention'
-    | '/$epic/_shell/config'
-    | '/$epic/_shell/people'
-    | '/$epic/_shell/reviews'
-    | '/$epic/_shell/scope'
-    | '/$epic/_shell/signoff'
-    | '/$epic/_shell/week'
-    | '/$epic/$date/'
-    | '/$epic/_shell/'
-    | '/$epic/$date/f/$code'
-    | '/$epic/$date/m/$id'
-    | '/$epic/_shell/f/$code'
-    | '/$epic/_shell/m/$id'
+    | '/$epic/{-$date}'
+    | '/$epic/{-$date}/attention'
+    | '/$epic/{-$date}/config'
+    | '/$epic/{-$date}/people'
+    | '/$epic/{-$date}/reviews'
+    | '/$epic/{-$date}/scope'
+    | '/$epic/{-$date}/signoff'
+    | '/$epic/{-$date}/week'
+    | '/$epic/{-$date}/'
+    | '/$epic/{-$date}/f/$code'
+    | '/$epic/{-$date}/m/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  EpicDateRoute: typeof EpicDateRouteWithChildren
-  EpicShellRoute: typeof EpicShellRouteWithChildren
+  EpicChar123DateChar125Route: typeof EpicChar123DateChar125RouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -314,227 +193,121 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$epic/$date': {
-      id: '/$epic/$date'
-      path: '/$epic/$date'
-      fullPath: '/$epic/$date'
-      preLoaderRoute: typeof EpicDateRouteImport
+    '/$epic/{-$date}': {
+      id: '/$epic/{-$date}'
+      path: '/$epic/{-$date}'
+      fullPath: '/$epic/{-$date}'
+      preLoaderRoute: typeof EpicChar123DateChar125RouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$epic/_shell': {
-      id: '/$epic/_shell'
-      path: '/$epic'
-      fullPath: '/$epic'
-      preLoaderRoute: typeof EpicShellRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/$epic/$date/': {
-      id: '/$epic/$date/'
+    '/$epic/{-$date}/': {
+      id: '/$epic/{-$date}/'
       path: '/'
-      fullPath: '/$epic/$date/'
-      preLoaderRoute: typeof EpicDateIndexRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/'
+      preLoaderRoute: typeof EpicChar123DateChar125IndexRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/attention': {
-      id: '/$epic/$date/attention'
+    '/$epic/{-$date}/attention': {
+      id: '/$epic/{-$date}/attention'
       path: '/attention'
-      fullPath: '/$epic/$date/attention'
-      preLoaderRoute: typeof EpicDateAttentionRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/attention'
+      preLoaderRoute: typeof EpicChar123DateChar125AttentionRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/config': {
-      id: '/$epic/$date/config'
+    '/$epic/{-$date}/config': {
+      id: '/$epic/{-$date}/config'
       path: '/config'
-      fullPath: '/$epic/$date/config'
-      preLoaderRoute: typeof EpicDateConfigRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/config'
+      preLoaderRoute: typeof EpicChar123DateChar125ConfigRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/people': {
-      id: '/$epic/$date/people'
+    '/$epic/{-$date}/people': {
+      id: '/$epic/{-$date}/people'
       path: '/people'
-      fullPath: '/$epic/$date/people'
-      preLoaderRoute: typeof EpicDatePeopleRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/people'
+      preLoaderRoute: typeof EpicChar123DateChar125PeopleRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/reviews': {
-      id: '/$epic/$date/reviews'
+    '/$epic/{-$date}/reviews': {
+      id: '/$epic/{-$date}/reviews'
       path: '/reviews'
-      fullPath: '/$epic/$date/reviews'
-      preLoaderRoute: typeof EpicDateReviewsRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/reviews'
+      preLoaderRoute: typeof EpicChar123DateChar125ReviewsRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/scope': {
-      id: '/$epic/$date/scope'
+    '/$epic/{-$date}/scope': {
+      id: '/$epic/{-$date}/scope'
       path: '/scope'
-      fullPath: '/$epic/$date/scope'
-      preLoaderRoute: typeof EpicDateScopeRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/scope'
+      preLoaderRoute: typeof EpicChar123DateChar125ScopeRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/signoff': {
-      id: '/$epic/$date/signoff'
+    '/$epic/{-$date}/signoff': {
+      id: '/$epic/{-$date}/signoff'
       path: '/signoff'
-      fullPath: '/$epic/$date/signoff'
-      preLoaderRoute: typeof EpicDateSignoffRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/signoff'
+      preLoaderRoute: typeof EpicChar123DateChar125SignoffRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/week': {
-      id: '/$epic/$date/week'
+    '/$epic/{-$date}/week': {
+      id: '/$epic/{-$date}/week'
       path: '/week'
-      fullPath: '/$epic/$date/week'
-      preLoaderRoute: typeof EpicDateWeekRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/week'
+      preLoaderRoute: typeof EpicChar123DateChar125WeekRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/_shell/': {
-      id: '/$epic/_shell/'
-      path: '/'
-      fullPath: '/$epic/'
-      preLoaderRoute: typeof EpicShellIndexRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/attention': {
-      id: '/$epic/_shell/attention'
-      path: '/attention'
-      fullPath: '/$epic/attention'
-      preLoaderRoute: typeof EpicShellAttentionRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/config': {
-      id: '/$epic/_shell/config'
-      path: '/config'
-      fullPath: '/$epic/config'
-      preLoaderRoute: typeof EpicShellConfigRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/people': {
-      id: '/$epic/_shell/people'
-      path: '/people'
-      fullPath: '/$epic/people'
-      preLoaderRoute: typeof EpicShellPeopleRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/reviews': {
-      id: '/$epic/_shell/reviews'
-      path: '/reviews'
-      fullPath: '/$epic/reviews'
-      preLoaderRoute: typeof EpicShellReviewsRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/scope': {
-      id: '/$epic/_shell/scope'
-      path: '/scope'
-      fullPath: '/$epic/scope'
-      preLoaderRoute: typeof EpicShellScopeRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/signoff': {
-      id: '/$epic/_shell/signoff'
-      path: '/signoff'
-      fullPath: '/$epic/signoff'
-      preLoaderRoute: typeof EpicShellSignoffRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/week': {
-      id: '/$epic/_shell/week'
-      path: '/week'
-      fullPath: '/$epic/week'
-      preLoaderRoute: typeof EpicShellWeekRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/$date/f/$code': {
-      id: '/$epic/$date/f/$code'
+    '/$epic/{-$date}/f/$code': {
+      id: '/$epic/{-$date}/f/$code'
       path: '/f/$code'
-      fullPath: '/$epic/$date/f/$code'
-      preLoaderRoute: typeof EpicDateFCodeRouteImport
-      parentRoute: typeof EpicDateRoute
+      fullPath: '/$epic/{-$date}/f/$code'
+      preLoaderRoute: typeof EpicChar123DateChar125FCodeRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
-    '/$epic/$date/m/$id': {
-      id: '/$epic/$date/m/$id'
+    '/$epic/{-$date}/m/$id': {
+      id: '/$epic/{-$date}/m/$id'
       path: '/m/$id'
-      fullPath: '/$epic/$date/m/$id'
-      preLoaderRoute: typeof EpicDateMIdRouteImport
-      parentRoute: typeof EpicDateRoute
-    }
-    '/$epic/_shell/f/$code': {
-      id: '/$epic/_shell/f/$code'
-      path: '/f/$code'
-      fullPath: '/$epic/f/$code'
-      preLoaderRoute: typeof EpicShellFCodeRouteImport
-      parentRoute: typeof EpicShellRoute
-    }
-    '/$epic/_shell/m/$id': {
-      id: '/$epic/_shell/m/$id'
-      path: '/m/$id'
-      fullPath: '/$epic/m/$id'
-      preLoaderRoute: typeof EpicShellMIdRouteImport
-      parentRoute: typeof EpicShellRoute
+      fullPath: '/$epic/{-$date}/m/$id'
+      preLoaderRoute: typeof EpicChar123DateChar125MIdRouteImport
+      parentRoute: typeof EpicChar123DateChar125Route
     }
   }
 }
 
-interface EpicDateRouteChildren {
-  EpicDateAttentionRoute: typeof EpicDateAttentionRoute
-  EpicDateConfigRoute: typeof EpicDateConfigRoute
-  EpicDatePeopleRoute: typeof EpicDatePeopleRoute
-  EpicDateReviewsRoute: typeof EpicDateReviewsRoute
-  EpicDateScopeRoute: typeof EpicDateScopeRoute
-  EpicDateSignoffRoute: typeof EpicDateSignoffRoute
-  EpicDateWeekRoute: typeof EpicDateWeekRoute
-  EpicDateIndexRoute: typeof EpicDateIndexRoute
-  EpicDateFCodeRoute: typeof EpicDateFCodeRoute
-  EpicDateMIdRoute: typeof EpicDateMIdRoute
+interface EpicChar123DateChar125RouteChildren {
+  EpicChar123DateChar125AttentionRoute: typeof EpicChar123DateChar125AttentionRoute
+  EpicChar123DateChar125ConfigRoute: typeof EpicChar123DateChar125ConfigRoute
+  EpicChar123DateChar125PeopleRoute: typeof EpicChar123DateChar125PeopleRoute
+  EpicChar123DateChar125ReviewsRoute: typeof EpicChar123DateChar125ReviewsRoute
+  EpicChar123DateChar125ScopeRoute: typeof EpicChar123DateChar125ScopeRoute
+  EpicChar123DateChar125SignoffRoute: typeof EpicChar123DateChar125SignoffRoute
+  EpicChar123DateChar125WeekRoute: typeof EpicChar123DateChar125WeekRoute
+  EpicChar123DateChar125IndexRoute: typeof EpicChar123DateChar125IndexRoute
+  EpicChar123DateChar125FCodeRoute: typeof EpicChar123DateChar125FCodeRoute
+  EpicChar123DateChar125MIdRoute: typeof EpicChar123DateChar125MIdRoute
 }
 
-const EpicDateRouteChildren: EpicDateRouteChildren = {
-  EpicDateAttentionRoute: EpicDateAttentionRoute,
-  EpicDateConfigRoute: EpicDateConfigRoute,
-  EpicDatePeopleRoute: EpicDatePeopleRoute,
-  EpicDateReviewsRoute: EpicDateReviewsRoute,
-  EpicDateScopeRoute: EpicDateScopeRoute,
-  EpicDateSignoffRoute: EpicDateSignoffRoute,
-  EpicDateWeekRoute: EpicDateWeekRoute,
-  EpicDateIndexRoute: EpicDateIndexRoute,
-  EpicDateFCodeRoute: EpicDateFCodeRoute,
-  EpicDateMIdRoute: EpicDateMIdRoute,
-}
+const EpicChar123DateChar125RouteChildren: EpicChar123DateChar125RouteChildren =
+  {
+    EpicChar123DateChar125AttentionRoute: EpicChar123DateChar125AttentionRoute,
+    EpicChar123DateChar125ConfigRoute: EpicChar123DateChar125ConfigRoute,
+    EpicChar123DateChar125PeopleRoute: EpicChar123DateChar125PeopleRoute,
+    EpicChar123DateChar125ReviewsRoute: EpicChar123DateChar125ReviewsRoute,
+    EpicChar123DateChar125ScopeRoute: EpicChar123DateChar125ScopeRoute,
+    EpicChar123DateChar125SignoffRoute: EpicChar123DateChar125SignoffRoute,
+    EpicChar123DateChar125WeekRoute: EpicChar123DateChar125WeekRoute,
+    EpicChar123DateChar125IndexRoute: EpicChar123DateChar125IndexRoute,
+    EpicChar123DateChar125FCodeRoute: EpicChar123DateChar125FCodeRoute,
+    EpicChar123DateChar125MIdRoute: EpicChar123DateChar125MIdRoute,
+  }
 
-const EpicDateRouteWithChildren = EpicDateRoute._addFileChildren(
-  EpicDateRouteChildren,
-)
-
-interface EpicShellRouteChildren {
-  EpicShellAttentionRoute: typeof EpicShellAttentionRoute
-  EpicShellConfigRoute: typeof EpicShellConfigRoute
-  EpicShellPeopleRoute: typeof EpicShellPeopleRoute
-  EpicShellReviewsRoute: typeof EpicShellReviewsRoute
-  EpicShellScopeRoute: typeof EpicShellScopeRoute
-  EpicShellSignoffRoute: typeof EpicShellSignoffRoute
-  EpicShellWeekRoute: typeof EpicShellWeekRoute
-  EpicShellIndexRoute: typeof EpicShellIndexRoute
-  EpicShellFCodeRoute: typeof EpicShellFCodeRoute
-  EpicShellMIdRoute: typeof EpicShellMIdRoute
-}
-
-const EpicShellRouteChildren: EpicShellRouteChildren = {
-  EpicShellAttentionRoute: EpicShellAttentionRoute,
-  EpicShellConfigRoute: EpicShellConfigRoute,
-  EpicShellPeopleRoute: EpicShellPeopleRoute,
-  EpicShellReviewsRoute: EpicShellReviewsRoute,
-  EpicShellScopeRoute: EpicShellScopeRoute,
-  EpicShellSignoffRoute: EpicShellSignoffRoute,
-  EpicShellWeekRoute: EpicShellWeekRoute,
-  EpicShellIndexRoute: EpicShellIndexRoute,
-  EpicShellFCodeRoute: EpicShellFCodeRoute,
-  EpicShellMIdRoute: EpicShellMIdRoute,
-}
-
-const EpicShellRouteWithChildren = EpicShellRoute._addFileChildren(
-  EpicShellRouteChildren,
-)
+const EpicChar123DateChar125RouteWithChildren =
+  EpicChar123DateChar125Route._addFileChildren(
+    EpicChar123DateChar125RouteChildren,
+  )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  EpicDateRoute: EpicDateRouteWithChildren,
-  EpicShellRoute: EpicShellRouteWithChildren,
+  EpicChar123DateChar125Route: EpicChar123DateChar125RouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

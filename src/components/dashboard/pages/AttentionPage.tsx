@@ -149,9 +149,10 @@ function AttentionCard({ feature, asOf }: { feature: FeatureT; asOf: Date }) {
         <div className="ml-auto flex shrink-0 items-center gap-2.5">
           {/* The internal link to this app's own feature page, shown as
               the ticket key (not the code, which is already in the title
-              above) — mirrors ReviewsPage's secondary ShellLink and
-              FeatureCard's CardTitleRow, which both show the key
-              separately from an already-coded title. */}
+              above) — same placement as ReviewsPage's secondary ShellLink:
+              a monospace identifier pushed to the right of an outward Jira
+              link, carrying whichever of the two the title doesn't already
+              say. */}
           <ShellLink
             page="feature"
             code={featureSlug(feature.code)}

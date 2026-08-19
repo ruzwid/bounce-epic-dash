@@ -39,11 +39,14 @@ const FILTERS: { id: StoryFilter; label: string; match: (s: StoryT) => boolean }
 ]
 
 export function FeaturePage({ feature }: { feature: FeatureT }) {
-  const { previous } = useShell()
+  const { previousSummary } = useShell()
   const [filter, setFilter] = useState<StoryFilter>("all")
 
-  const previousFeature = previous?.features.find((f) => f.key === feature.key) ?? null
-  const scoreDelta = previousFeature ? feature.score - previousFeature.score : null
+  // Keyed by JIRA key rather than found by array position — features
+  // reorder between days, and a feature that wasn't in the previous
+  // snapshot at all has no delta rather than a wrong one.
+  const previousScore = previousSummary?.scoreByFeature[feature.key] ?? null
+  const scoreDelta = previousScore === null ? null : feature.score - previousScore
   const openPrCount = featurePrs(feature).filter((pr) => pr.state === "OPEN").length
   const acCovered = feature.acCoverage.filter((ac) => ac.coverage === "covered").length
   const gaps = feature.acCoverage.filter((ac) => ac.coverage === "no_signal")
@@ -95,7 +98,7 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
           <div className="font-display font-mono-data text-[44px] leading-none">
             {feature.dataOk ? `${feature.score}%` : "—"}
           </div>
-          <ScoreDelta delta={scoreDelta} from={previousFeature?.score ?? null} to={feature.score} />
+          <ScoreDelta delta={scoreDelta} from={previousScore} to={feature.score} />
         </div>
       </header>
 
@@ -136,8 +139,8 @@ export function FeaturePage({ feature }: { feature: FeatureT }) {
 
       {feature.callouts.length > 0 || feature.override || feature.releaseGate ? (
         <section className="flex flex-col gap-2">
-          {feature.callouts.map((callout, i) => (
-            <Callout key={i} callout={callout} />
+          {feature.callouts.map((callout) => (
+            <Callout key={`${callout.type}-${callout.message}`} callout={callout} />
           ))}
           <ReleaseGateLine releaseGate={feature.releaseGate} />
           {feature.override ? <OverrideNote override={feature.override} /> : null}

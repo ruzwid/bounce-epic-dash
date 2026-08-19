@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react"
 import type { z } from "zod"
 import type { StatusSnapshot as StatusSnapshotSchema } from "@/lib/schema"
-import type { HistoryPoint } from "@/lib/dashboard/snapshots"
+import type { PreviousSummary } from "@/lib/dashboard/snapshots"
 import type { DashboardSearch } from "@/lib/dashboard/search"
 
 type StatusSnapshotT = z.infer<typeof StatusSnapshotSchema>
@@ -13,8 +13,16 @@ export type ShellValue = {
    *  ShellLink builds needs it, and it exists before a snapshot does. */
   epic: string
   snapshot: StatusSnapshotT
-  previous: StatusSnapshotT | null
-  history: HistoryPoint[]
+  /** The deltas the shell chrome shows against the previous snapshot —
+   *  the header's percentage change, and each feature's score then — and
+   *  nothing else. Null on an epic's first snapshot.
+   *
+   *  Deliberately a summary rather than the snapshot itself: this object
+   *  is serialised into all eleven prerendered pages under the shell, and
+   *  the previous snapshot in full was ~120KB of pull requests, acceptance
+   *  criteria and judge rationale that nothing outside the Today page ever
+   *  read. Today loads it properly, from its own route loader. */
+  previousSummary: PreviousSummary | null
   /** null on the "latest" routes, the YYYY-MM-DD segment on dated ones.
    *  Every link in the shell branches on this so a reader browsing an old
    *  snapshot stays inside that snapshot as they navigate. */

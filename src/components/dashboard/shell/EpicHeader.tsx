@@ -7,6 +7,15 @@ import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
 import { Button } from "@/components/ui/button"
 import { useShell } from "./ShellContext"
 
+const WEEKDAY_FORMATTER = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" })
+const DAY_TIME_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "UTC",
+})
+
 /**
  * The one piece of chrome that stays put on every page: where the epic
  * stands right now. It leads with the weighted completion figure because
@@ -15,15 +24,17 @@ import { useShell } from "./ShellContext"
  * never be read as "40% of the work is live" when half of it is staged.
  */
 export function EpicHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
-  const { epic, snapshot, previous } = useShell()
+  const { epic, snapshot, previousSummary } = useShell()
   const [copied, setCopied] = useState(false)
 
   // Falls back to config.yaml's current target for snapshots collected
   // before one was set — see resolveTargetDate.
   const targetDate = resolveTargetDate(snapshot)
   const progress = epicProgress(epic, snapshot.features)
-  const previousPercent = previous ? epicProgress(epic, previous.features).percent : null
-  const delta = previousPercent === null ? null : progress.percent - previousPercent
+  // Computed in the loader, not here: the only input is the previous
+  // snapshot's features, and keeping them around client-side to derive
+  // one integer is what made every page carry a second snapshot.
+  const delta = previousSummary ? progress.percent - previousSummary.percent : null
 
   async function copySlackSummary() {
     await navigator.clipboard.writeText(buildSlackSummary(snapshot))
@@ -179,13 +190,7 @@ function SegmentedProgress({ progress }: { progress: ReturnType<typeof epicProgr
  *  comma before the time. */
 function formatGeneratedAt(generatedAt: string): string {
   const date = new Date(generatedAt)
-  const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" }).format(date)
-  const rest = new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-  }).format(date)
+  const weekday = WEEKDAY_FORMATTER.format(date)
+  const rest = DAY_TIME_FORMATTER.format(date)
   return `${weekday}, ${rest}`
 }

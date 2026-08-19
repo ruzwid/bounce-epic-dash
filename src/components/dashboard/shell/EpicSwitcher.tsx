@@ -60,7 +60,7 @@ export function EpicSwitcher() {
             key={slug}
             className="pr-8"
             render={
-              <Link to="/$epic" params={{ epic: slug }}>
+              <Link to="/$epic/{-$date}" params={{ epic: slug }}>
                 {epicTitle(slug)}
                 {slug === epic ? (
                   <Check aria-hidden="true" className="absolute right-2.5 size-3.5 shrink-0" />

@@ -1,5 +1,9 @@
 import { ChevronRight } from "lucide-react"
-import { configSource, loadAppConfig } from "@/lib/dashboard/appConfig"
+import { loadAppConfig } from "@/lib/dashboard/appConfig"
+// Imported here and nowhere else, which is the point: the raw YAML of
+// every epic is ~15KB and this is the only page that prints it, so it
+// code-splits with this page instead of loading on all eleven.
+import { appConfigSources } from "virtual:app-config/sources"
 import { useShell } from "../shell/ShellContext"
 import { WORK_STATUS_LABELS } from "@/lib/dashboard/statusLabels"
 import { SectionHeading } from "../SectionHeading"
@@ -154,7 +158,7 @@ export function ConfigPage() {
           View epics/{epic}/config.yaml as written
         </summary>
         <pre className="surface mt-3 overflow-x-auto rounded-4xl border border-border bg-card p-5 text-xs leading-relaxed">
-          <code>{configSource(epic)}</code>
+          <code>{appConfigSources[epic] ?? ""}</code>
         </pre>
       </details>
     </div>

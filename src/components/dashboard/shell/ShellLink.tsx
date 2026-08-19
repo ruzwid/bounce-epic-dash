@@ -34,14 +34,25 @@ type ShellLinkProps = {
 }
 
 /**
- * One link component for the whole shell, so no caller has to know whether
- * it is rendering inside the latest-snapshot route tree or a dated one.
+ * One link component for the whole shell.
+ *
+ * Every route lives under `/$epic/{-$date}`, whose date segment is
+ * optional, so "which snapshot am I browsing" is carried entirely by one
+ * param: `date: undefined` is the latest page and `date: "2026-08-17"` is
+ * that day's. Passing the shell's own date straight through is what keeps
+ * a reader inside the snapshot they're reading as they navigate — before
+ * the two route trees were merged, this file said all of it twice, once
+ * per tree, and the two halves had to be kept in step by hand.
+ *
  * The branches are written out rather than computed because TanStack's
  * `to` is a literal union — building the path as a template string would
  * throw away the type checking that makes a typo a build error.
  */
 export function ShellLink({ page, code, id, className, activeProps, search, title, children }: ShellLinkProps) {
-  const { epic, date } = useShell()
+  const { epic, date: shellDate } = useShell()
+  // The shell stores "latest" as null; the router wants the param absent.
+  const date = shellDate ?? undefined
+
   const shared = {
     className,
     activeProps,
@@ -54,129 +65,64 @@ export function ShellLink({ page, code, id, className, activeProps, search, titl
     ...(search ? { search: (prev: Record<string, unknown>) => ({ ...prev, ...search }) as DashboardSearch } : {}),
   }
 
-  if (date !== null) {
-    switch (page) {
-      case "today":
-        return (
-          <Link to="/$epic/$date" params={{ epic, date }} activeOptions={{ exact: true }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "attention":
-        return (
-          <Link to="/$epic/$date/attention" params={{ epic, date }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "reviews":
-        return (
-          <Link to="/$epic/$date/reviews" params={{ epic, date }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "week":
-        return (
-          <Link to="/$epic/$date/week" params={{ epic, date }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "people":
-        return (
-          <Link to="/$epic/$date/people" params={{ epic, date }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "signoff":
-        return (
-          <Link to="/$epic/$date/signoff" params={{ epic, date }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "scope":
-        return (
-          <Link to="/$epic/$date/scope" params={{ epic, date }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "config":
-        return (
-          <Link to="/$epic/$date/config" params={{ epic, date }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "feature":
-        return (
-          <Link to="/$epic/$date/f/$code" params={{ epic, date, code: code! }} {...shared}>
-            {children}
-          </Link>
-        )
-      case "milestone":
-        return (
-          <Link to="/$epic/$date/m/$id" params={{ epic, date, id: id! }} {...shared}>
-            {children}
-          </Link>
-        )
-    }
-  }
-
   switch (page) {
     case "today":
       return (
-        <Link to="/$epic" params={{ epic }} activeOptions={{ exact: true }} {...shared}>
+        <Link to="/$epic/{-$date}" params={{ epic, date }} activeOptions={{ exact: true }} {...shared}>
           {children}
         </Link>
       )
     case "attention":
       return (
-        <Link to="/$epic/attention" params={{ epic }} {...shared}>
+        <Link to="/$epic/{-$date}/attention" params={{ epic, date }} {...shared}>
           {children}
         </Link>
       )
     case "reviews":
       return (
-        <Link to="/$epic/reviews" params={{ epic }} {...shared}>
+        <Link to="/$epic/{-$date}/reviews" params={{ epic, date }} {...shared}>
           {children}
         </Link>
       )
     case "week":
       return (
-        <Link to="/$epic/week" params={{ epic }} {...shared}>
+        <Link to="/$epic/{-$date}/week" params={{ epic, date }} {...shared}>
           {children}
         </Link>
       )
     case "people":
       return (
-        <Link to="/$epic/people" params={{ epic }} {...shared}>
+        <Link to="/$epic/{-$date}/people" params={{ epic, date }} {...shared}>
           {children}
         </Link>
       )
     case "signoff":
       return (
-        <Link to="/$epic/signoff" params={{ epic }} {...shared}>
+        <Link to="/$epic/{-$date}/signoff" params={{ epic, date }} {...shared}>
           {children}
         </Link>
       )
     case "scope":
       return (
-        <Link to="/$epic/scope" params={{ epic }} {...shared}>
+        <Link to="/$epic/{-$date}/scope" params={{ epic, date }} {...shared}>
           {children}
         </Link>
       )
     case "config":
       return (
-        <Link to="/$epic/config" params={{ epic }} {...shared}>
+        <Link to="/$epic/{-$date}/config" params={{ epic, date }} {...shared}>
           {children}
         </Link>
       )
     case "feature":
       return (
-        <Link to="/$epic/f/$code" params={{ epic, code: code! }} {...shared}>
+        <Link to="/$epic/{-$date}/f/$code" params={{ epic, date, code: code! }} {...shared}>
           {children}
         </Link>
       )
     case "milestone":
       return (
-        <Link to="/$epic/m/$id" params={{ epic, id: id! }} {...shared}>
+        <Link to="/$epic/{-$date}/m/$id" params={{ epic, date, id: id! }} {...shared}>
           {children}
         </Link>
       )

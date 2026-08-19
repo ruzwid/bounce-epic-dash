@@ -39,11 +39,11 @@ export function AttentionReasonList({
 
   return (
     <ul className={cn("m-0 flex list-none flex-col gap-1.5 p-0", className)}>
-      {reasons.map((reason, i) => {
+      {reasons.map((reason) => {
         const Icon = REASON_ICON[reason.kind]
         return (
           <li
-            key={i}
+            key={`${reason.kind}-${reason.detail}`}
             className={cn("flex items-start gap-2.5 leading-relaxed", compact ? "text-xs" : "text-[13.5px]")}
           >
             <span

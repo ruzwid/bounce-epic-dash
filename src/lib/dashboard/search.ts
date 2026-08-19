@@ -1,29 +1,68 @@
 // src/lib/dashboard/search.ts
 // Filter state lives entirely in the URL (goal: "Filters are URL state").
-// The zod schema below is passed directly to each route's validateSearch —
-// no @tanstack/zod-adapter needed, since we're not using its zodValidator()
-// helper (that's the thing that breaks .catch() type inference; a raw
-// schema passed straight to validateSearch keeps it).
-import { z } from "zod";
+// The validator below is passed directly to the shell route's
+// validateSearch.
+import type { z } from "zod";
+import type { SearchSchemaInput } from "@tanstack/react-router";
 import type { Feature as FeatureSchema, StatusSnapshot as StatusSnapshotSchema } from "../schema.ts";
 import { configMilestones } from "./appConfig.ts";
 import { storyPrs } from "../stories.ts";
 
-export const dashboardSearchSchema = z.object({
-  // "all", or a sidebar group slug ("m1", or "m3-m4" for milestones that
-  // share a `group` in their epic's config). Deliberately an open string
-  // rather than the enum this used to be: the valid values are whatever
-  // the *current epic's* milestones are, which a schema shared by every
-  // route can't enumerate. An unrecognised value matches nothing, so a
-  // stale link from another epic shows an empty list rather than silently
-  // falling back to unfiltered.
-  milestone: z.string().default("all").catch("all"),
-  engineer: z.string().nullable().default(null),
-  needsAttention: z.boolean().default(false),
-  q: z.string().default(""),
-});
+export type DashboardSearch = {
+  /** "all", or a sidebar group slug ("m1", or "m3-m4" for milestones that
+   *  share a `group` in their epic's config). Deliberately an open string
+   *  rather than an enum: the valid values are whatever the *current
+   *  epic's* milestones are, which a validator shared by every route can't
+   *  enumerate. An unrecognised value matches nothing, so a stale link
+   *  from another epic shows an empty list rather than silently falling
+   *  back to unfiltered. */
+  milestone: string;
+  engineer: string | null;
+  needsAttention: boolean;
+  q: string;
+};
 
-export type DashboardSearch = z.infer<typeof dashboardSearchSchema>;
+/**
+ * URL search params → the filter state, for the shell route's
+ * validateSearch.
+ *
+ * Hand-written rather than a zod object. Search params are the one input
+ * on this site that genuinely is untrusted — anyone can type anything into
+ * an address bar — so validating them is not optional, but four fields of
+ * it does not justify the ~75KB that shipping zod to the browser costs,
+ * and this is the last thing that was asking for it. (The two other
+ * runtime uses of the schemas are gone: configs are validated at build
+ * time, snapshots when they're written and in CI.)
+ *
+ * Every field falls back rather than throwing. A hand-edited or
+ * stale-shaped URL should show the dashboard unfiltered, which is a state
+ * the reader can see and correct, not an error page.
+ *
+ * The parameter type is load-bearing and not merely descriptive. TanStack
+ * reads a validator's *input* type to decide what a `<Link>` must pass,
+ * and for a plain function it only looks there if that type carries the
+ * `SearchSchemaInput` marker — otherwise it falls back to the return type,
+ * whose four fields are all required, and every link in the app has to
+ * spell out all four filters. `Partial<…> & SearchSchemaInput` is how a
+ * function says what the zod version said with `.default()` on each field:
+ * callers may pass any subset, including none.
+ *
+ * What actually arrives at runtime is whatever was in the URL, so the body
+ * still treats every field as unknown — the annotation is a contract for
+ * callers building links, not a promise about the address bar.
+ */
+export function dashboardSearchSchema(input: Partial<DashboardSearch> & SearchSchemaInput): DashboardSearch {
+  const raw = input as Record<string, unknown>;
+  return {
+    milestone: typeof raw.milestone === "string" ? raw.milestone : "all",
+    engineer: typeof raw.engineer === "string" ? raw.engineer : null,
+    // The router's parser turns "?needsAttention=true" into a real boolean,
+    // but a hand-typed URL can leave it a string; both mean the same thing
+    // to a reader and are read the same way here.
+    needsAttention: raw.needsAttention === true || raw.needsAttention === "true",
+    q: typeof raw.q === "string" ? raw.q : "",
+  };
+}
 
 /** The value each filter takes when nothing is filtered.
  *
