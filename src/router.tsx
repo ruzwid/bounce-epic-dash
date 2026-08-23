@@ -7,6 +7,7 @@ import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query
 import TanstackQueryProvider, {
   getContext,
 } from './integrations/tanstack-query/root-provider'
+import { RouteError } from './components/dashboard/RouteError'
 
 export function getRouter() {
   const context = getContext()
@@ -16,6 +17,10 @@ export function getRouter() {
     context,
     scrollRestoration: true,
     defaultPreload: 'intent',
+    // Every route inherits this instead of the router's stock error box.
+    // Nothing here defines its own errorComponent, and a loader *can*
+    // throw in front of a reader — see the note in RouteError.
+    defaultErrorComponent: RouteError,
     // Loader results never go stale within a build. Every one of them reads
     // a committed JSON snapshot through import.meta.glob — there is no
     // server to ask and nothing that can change until the next deploy, at

@@ -17,14 +17,17 @@ export function StaleBanner({ generatedAt, now }: StaleBannerProps) {
   const ageHours = Math.floor((now.getTime() - new Date(generatedAt).getTime()) / (1000 * 60 * 60))
 
   return (
-    <Callout
-      callout={{
-        type: "drift",
-        severity: "risk",
-        message: `This snapshot is ${ageHours}h old — data may be out of date.`,
-        refs: [],
-      }}
-      className="bg-muted/60 pr-3"
-    />
+    <div className="flex items-stretch gap-2">
+      <span aria-hidden="true" className="w-1 shrink-0 scale-y-75 rounded-full bg-[var(--status-blocked)]" />
+      <Callout
+        callout={{
+          type: "drift",
+          severity: "risk",
+          message: `This snapshot is ${ageHours}h old — data may be out of date.`,
+          refs: [],
+        }}
+        className="flex-1 rounded-lg border-l-0 bg-muted/60 px-3"
+      />
+    </div>
   )
 }

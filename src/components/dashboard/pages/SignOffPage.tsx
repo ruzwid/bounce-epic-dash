@@ -120,6 +120,17 @@ export function SignOffPage() {
   )
 }
 
+/** The four stages in flow order, and their hue from the status family —
+ *  module scope because neither depends on a render. */
+const PIPELINE_ORDER = ["building", "code_complete", "with_product", "signed_off"] as const
+
+const PIPELINE_COLORS: Record<(typeof PIPELINE_ORDER)[number], string> = {
+  building: "var(--status-in-progress)",
+  code_complete: "var(--status-staged)",
+  with_product: "var(--status-with-product)",
+  signed_off: "var(--status-shipped)",
+}
+
 /**
  * The signature element: the pipeline itself, as one bar of four
  * proportional segments in flow order.
@@ -131,14 +142,7 @@ export function SignOffPage() {
  * "code complete, not sent", and the shape says which without reading.
  */
 function Pipeline({ features }: { features: SignOffFeature[] }) {
-  const order = ["building", "code_complete", "with_product", "signed_off"] as const
-  const colors: Record<(typeof order)[number], string> = {
-    building: "var(--status-in-progress)",
-    code_complete: "var(--status-staged)",
-    with_product: "var(--status-with-product)",
-    signed_off: "var(--status-shipped)",
-  }
-  const counts = order.map((id) => ({
+  const counts = PIPELINE_ORDER.map((id) => ({
     id,
     title: SIGN_OFF_STAGES.find((s) => s.id === id)!.title,
     count: bySignOffStage(features, id).length,
@@ -153,13 +157,13 @@ function Pipeline({ features }: { features: SignOffFeature[] }) {
         aria-label={counts.map((c) => `${c.count} ${c.title.toLowerCase()}`).join(", ")}
       >
         {counts.map((c) => (
-          <span key={c.id} className="h-full" style={{ width: `${(c.count / total) * 100}%`, background: colors[c.id] }} />
+          <span key={c.id} className="h-full" style={{ width: `${(c.count / total) * 100}%`, background: PIPELINE_COLORS[c.id] }} />
         ))}
       </div>
       <ol className="m-0 flex list-none flex-wrap gap-x-6 gap-y-2 p-0">
         {counts.map((c) => (
           <li key={c.id} className="flex items-baseline gap-2">
-            <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ background: colors[c.id] }} />
+            <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ background: PIPELINE_COLORS[c.id] }} />
             <span className="font-mono-data text-[17px] leading-none">{c.count}</span>
             <span className="text-[11px] text-muted-foreground">{c.title.toLowerCase()}</span>
           </li>

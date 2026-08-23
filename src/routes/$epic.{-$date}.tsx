@@ -163,8 +163,17 @@ function ShellRoute() {
   const asOf = useMemo(() => new Date(snapshot?.generatedAt ?? 0), [snapshot?.generatedAt])
   // `to: '.'` keeps the reader on whichever child page they're on; filters
   // are URL state and must survive navigation between pages.
+  //
+  // `replace` because a filter is a view of this page, not a place you
+  // navigated to. Pushing meant every keystroke in the text filter left a
+  // history entry — typing "auth" took four presses of Back to undo and
+  // never got you off the page, which is a browser-level trap on the one
+  // control people touch most. Replacing keeps the URL shareable (the
+  // whole point of filters-as-URL-state) and leaves Back meaning "the page
+  // I came from".
   const onSearchChange = useCallback(
-    (updates: Partial<DashboardSearch>) => navigate({ to: '.', search: (prev) => ({ ...prev, ...updates }) }),
+    (updates: Partial<DashboardSearch>) =>
+      navigate({ to: '.', search: (prev) => ({ ...prev, ...updates }), replace: true }),
     [navigate],
   )
 

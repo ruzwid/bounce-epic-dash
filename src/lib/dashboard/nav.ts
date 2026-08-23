@@ -102,8 +102,12 @@ export type SidebarGroup = {
  * Empty groups are dropped rather than rendered.
  */
 export function sidebarGroups(snapshot: StatusSnapshotT): SidebarGroup[] {
-  const featuresFor = (ids: readonly string[]) =>
-    snapshot.features.filter((f) => ids.includes(f.milestone));
+  const featuresFor = (ids: readonly string[]) => {
+    // A Set rather than ids.includes(): this runs once per group per render
+    // of the sidebar, which is every page and every filter change.
+    const wanted = new Set(ids);
+    return snapshot.features.filter((f) => wanted.has(f.milestone));
+  };
 
   if (snapshot.milestones.length > 0) {
     const groups: SidebarGroup[] = [];

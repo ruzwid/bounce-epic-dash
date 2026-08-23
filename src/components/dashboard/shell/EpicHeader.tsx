@@ -168,7 +168,12 @@ function SegmentedProgress({ progress }: { progress: ReturnType<typeof epicProgr
       {SEGMENTS.map((segment) => (
         <span
           key={segment.key}
-          className="h-full transition-[width] duration-500 ease-[var(--ease-out)]"
+          // Width, not the transform ScoreBar animates: these four segments
+          // butt against each other on one flex track, so each one's size
+          // is what positions the next — there is no single fill to slide.
+          // 250ms is the sub-300ms budget for UI motion; this only animates
+          // on a change of date or epic.
+          className="h-full transition-[width] duration-[250ms] ease-[var(--ease-out)]"
           style={{ width: `${progress[segment.key]}%`, background: segment.color }}
         />
       ))}

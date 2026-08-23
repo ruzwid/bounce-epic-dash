@@ -186,6 +186,11 @@
 
 * {
   box-sizing: border-box;
+  /* Thin, neutral scrollbars on every scroll container — not just the root —
+     since `scrollbar-width` doesn't inherit. `transparent` for the track so
+     the gutter reads as part of the surface it sits on. */
+  scrollbar-width: thin;
+  scrollbar-color: gray transparent;
 }
 
 html,
@@ -215,14 +220,71 @@ html {
   }
 }
 
+/* Every <details> in the app — sidebar milestone groups, story cards, the
+   config page — animates open instead of jumping. The chevron beside each
+   summary already rotates over 200ms, so the panel appearing in one frame
+   was the half of that gesture that wasn't animated.
+
+   Progressive enhancement, same shape as the squircle rule above: the
+   @supports pair gates on both halves of the recipe (auto height needs
+   interpolate-size, the pseudo-element needs to exist), so a browser
+   without them keeps today's instant open. `overflow: clip` rather than
+   hidden, with a margin, so a focus ring on the last row in a panel isn't
+   shaved off by the clip edge. */
+@supports (interpolate-size: allow-keywords) and selector(details::details-content) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  details::details-content {
+    block-size: 0;
+    overflow: clip;
+    overflow-clip-margin: 4px;
+    transition: block-size 200ms var(--ease-out), content-visibility 200ms var(--ease-out);
+    transition-behavior: allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* Reduced motion means *fewer and gentler*, not none. What has to go is
+   movement: transforms, and the width of the progress bars. What should
+   stay is the colour and opacity feedback that tells you a row is hovered,
+   a nav item is active, or a press registered — none of it moves anything,
+   and removing it (which a blanket `transition-duration: 0.01ms` does)
+   makes the interface feel dead rather than calm.
+
+   So instead of killing every transition, this overrides
+   transition-property to the non-moving set — anything animating a
+   transform or a size simply isn't in the list, so it snaps.
+
+   The popovers are keyframes, not transitions (tw-animate-css's
+   `animate-in`), so they're handled the other way round: zeroing the
+   enter/exit offsets it interpolates from leaves the animation running at
+   its normal duration with nothing but opacity left to change, i.e. a
+   plain fade in place. --tw-*-opacity is deliberately not overridden. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    transition-property: opacity, color, background-color, border-color, text-decoration-color, box-shadow, fill,
+      stroke !important;
+    transition-duration: 150ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+
+    --tw-enter-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+    --tw-enter-scale: 1 !important;
+    --tw-enter-rotate: 0 !important;
+    --tw-enter-blur: 0 !important;
+    --tw-exit-translate-x: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-exit-scale: 1 !important;
+    --tw-exit-rotate: 0 !important;
+    --tw-exit-blur: 0 !important;
   }
 }
 
@@ -626,8 +688,4 @@ code {
     text-align: left;
     color: var(--muted-foreground);
   }
-}
-
-@view-transition {
-  navigation: auto;
 }

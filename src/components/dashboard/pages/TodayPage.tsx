@@ -276,16 +276,14 @@ function ScopeNote({
       : 0
   if ((!scope || scope.stories === 0) && sinceStart === 0) return null
 
-  const stories = (n: number) => `${Math.abs(n)} ${Math.abs(n) === 1 ? "story" : "stories"}`
-
   const parts: string[] = []
   if (scope && scope.stories !== 0) {
     parts.push(
-      `${scope.stories > 0 ? "grew by" : "shrank by"} ${stories(scope.stories)} ${sinceLabel ?? "since the previous snapshot"}`,
+      `${scope.stories > 0 ? "grew by" : "shrank by"} ${storyCount(scope.stories)} ${sinceLabel ?? "since the previous snapshot"}`,
     )
   }
   if (sinceStart !== 0 && historyStart) {
-    parts.push(`${sinceStart > 0 ? "up" : "down"} ${stories(sinceStart)} since ${historyStart.date}`)
+    parts.push(`${sinceStart > 0 ? "up" : "down"} ${storyCount(sinceStart)} since ${historyStart.date}`)
   }
 
   return (
@@ -293,6 +291,11 @@ function ScopeNote({
       Scope {parts.join(", ")}. Percentages move with the denominator, not only with work finishing.
     </p>
   )
+}
+
+/** "3 stories" / "1 story", sign-agnostic — the caller says grew/shrank. */
+function storyCount(n: number): string {
+  return `${Math.abs(n)} ${Math.abs(n) === 1 ? "story" : "stories"}`
 }
 
 function capitalize(text: string): string {

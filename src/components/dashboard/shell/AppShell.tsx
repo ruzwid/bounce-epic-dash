@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ShellProvider, type ShellValue } from "./ShellContext"
@@ -18,14 +18,32 @@ type AppShellProps = {
  */
 export function AppShell({ value, children }: AppShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const drawerRef = useRef<HTMLElement>(null)
+  const returnFocusRef = useRef<HTMLElement | null>(null)
 
+  // Escape closes it, and focus follows it in and back out again. Opening a
+  // drawer over the page without moving focus leaves a keyboard or screen
+  // reader user still on the hamburger, reading a page that is now behind an
+  // overlay; closing it without putting focus back leaves them at the top of
+  // the document. The `contains` check is what makes the restore safe: if
+  // focus has already moved somewhere outside the rail (the reader tabbed
+  // out, or the drawer is unmounting) nothing gets yanked.
   useEffect(() => {
     if (!drawerOpen) return
+    // Captured, not read again in the cleanup: a ref can point at a
+    // different node by the time cleanup runs.
+    const drawer = drawerRef.current
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    drawer?.focus()
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setDrawerOpen(false)
     }
     window.addEventListener("keydown", onKeyDown)
-    return () => window.removeEventListener("keydown", onKeyDown)
+    return () => {
+      window.removeEventListener("keydown", onKeyDown)
+      if (drawer?.contains(document.activeElement)) returnFocusRef.current?.focus()
+    }
   }, [drawerOpen])
 
   return (
@@ -53,12 +71,23 @@ export function AppShell({ value, children }: AppShellProps) {
             )}
           />
 
+          {/* `invisible` when closed, not just translated off-screen: a
+              transform moves the rail out of sight but leaves every link in
+              it in the tab order and in the accessibility tree, so on a
+              phone the first thirty-odd tab stops were a sidebar nobody
+              could see. `visibility` is transitionable and holds its old
+              value until the transition ends, so adding it to the property
+              list hides the rail *after* it has finished sliding out rather
+              than snapping it away mid-slide. On `lg` it is part of the
+              layout again and always visible. */}
           <aside
+            ref={drawerRef}
+            tabIndex={-1}
             className={cn(
               "fixed inset-y-0 left-0 z-50 w-[264px] shrink-0 border-r border-border bg-sidebar",
-              "transition-transform duration-[250ms] ease-[var(--ease-out)]",
-              "lg:static lg:translate-x-0",
-              drawerOpen ? "translate-x-0" : "-translate-x-full",
+              "transition-[transform,visibility] duration-[250ms] ease-[var(--ease-out)]",
+              "lg:static lg:visible lg:translate-x-0",
+              drawerOpen ? "visible translate-x-0" : "invisible -translate-x-full",
             )}
           >
             <Sidebar onNavigate={() => setDrawerOpen(false)} />
