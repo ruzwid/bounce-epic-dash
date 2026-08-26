@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "date": "2026-08-26",
-  "generatedAt": "2026-08-26T08:12:44.607Z",
+  "generatedAt": "2026-08-26T12:48:02.333Z",
   "epic": {
     "key": "BOUN-11204",
     "title": "WPP at Scale",
@@ -59,8 +59,8 @@
     "shipped": 41,
     "doneUnverified": 18,
     "staged": 0,
-    "inReview": 8,
-    "inProgress": 4,
+    "inReview": 9,
+    "inProgress": 3,
     "blocked": 0,
     "todo": 18,
     "blockedOrTodo": 18
@@ -2004,6 +2004,30 @@
                   "filesTouched": []
                 },
                 {
+                  "repo": "api",
+                  "number": 1539,
+                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
+                  "url": "https://github.com/bounceinsights/api/pull/1539",
+                  "state": "MERGED",
+                  "isDraft": false,
+                  "baseRef": "master",
+                  "headRef": "BOUN-11497",
+                  "shippedToDefault": true,
+                  "mergedAt": "2026-08-13T16:37:44Z",
+                  "updatedAt": "2026-08-13T16:37:45Z",
+                  "createdAt": "2026-08-13T15:46:02Z",
+                  "stackChain": [],
+                  "reviewRequests": [],
+                  "reviews": [
+                    {
+                      "reviewer": "Madjda",
+                      "state": "APPROVED"
+                    }
+                  ],
+                  "author": "gelbh",
+                  "filesTouched": []
+                },
+                {
                   "repo": "dashboard-api",
                   "number": 2088,
                   "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
@@ -2029,30 +2053,6 @@
                     },
                     {
                       "reviewer": "VivekMurarkaIndIre",
-                      "state": "APPROVED"
-                    }
-                  ],
-                  "author": "gelbh",
-                  "filesTouched": []
-                },
-                {
-                  "repo": "api",
-                  "number": 1539,
-                  "title": "[BOUN-11497] - WPP Excel import localized displayName foundation",
-                  "url": "https://github.com/bounceinsights/api/pull/1539",
-                  "state": "MERGED",
-                  "isDraft": false,
-                  "baseRef": "master",
-                  "headRef": "BOUN-11497",
-                  "shippedToDefault": true,
-                  "mergedAt": "2026-08-13T16:37:44Z",
-                  "updatedAt": "2026-08-13T16:37:45Z",
-                  "createdAt": "2026-08-13T15:46:02Z",
-                  "stackChain": [],
-                  "reviewRequests": [],
-                  "reviews": [
-                    {
-                      "reviewer": "Madjda",
                       "state": "APPROVED"
                     }
                   ],
@@ -2204,16 +2204,20 @@
                   "headRef": "BOUN-11600",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-25T11:21:15Z",
+                  "updatedAt": "2026-08-26T08:48:26Z",
                   "createdAt": "2026-08-24T13:54:36Z",
                   "stackChain": [
                     649
                   ],
                   "reviewRequests": [
-                    "VivekMurarkaIndIre",
-                    "TonyCasey"
+                    "VivekMurarkaIndIre"
                   ],
-                  "reviews": [],
+                  "reviews": [
+                    {
+                      "reviewer": "TonyCasey",
+                      "state": "APPROVED"
+                    }
+                  ],
                   "author": "gelbh",
                   "filesTouched": []
                 },
@@ -2593,14 +2597,18 @@
                   "headRef": "BOUN-11588",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-25T09:05:11Z",
+                  "updatedAt": "2026-08-26T09:10:45Z",
                   "createdAt": "2026-08-21T10:13:36Z",
                   "stackChain": [],
                   "reviewRequests": [
-                    "VivekMurarkaIndIre",
                     "ruzwid"
                   ],
-                  "reviews": [],
+                  "reviews": [
+                    {
+                      "reviewer": "VivekMurarkaIndIre",
+                      "state": "APPROVED"
+                    }
+                  ],
                   "author": "gelbh",
                   "filesTouched": []
                 }
@@ -2609,10 +2617,10 @@
             {
               "key": "BOUN-11592",
               "summary": "Translations empty-state 3-step recipe",
-              "jiraStatus": "Code Review",
+              "jiraStatus": "Planning",
               "status": "in_review",
               "assignee": "Tomer Gelbhart",
-              "updatedAt": "2026-08-25T11:24:01.346Z",
+              "updatedAt": "2026-08-26T09:36:01.622Z",
               "prs": [
                 {
                   "repo": "dashboard",
@@ -2620,21 +2628,23 @@
                   "title": "[BOUN-11592] - Translations empty-state 3-step recipe",
                   "url": "https://github.com/bounceinsights/dashboard/pull/3867",
                   "state": "OPEN",
-                  "isDraft": false,
+                  "isDraft": true,
                   "baseRef": "BOUN-11588",
                   "headRef": "BOUN-11592",
                   "shippedToDefault": false,
                   "mergedAt": null,
-                  "updatedAt": "2026-08-26T07:27:48Z",
+                  "updatedAt": "2026-08-26T09:35:40Z",
                   "createdAt": "2026-08-21T13:28:13Z",
                   "stackChain": [
                     3865
                   ],
-                  "reviewRequests": [
-                    "VivekMurarkaIndIre",
-                    "ruzwid"
+                  "reviewRequests": [],
+                  "reviews": [
+                    {
+                      "reviewer": "VivekMurarkaIndIre",
+                      "state": "COMMENTED"
+                    }
                   ],
-                  "reviews": [],
                   "author": "gelbh",
                   "filesTouched": []
                 }
@@ -2715,14 +2725,14 @@
         "ts-types"
       ],
       "overview": "Remove hardcoded values from the script and make them configurable through the template, allowing different templates to define their own behaviour without modifying the code.",
-      "stage": "early",
-      "score": 20,
+      "stage": "underway",
+      "score": 25,
       "scoreBasis": {
         "shipped": 0,
         "doneUnverified": 0,
         "staged": 0,
-        "inReview": 3,
-        "inProgress": 1,
+        "inReview": 4,
+        "inProgress": 0,
         "blocked": 0,
         "todo": 1,
         "total": 5
@@ -2786,15 +2796,14 @@
               "headRef": "BOUN-11430",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T20:22:09Z",
+              "updatedAt": "2026-08-26T12:45:29Z",
               "createdAt": "2026-08-06T15:01:27Z",
               "stackChain": [],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "Madjda",
+                "gelbh"
+              ],
               "reviews": [
-                {
-                  "reviewer": "Madjda",
-                  "state": "COMMENTED"
-                },
                 {
                   "reviewer": "copilot-pull-request-reviewer",
                   "state": "COMMENTED"
@@ -2818,18 +2827,17 @@
               "headRef": "BOUN-11430",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T20:22:05Z",
+              "updatedAt": "2026-08-26T12:45:52Z",
               "createdAt": "2026-08-06T15:01:30Z",
               "stackChain": [],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "Madjda",
+                "gelbh"
+              ],
               "reviews": [
                 {
                   "reviewer": "copilot-pull-request-reviewer",
                   "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "CHANGES_REQUESTED"
                 }
               ],
               "author": "ruzwid",
@@ -2846,10 +2854,13 @@
               "headRef": "BOUN-11430",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T20:23:26Z",
+              "updatedAt": "2026-08-26T12:45:17Z",
               "createdAt": "2026-08-19T12:00:24Z",
               "stackChain": [],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "Madjda",
+                "gelbh"
+              ],
               "reviews": [],
               "author": "ruzwid",
               "filesTouched": []
@@ -2865,15 +2876,14 @@
               "headRef": "BOUN-11430",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T20:22:19Z",
+              "updatedAt": "2026-08-26T12:45:40Z",
               "createdAt": "2026-08-06T15:01:19Z",
               "stackChain": [],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "gelbh",
+                "Madjda"
+              ],
               "reviews": [
-                {
-                  "reviewer": "gelbh",
-                  "state": "COMMENTED"
-                },
                 {
                   "reviewer": "EmadNazzal",
                   "state": "COMMENTED"
@@ -2912,20 +2922,19 @@
               "headRef": "BOUN-11431",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T22:46:03Z",
+              "updatedAt": "2026-08-26T12:44:32Z",
               "createdAt": "2026-08-10T13:03:28Z",
               "stackChain": [
                 2101
               ],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "gelbh",
+                "Madjda"
+              ],
               "reviews": [
                 {
                   "reviewer": "copilot-pull-request-reviewer",
                   "state": "COMMENTED"
-                },
-                {
-                  "reviewer": "gelbh",
-                  "state": "CHANGES_REQUESTED"
                 },
                 {
                   "reviewer": "VivekMurarkaIndIre",
@@ -2991,12 +3000,15 @@
               "headRef": "BOUN-11432",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T20:23:33Z",
+              "updatedAt": "2026-08-26T12:43:58Z",
               "createdAt": "2026-08-18T14:10:38Z",
               "stackChain": [
                 641
               ],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "Madjda",
+                "gelbh"
+              ],
               "reviews": [],
               "author": "ruzwid",
               "filesTouched": []
@@ -3012,12 +3024,15 @@
               "headRef": "BOUN-11432",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T20:22:38Z",
+              "updatedAt": "2026-08-26T12:44:07Z",
               "createdAt": "2026-08-18T14:10:40Z",
               "stackChain": [
                 1015
               ],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "Madjda",
+                "gelbh"
+              ],
               "reviews": [],
               "author": "ruzwid",
               "filesTouched": []
@@ -3033,13 +3048,16 @@
               "headRef": "BOUN-11432",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T23:52:43Z",
+              "updatedAt": "2026-08-26T12:43:11Z",
               "createdAt": "2026-08-25T22:46:30Z",
               "stackChain": [
                 2091,
                 2101
               ],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "Madjda",
+                "gelbh"
+              ],
               "reviews": [],
               "author": "ruzwid",
               "filesTouched": []
@@ -3055,13 +3073,16 @@
               "headRef": "BOUN-11432",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T20:23:17Z",
+              "updatedAt": "2026-08-26T12:43:52Z",
               "createdAt": "2026-08-18T14:10:24Z",
               "stackChain": [
                 3843,
                 3839
               ],
-              "reviewRequests": [],
+              "reviewRequests": [
+                "Madjda",
+                "gelbh"
+              ],
               "reviews": [],
               "author": "ruzwid",
               "filesTouched": []
@@ -3073,10 +3094,123 @@
           "key": "BOUN-11554",
           "summary": "F2.2.4 - redesign arch pipeline",
           "jiraStatus": "In Progress",
-          "status": "in_progress",
+          "status": "in_review",
           "assignee": "Ruzzell Widjaja",
           "updatedAt": "2026-08-18T11:05:31.589Z",
-          "prs": [],
+          "prs": [
+            {
+              "repo": "ts-types",
+              "number": 653,
+              "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+              "url": "https://github.com/bounceinsights/ts-types/pull/653",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "BOUN-11432",
+              "headRef": "BOUN-11554",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-26T12:42:21Z",
+              "createdAt": "2026-08-26T10:04:02Z",
+              "stackChain": [
+                650,
+                641
+              ],
+              "reviewRequests": [
+                "gelbh",
+                "VivekMurarkaIndIre"
+              ],
+              "reviews": [],
+              "author": "ruzwid",
+              "filesTouched": []
+            },
+            {
+              "repo": "api-core",
+              "number": 1027,
+              "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+              "url": "https://github.com/bounceinsights/api-core/pull/1027",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "BOUN-11432",
+              "headRef": "BOUN-11554",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-26T12:44:41Z",
+              "createdAt": "2026-08-26T10:04:04Z",
+              "stackChain": [
+                1024,
+                1015
+              ],
+              "reviewRequests": [
+                "gelbh",
+                "VivekMurarkaIndIre"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "copilot-pull-request-reviewer",
+                  "state": "COMMENTED"
+                }
+              ],
+              "author": "ruzwid",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard-api",
+              "number": 2114,
+              "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+              "url": "https://github.com/bounceinsights/dashboard-api/pull/2114",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "BOUN-11432",
+              "headRef": "BOUN-11554",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-26T12:42:00Z",
+              "createdAt": "2026-08-26T10:04:07Z",
+              "stackChain": [
+                2113,
+                2091,
+                2101
+              ],
+              "reviewRequests": [
+                "VivekMurarkaIndIre",
+                "gelbh"
+              ],
+              "reviews": [],
+              "author": "ruzwid",
+              "filesTouched": []
+            },
+            {
+              "repo": "dashboard",
+              "number": 3877,
+              "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+              "url": "https://github.com/bounceinsights/dashboard/pull/3877",
+              "state": "OPEN",
+              "isDraft": false,
+              "baseRef": "BOUN-11432",
+              "headRef": "BOUN-11554",
+              "shippedToDefault": false,
+              "mergedAt": null,
+              "updatedAt": "2026-08-26T12:45:01Z",
+              "createdAt": "2026-08-26T10:03:52Z",
+              "stackChain": [
+                3856,
+                3843,
+                3839
+              ],
+              "reviewRequests": [
+                "gelbh",
+                "VivekMurarkaIndIre"
+              ],
+              "reviews": [
+                {
+                  "reviewer": "copilot-pull-request-reviewer",
+                  "state": "COMMENTED"
+                }
+              ],
+              "author": "ruzwid",
+              "filesTouched": []
+            }
+          ],
           "subtasks": []
         },
         {
@@ -4299,7 +4433,7 @@
       "scoreOverride": null,
       "confidence": "medium",
       "rationale": "Actively worked today; of 28 stories, 16 have shipped behind merged PRs across the fieldwork-processing scaffold, QC method port, metrics/export workers and integration-test harness, 2 are doneUnverified, 3 are in_review unmerged, and 7 remain todo — several of those todo items are open product decisions rather than started engineering work; not signed off.",
-      "daysSinceLastActivity": 1,
+      "daysSinceLastActivity": 0,
       "daysInStaged": null,
       "releaseGate": null,
       "acCoverage": [
@@ -5707,17 +5841,20 @@
               "headRef": "BOUN-11622",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T14:57:27Z",
+              "updatedAt": "2026-08-26T09:45:35Z",
               "createdAt": "2026-08-25T13:23:47Z",
               "stackChain": [],
               "reviewRequests": [
-                "Madjda",
                 "EmadNazzal"
               ],
               "reviews": [
                 {
                   "reviewer": "copilot-pull-request-reviewer",
                   "state": "COMMENTED"
+                },
+                {
+                  "reviewer": "Madjda",
+                  "state": "CHANGES_REQUESTED"
                 }
               ],
               "author": "TonyCasey",
@@ -5785,7 +5922,7 @@
               "headRef": "BOUN-11632",
               "shippedToDefault": false,
               "mergedAt": null,
-              "updatedAt": "2026-08-25T16:19:16Z",
+              "updatedAt": "2026-08-26T11:47:20Z",
               "createdAt": "2026-08-25T15:23:27Z",
               "stackChain": [],
               "reviewRequests": [],
@@ -6365,14 +6502,76 @@
         "headRef": "BOUN-11600",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-25T11:21:15Z",
+        "updatedAt": "2026-08-26T08:48:26Z",
         "createdAt": "2026-08-24T13:54:36Z",
         "stackChain": [
           649
         ],
         "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "TonyCasey"
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [
+          {
+            "reviewer": "TonyCasey",
+            "state": "APPROVED"
+          }
+        ],
+        "author": "gelbh",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11212",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-26T08:48:26Z",
+      "ageDays": 2,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2106,
+        "title": "[BOUN-11600] - Parse multilingual UsageStyle via locale marker rows",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2106",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11212",
+        "headRef": "BOUN-11600",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-25T14:49:31Z",
+        "createdAt": "2026-08-24T13:53:59Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "TonyCasey",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [],
+        "author": "gelbh",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11212",
+      "reviewer": "TonyCasey",
+      "requestedAt": "2026-08-25T14:49:31Z",
+      "ageDays": 2,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2106,
+        "title": "[BOUN-11600] - Parse multilingual UsageStyle via locale marker rows",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2106",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11212",
+        "headRef": "BOUN-11600",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-25T14:49:31Z",
+        "createdAt": "2026-08-24T13:53:59Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "TonyCasey",
+          "VivekMurarkaIndIre"
         ],
         "reviews": [],
         "author": "gelbh",
@@ -6380,301 +6579,125 @@
       },
       "featureKey": "BOUN-11212",
       "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-25T11:21:15Z",
+      "requestedAt": "2026-08-25T14:49:31Z",
       "ageDays": 2,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3871,
+        "title": "[BOUN-11562] - Publish-blocking validation",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3871",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11592",
+        "headRef": "BOUN-11562",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-25T14:49:24Z",
+        "createdAt": "2026-08-24T11:41:33Z",
+        "stackChain": [
+          3867,
+          3865
+        ],
+        "reviewRequests": [
+          "VivekMurarkaIndIre",
+          "ruzwid"
+        ],
+        "reviews": [],
+        "author": "gelbh",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11212",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-25T14:49:24Z",
+      "ageDays": 2,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3871,
+        "title": "[BOUN-11562] - Publish-blocking validation",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3871",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11592",
+        "headRef": "BOUN-11562",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-25T14:49:24Z",
+        "createdAt": "2026-08-24T11:41:33Z",
+        "stackChain": [
+          3867,
+          3865
+        ],
+        "reviewRequests": [
+          "VivekMurarkaIndIre",
+          "ruzwid"
+        ],
+        "reviews": [],
+        "author": "gelbh",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11212",
+      "reviewer": "ruzwid",
+      "requestedAt": "2026-08-25T14:49:24Z",
+      "ageDays": 2,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3865,
+        "title": "[BOUN-11588] - Translations section: status chip grid + Export All",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3865",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11556",
+        "headRef": "BOUN-11588",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T09:10:45Z",
+        "createdAt": "2026-08-21T10:13:36Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "ruzwid"
+        ],
+        "reviews": [
+          {
+            "reviewer": "VivekMurarkaIndIre",
+            "state": "APPROVED"
+          }
+        ],
+        "author": "gelbh",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11212",
+      "reviewer": "ruzwid",
+      "requestedAt": "2026-08-26T09:10:45Z",
+      "ageDays": 5,
       "ageFromOpen": true
     },
     {
       "pr": {
         "repo": "ts-types",
-        "number": 652,
-        "title": "[BOUN-11600] - Parse multilingual UsageStyle via locale marker rows",
-        "url": "https://github.com/bounceinsights/ts-types/pull/652",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11497",
-        "headRef": "BOUN-11600",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-25T11:21:15Z",
-        "createdAt": "2026-08-24T13:54:36Z",
-        "stackChain": [
-          649
-        ],
-        "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "TonyCasey"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "TonyCasey",
-      "requestedAt": "2026-08-25T11:21:15Z",
-      "ageDays": 2,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard-api",
-        "number": 2106,
-        "title": "[BOUN-11600] - Parse multilingual UsageStyle via locale marker rows",
-        "url": "https://github.com/bounceinsights/dashboard-api/pull/2106",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11212",
-        "headRef": "BOUN-11600",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-25T14:49:31Z",
-        "createdAt": "2026-08-24T13:53:59Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "TonyCasey",
-          "VivekMurarkaIndIre"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "TonyCasey",
-      "requestedAt": "2026-08-25T14:49:31Z",
-      "ageDays": 2,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard-api",
-        "number": 2106,
-        "title": "[BOUN-11600] - Parse multilingual UsageStyle via locale marker rows",
-        "url": "https://github.com/bounceinsights/dashboard-api/pull/2106",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11212",
-        "headRef": "BOUN-11600",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-25T14:49:31Z",
-        "createdAt": "2026-08-24T13:53:59Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "TonyCasey",
-          "VivekMurarkaIndIre"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-25T14:49:31Z",
-      "ageDays": 2,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard",
-        "number": 3871,
-        "title": "[BOUN-11562] - Publish-blocking validation",
-        "url": "https://github.com/bounceinsights/dashboard/pull/3871",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11592",
-        "headRef": "BOUN-11562",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-25T14:49:24Z",
-        "createdAt": "2026-08-24T11:41:33Z",
-        "stackChain": [
-          3867,
-          3865
-        ],
-        "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "ruzwid"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-25T14:49:24Z",
-      "ageDays": 2,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard",
-        "number": 3871,
-        "title": "[BOUN-11562] - Publish-blocking validation",
-        "url": "https://github.com/bounceinsights/dashboard/pull/3871",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11592",
-        "headRef": "BOUN-11562",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-25T14:49:24Z",
-        "createdAt": "2026-08-24T11:41:33Z",
-        "stackChain": [
-          3867,
-          3865
-        ],
-        "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "ruzwid"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-25T14:49:24Z",
-      "ageDays": 2,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard",
-        "number": 3865,
-        "title": "[BOUN-11588] - Translations section: status chip grid + Export All",
-        "url": "https://github.com/bounceinsights/dashboard/pull/3865",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11556",
-        "headRef": "BOUN-11588",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-25T09:05:11Z",
-        "createdAt": "2026-08-21T10:13:36Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "ruzwid"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-25T09:05:11Z",
-      "ageDays": 5,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard",
-        "number": 3865,
-        "title": "[BOUN-11588] - Translations section: status chip grid + Export All",
-        "url": "https://github.com/bounceinsights/dashboard/pull/3865",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11556",
-        "headRef": "BOUN-11588",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-25T09:05:11Z",
-        "createdAt": "2026-08-21T10:13:36Z",
-        "stackChain": [],
-        "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "ruzwid"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-25T09:05:11Z",
-      "ageDays": 5,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard",
-        "number": 3867,
-        "title": "[BOUN-11592] - Translations empty-state 3-step recipe",
-        "url": "https://github.com/bounceinsights/dashboard/pull/3867",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11588",
-        "headRef": "BOUN-11592",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-26T07:27:48Z",
-        "createdAt": "2026-08-21T13:28:13Z",
-        "stackChain": [
-          3865
-        ],
-        "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "ruzwid"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-26T07:27:48Z",
-      "ageDays": 5,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "dashboard",
-        "number": 3867,
-        "title": "[BOUN-11592] - Translations empty-state 3-step recipe",
-        "url": "https://github.com/bounceinsights/dashboard/pull/3867",
-        "state": "OPEN",
-        "isDraft": false,
-        "baseRef": "BOUN-11588",
-        "headRef": "BOUN-11592",
-        "shippedToDefault": false,
-        "mergedAt": null,
-        "updatedAt": "2026-08-26T07:27:48Z",
-        "createdAt": "2026-08-21T13:28:13Z",
-        "stackChain": [
-          3865
-        ],
-        "reviewRequests": [
-          "VivekMurarkaIndIre",
-          "ruzwid"
-        ],
-        "reviews": [],
-        "author": "gelbh",
-        "filesTouched": []
-      },
-      "featureKey": "BOUN-11212",
-      "reviewer": "ruzwid",
-      "requestedAt": "2026-08-26T07:27:48Z",
-      "ageDays": 5,
-      "ageFromOpen": true
-    },
-    {
-      "pr": {
-        "repo": "fieldwork-processing",
-        "number": 37,
-        "title": "[BOUN-11573] Add Metrics API endpoint with per-client API key authentication",
-        "url": "https://github.com/bounceinsights/fieldwork-processing/pull/37",
+        "number": 641,
+        "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/ts-types/pull/641",
         "state": "OPEN",
         "isDraft": false,
         "baseRef": "master",
-        "headRef": "BOUN-11573",
+        "headRef": "BOUN-11430",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-24T15:30:33Z",
-        "createdAt": "2026-08-19T16:14:17Z",
+        "updatedAt": "2026-08-26T12:45:29Z",
+        "createdAt": "2026-08-06T15:01:27Z",
         "stackChain": [],
         "reviewRequests": [
           "Madjda",
-          "VivekMurarkaIndIre"
+          "gelbh"
         ],
         "reviews": [
           {
@@ -6682,37 +6705,37 @@
             "state": "COMMENTED"
           },
           {
-            "reviewer": "chatgpt-codex-connector",
-            "state": "COMMENTED"
+            "reviewer": "VivekMurarkaIndIre",
+            "state": "CHANGES_REQUESTED"
           }
         ],
-        "author": "TonyCasey",
+        "author": "ruzwid",
         "filesTouched": []
       },
-      "featureKey": "BOUN-11293",
+      "featureKey": "BOUN-11213",
       "reviewer": "Madjda",
-      "requestedAt": "2026-08-24T15:30:33Z",
-      "ageDays": 7,
+      "requestedAt": "2026-08-26T12:45:29Z",
+      "ageDays": 20,
       "ageFromOpen": true
     },
     {
       "pr": {
-        "repo": "fieldwork-processing",
-        "number": 37,
-        "title": "[BOUN-11573] Add Metrics API endpoint with per-client API key authentication",
-        "url": "https://github.com/bounceinsights/fieldwork-processing/pull/37",
+        "repo": "ts-types",
+        "number": 641,
+        "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/ts-types/pull/641",
         "state": "OPEN",
         "isDraft": false,
         "baseRef": "master",
-        "headRef": "BOUN-11573",
+        "headRef": "BOUN-11430",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-24T15:30:33Z",
-        "createdAt": "2026-08-19T16:14:17Z",
+        "updatedAt": "2026-08-26T12:45:29Z",
+        "createdAt": "2026-08-06T15:01:27Z",
         "stackChain": [],
         "reviewRequests": [
           "Madjda",
-          "VivekMurarkaIndIre"
+          "gelbh"
         ],
         "reviews": [
           {
@@ -6720,37 +6743,37 @@
             "state": "COMMENTED"
           },
           {
-            "reviewer": "chatgpt-codex-connector",
-            "state": "COMMENTED"
+            "reviewer": "VivekMurarkaIndIre",
+            "state": "CHANGES_REQUESTED"
           }
         ],
-        "author": "TonyCasey",
+        "author": "ruzwid",
         "filesTouched": []
       },
-      "featureKey": "BOUN-11293",
-      "reviewer": "VivekMurarkaIndIre",
-      "requestedAt": "2026-08-24T15:30:33Z",
-      "ageDays": 7,
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:45:29Z",
+      "ageDays": 20,
       "ageFromOpen": true
     },
     {
       "pr": {
-        "repo": "fieldwork-processing",
-        "number": 49,
-        "title": "[BOUN-11622] - Port the number-of-checks XLSX export into the exports worker",
-        "url": "https://github.com/bounceinsights/fieldwork-processing/pull/49",
+        "repo": "api-core",
+        "number": 1015,
+        "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/api-core/pull/1015",
         "state": "OPEN",
         "isDraft": false,
         "baseRef": "master",
-        "headRef": "BOUN-11622",
+        "headRef": "BOUN-11430",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-25T14:57:27Z",
-        "createdAt": "2026-08-25T13:23:47Z",
+        "updatedAt": "2026-08-26T12:45:52Z",
+        "createdAt": "2026-08-06T15:01:30Z",
         "stackChain": [],
         "reviewRequests": [
           "Madjda",
-          "EmadNazzal"
+          "gelbh"
         ],
         "reviews": [
           {
@@ -6758,17 +6781,881 @@
             "state": "COMMENTED"
           }
         ],
-        "author": "TonyCasey",
+        "author": "ruzwid",
         "filesTouched": []
       },
-      "featureKey": "BOUN-11293",
+      "featureKey": "BOUN-11213",
       "reviewer": "Madjda",
-      "requestedAt": "2026-08-25T14:57:27Z",
+      "requestedAt": "2026-08-26T12:45:52Z",
+      "ageDays": 20,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "api-core",
+        "number": 1015,
+        "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/api-core/pull/1015",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11430",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:45:52Z",
+        "createdAt": "2026-08-06T15:01:30Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:45:52Z",
+      "ageDays": 20,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2101,
+        "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2101",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11430",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:45:17Z",
+        "createdAt": "2026-08-19T12:00:24Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-26T12:45:17Z",
+      "ageDays": 7,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2101,
+        "title": "[BOUN-11430] - F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2101",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11430",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:45:17Z",
+        "createdAt": "2026-08-19T12:00:24Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:45:17Z",
+      "ageDays": 7,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3839,
+        "title": "[BOUN-11430]: F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3839",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11430",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:45:40Z",
+        "createdAt": "2026-08-06T15:01:19Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "gelbh",
+          "Madjda"
+        ],
+        "reviews": [
+          {
+            "reviewer": "EmadNazzal",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "VivekMurarkaIndIre",
+            "state": "CHANGES_REQUESTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:45:40Z",
+      "ageDays": 20,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3839,
+        "title": "[BOUN-11430]: F2.2.1 - Tag WPP template questions with configurable roles in survey editor",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3839",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11430",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:45:40Z",
+        "createdAt": "2026-08-06T15:01:19Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "gelbh",
+          "Madjda"
+        ],
+        "reviews": [
+          {
+            "reviewer": "EmadNazzal",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "VivekMurarkaIndIre",
+            "state": "CHANGES_REQUESTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-26T12:45:40Z",
+      "ageDays": 20,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2091,
+        "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11430",
+        "headRef": "BOUN-11431",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:44:32Z",
+        "createdAt": "2026-08-10T13:03:28Z",
+        "stackChain": [
+          2101
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "Madjda"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "VivekMurarkaIndIre",
+            "state": "CHANGES_REQUESTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:44:32Z",
+      "ageDays": 16,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2091,
+        "title": "[BOUN-11431] - F2.2.2 - Resolve WPP survey generation Q IDs from template tags instead of hardcoded constants",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2091",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11430",
+        "headRef": "BOUN-11431",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:44:32Z",
+        "createdAt": "2026-08-10T13:03:28Z",
+        "stackChain": [
+          2101
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "Madjda"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "VivekMurarkaIndIre",
+            "state": "CHANGES_REQUESTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-26T12:44:32Z",
+      "ageDays": 16,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "ts-types",
+        "number": 650,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/ts-types/pull/650",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11430",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:43:58Z",
+        "createdAt": "2026-08-18T14:10:38Z",
+        "stackChain": [
+          641
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-26T12:43:58Z",
+      "ageDays": 8,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "ts-types",
+        "number": 650,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/ts-types/pull/650",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11430",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:43:58Z",
+        "createdAt": "2026-08-18T14:10:38Z",
+        "stackChain": [
+          641
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:43:58Z",
+      "ageDays": 8,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "api-core",
+        "number": 1024,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/api-core/pull/1024",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11430",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:44:07Z",
+        "createdAt": "2026-08-18T14:10:40Z",
+        "stackChain": [
+          1015
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-26T12:44:07Z",
+      "ageDays": 8,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "api-core",
+        "number": 1024,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/api-core/pull/1024",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11430",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:44:07Z",
+        "createdAt": "2026-08-18T14:10:40Z",
+        "stackChain": [
+          1015
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:44:07Z",
+      "ageDays": 8,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2113,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2113",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11431",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:43:11Z",
+        "createdAt": "2026-08-25T22:46:30Z",
+        "stackChain": [
+          2091,
+          2101
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-26T12:43:11Z",
       "ageDays": 1,
       "ageFromOpen": true
     },
     {
       "pr": {
+        "repo": "dashboard-api",
+        "number": 2113,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2113",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11431",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:43:11Z",
+        "createdAt": "2026-08-25T22:46:30Z",
+        "stackChain": [
+          2091,
+          2101
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:43:11Z",
+      "ageDays": 1,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3856,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3856",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11431",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:43:52Z",
+        "createdAt": "2026-08-18T14:10:24Z",
+        "stackChain": [
+          3843,
+          3839
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-26T12:43:52Z",
+      "ageDays": 8,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3856,
+        "title": "[BOUN-11432] - F2.2.3 - Add Custom Project field in Tag Survey Card",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3856",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11431",
+        "headRef": "BOUN-11432",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:43:52Z",
+        "createdAt": "2026-08-18T14:10:24Z",
+        "stackChain": [
+          3843,
+          3839
+        ],
+        "reviewRequests": [
+          "Madjda",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:43:52Z",
+      "ageDays": 8,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "ts-types",
+        "number": 653,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/ts-types/pull/653",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:42:21Z",
+        "createdAt": "2026-08-26T10:04:02Z",
+        "stackChain": [
+          650,
+          641
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:42:21Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "ts-types",
+        "number": 653,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/ts-types/pull/653",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:42:21Z",
+        "createdAt": "2026-08-26T10:04:02Z",
+        "stackChain": [
+          650,
+          641
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-26T12:42:21Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "api-core",
+        "number": 1027,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/api-core/pull/1027",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:44:41Z",
+        "createdAt": "2026-08-26T10:04:04Z",
+        "stackChain": [
+          1024,
+          1015
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:44:41Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "api-core",
+        "number": 1027,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/api-core/pull/1027",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:44:41Z",
+        "createdAt": "2026-08-26T10:04:04Z",
+        "stackChain": [
+          1024,
+          1015
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-26T12:44:41Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2114,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2114",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:42:00Z",
+        "createdAt": "2026-08-26T10:04:07Z",
+        "stackChain": [
+          2113,
+          2091,
+          2101
+        ],
+        "reviewRequests": [
+          "VivekMurarkaIndIre",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-26T12:42:00Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard-api",
+        "number": 2114,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/dashboard-api/pull/2114",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:42:00Z",
+        "createdAt": "2026-08-26T10:04:07Z",
+        "stackChain": [
+          2113,
+          2091,
+          2101
+        ],
+        "reviewRequests": [
+          "VivekMurarkaIndIre",
+          "gelbh"
+        ],
+        "reviews": [],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:42:00Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3877,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3877",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:45:01Z",
+        "createdAt": "2026-08-26T10:03:52Z",
+        "stackChain": [
+          3856,
+          3843,
+          3839
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "gelbh",
+      "requestedAt": "2026-08-26T12:45:01Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "dashboard",
+        "number": 3877,
+        "title": "[BOUN-11554] - F2.2.4 - redesign arch pipeline",
+        "url": "https://github.com/bounceinsights/dashboard/pull/3877",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "BOUN-11432",
+        "headRef": "BOUN-11554",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-26T12:45:01Z",
+        "createdAt": "2026-08-26T10:03:52Z",
+        "stackChain": [
+          3856,
+          3843,
+          3839
+        ],
+        "reviewRequests": [
+          "gelbh",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          }
+        ],
+        "author": "ruzwid",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11213",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-26T12:45:01Z",
+      "ageDays": 0,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "fieldwork-processing",
+        "number": 37,
+        "title": "[BOUN-11573] Add Metrics API endpoint with per-client API key authentication",
+        "url": "https://github.com/bounceinsights/fieldwork-processing/pull/37",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11573",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-24T15:30:33Z",
+        "createdAt": "2026-08-19T16:14:17Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Madjda",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "chatgpt-codex-connector",
+            "state": "COMMENTED"
+          }
+        ],
+        "author": "TonyCasey",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11293",
+      "reviewer": "Madjda",
+      "requestedAt": "2026-08-24T15:30:33Z",
+      "ageDays": 7,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
+        "repo": "fieldwork-processing",
+        "number": 37,
+        "title": "[BOUN-11573] Add Metrics API endpoint with per-client API key authentication",
+        "url": "https://github.com/bounceinsights/fieldwork-processing/pull/37",
+        "state": "OPEN",
+        "isDraft": false,
+        "baseRef": "master",
+        "headRef": "BOUN-11573",
+        "shippedToDefault": false,
+        "mergedAt": null,
+        "updatedAt": "2026-08-24T15:30:33Z",
+        "createdAt": "2026-08-19T16:14:17Z",
+        "stackChain": [],
+        "reviewRequests": [
+          "Madjda",
+          "VivekMurarkaIndIre"
+        ],
+        "reviews": [
+          {
+            "reviewer": "copilot-pull-request-reviewer",
+            "state": "COMMENTED"
+          },
+          {
+            "reviewer": "chatgpt-codex-connector",
+            "state": "COMMENTED"
+          }
+        ],
+        "author": "TonyCasey",
+        "filesTouched": []
+      },
+      "featureKey": "BOUN-11293",
+      "reviewer": "VivekMurarkaIndIre",
+      "requestedAt": "2026-08-24T15:30:33Z",
+      "ageDays": 7,
+      "ageFromOpen": true
+    },
+    {
+      "pr": {
         "repo": "fieldwork-processing",
         "number": 49,
         "title": "[BOUN-11622] - Port the number-of-checks XLSX export into the exports worker",
@@ -6779,17 +7666,20 @@
         "headRef": "BOUN-11622",
         "shippedToDefault": false,
         "mergedAt": null,
-        "updatedAt": "2026-08-25T14:57:27Z",
+        "updatedAt": "2026-08-26T09:45:35Z",
         "createdAt": "2026-08-25T13:23:47Z",
         "stackChain": [],
         "reviewRequests": [
-          "Madjda",
           "EmadNazzal"
         ],
         "reviews": [
           {
             "reviewer": "copilot-pull-request-reviewer",
             "state": "COMMENTED"
+          },
+          {
+            "reviewer": "Madjda",
+            "state": "CHANGES_REQUESTED"
           }
         ],
         "author": "TonyCasey",
@@ -6797,7 +7687,7 @@
       },
       "featureKey": "BOUN-11293",
       "reviewer": "EmadNazzal",
-      "requestedAt": "2026-08-25T14:57:27Z",
+      "requestedAt": "2026-08-26T09:45:35Z",
       "ageDays": 1,
       "ageFromOpen": true
     },
