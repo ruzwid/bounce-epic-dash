@@ -124,21 +124,18 @@ milestones:
     owner: minhalaftabrana
     ticket: BOUN-11176
     features:
-      # JIRA titles BOTH BOUN-11185 and BOUN-11187 with a code, and titles
+      # JIRA titled both BOUN-11185 and BOUN-11187 with a code, and titled
       # BOUN-11180 and BOUN-11187 *the same* code ("F3.4"). There is also
-      # no F3.1 or F3.3. The numbering in these ticket titles is simply
-      # inconsistent, and `code` has to be unique here because it's what
+      # no F3.1 or F3.3. `code` has to be unique here because it's what
       # the /f/<slug> URL and the in-page anchor are built from.
       #
-      # So: BOUN-11180 keeps F3.4 as written, and BOUN-11187 is
-      # disambiguated to "F3.4b" — deliberately not renumbered to a free
-      # slot like F3.5, which would assert a numbering JIRA doesn't have.
-      # Fix the ticket titles in JIRA and this can go back to matching them.
+      # BOUN-11180 (F3.4, Survey Creator Error Treatment) was closed as
+      # Won't Do and removed from this milestone. BOUN-11187 keeps its
+      # disambiguated "F3.4b" code rather than reclaiming "F3.4" — that
+      # would assert a numbering JIRA doesn't have and change an
+      # already-published URL/anchor.
       - key: BOUN-11185
         code: "F3.2"
-        owner: minhalaftabrana
-      - key: BOUN-11180
-        code: "F3.4"
         owner: minhalaftabrana
       - key: BOUN-11187
         code: "F3.4b"
